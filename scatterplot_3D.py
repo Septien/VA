@@ -38,7 +38,8 @@ class ScatterPlot(oglC.OGLCanvas):
 
 
 	def initCube(self):
-		"""Initialize the cube on the background, ..."""
+		"""Initialize the cube on the background, it defines the grid over which
+		the plot will be displayed."""
 		# Face for the cube. 	Format:		[x, y, z]
 		self.face = [[1.0, -1.0, 1.0], [1.0, 1.0, 1.0], [-1.0, -1.0, 1.0], [-1.0, 1.0, 1.0]]
 		# For the grid
