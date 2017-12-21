@@ -62,31 +62,6 @@ class ScatterPlot2D(oglC.OGLCanvas):
 			y = - m.sqrt(1 - x * x)
 			self.circle.append((x, y))
 
-
-		# numberSegments = 100
-		# theta = m.radians(2.0 * m.pi / float(numberSegments))
-		# c = m.cos(theta)
-		# s = m.sin(theta)
-		# x = 1
-		# y = 0.0
-
-		# for i in range(numberSegments):
-		# 	self.circle.append((x, y))
-		# 	t = x
-		# 	x = c * x - s * y
-		# 	y = s * t + c * y
-
-		# for i in range(numberSegments):
-		# 	# Get the angle
-		# 	theta = (2.0 * m.pi * i) / numberSegments
-		# 	# Convert it to radians
-		# 	theta = m.radians(theta)
-		# 	# Get the x, y coordinates
-		# 	x = m.cos(theta)
-		# 	y = m.sin(theta)
-		# 	# Store
-		# 	self.circle.append((x, y))
-
 	def InitGL(self):
 		glClearColor(0.9, 0.9, 0.9, 1)
 		glClear(GL_COLOR_BUFFER_BIT)
