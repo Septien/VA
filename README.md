@@ -14,3 +14,7 @@ Some plots:
 	-Area plot.
 
 *see Google charts for reference.
+
+TODO:
+	-Add labels to (all) plots.
+	-Give a 'pro' format.
