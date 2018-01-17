@@ -42,6 +42,9 @@ class GaugePlot(oglC.OGLCanvas):
         self.marksSpacer = None
         # Angle of rotation
         self.theta = 144.0
+        # Range of angles
+        self.minAngle = -144.0
+        self.maxAngle = 144.0
 
     def InitGL(self):
         glClearColor(0.9, 0.9, 0.9, 1)
@@ -70,10 +73,12 @@ class GaugePlot(oglC.OGLCanvas):
         if self.range:
             self.range.clear()
         self.range = nRange.copy()
-        # TODO: Change orientation of arrow (theta).
+        
+        # Get the angle of the arrow
+        self.UpdateAngle()
 
         # Output Invariants
-        assert -144.0 <= self.theta <= 144.0, "Angle out of range"
+        assert self.minAngle <= self.theta <= self.maxAngle, "Angle out of range"
         assert self.range[0] <= self.data <= self.range[1], "Variable out of current range"
 
     def SetValue(self, nValue):
@@ -82,14 +87,20 @@ class GaugePlot(oglC.OGLCanvas):
         assert nValue in self.range, "Variable out of range"
 
         self.data = nValue
-        # TODO: Calculate the rotating angle of the arrow
+        
+        # Get the angle of the arrow
+        self.UpdateAngle()
 
-        assert -144.0 <= self.theta <= 144.0, "Angle out of range"
+        assert self.minAngle <= self.theta <= self.maxAngle, "Angle out of range"
         assert self.data in self.range, "Data out of range"
 
-    def CalcAngle(self, value):
+    def UpdateAngle(self, value):
         """Calculate the angle of rotation corresponding to the input value."""
         assert self.range[0] <= value <= self.range[1]
+
+        self.theta = (m.fabs(self.maxAngle - self.minAngle) / value) - self.maxAngle
+
+        assert self.minAngle <= self.theta <= self.maxAngle, "Angle out of range"
 
     def OnDraw(self):
         glClear(GL_COLOR_BUFFER_BIT)
