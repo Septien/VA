@@ -41,7 +41,7 @@ class GaugePlot(oglC.OGLCanvas):
         self.range = []
         self.marksSpacer = None
         # Angle of rotation
-        self.theta = 0.0
+        self.theta = 144.0
 
     def InitGL(self):
         glClearColor(0.9, 0.9, 0.9, 1)
@@ -58,16 +58,23 @@ class GaugePlot(oglC.OGLCanvas):
         glutInit(sys.argv)
 
     def SetRange(self, nRange):
-        """Stablishes the range of the variable"""
+        """Stablishes the range of the variable.
+        nRange: Consist of the lower and upper value of the range, in the format:
+            [minVal, maxVal]"""
+        # Input Invariants
         assert type(nRange) is list, "Invalid input type"
-        assert self.data in nRange, "Current variable out of range"
+        assert len(nRange) == 2, "Invalid number of elements"
+        assert nRange[0] < nRange[1], "Invalid range"
+        assert nRange[0] <= self.data <= nRange[1] , "Current variable out of range"
 
         if self.range:
             self.range.clear()
         self.range = nRange.copy()
         # TODO: Change orientation of arrow (theta).
 
-        assert self.data in self.range, "Variable out of current range"
+        # Output Invariants
+        assert -144.0 <= self.theta <= 144.0, "Angle out of range"
+        assert self.range[0] <= self.data <= self.range[1], "Variable out of current range"
 
     def SetValue(self, nValue):
         """Sets the value of the data"""
@@ -77,8 +84,12 @@ class GaugePlot(oglC.OGLCanvas):
         self.data = nValue
         # TODO: Calculate the rotating angle of the arrow
 
+        assert -144.0 <= self.theta <= 144.0, "Angle out of range"
         assert self.data in self.range, "Data out of range"
 
+    def CalcAngle(self, value):
+        """Calculate the angle of rotation corresponding to the input value."""
+        assert self.range[0] <= value <= self.range[1]
 
     def OnDraw(self):
         glClear(GL_COLOR_BUFFER_BIT)
@@ -116,12 +127,10 @@ class GaugePlot(oglC.OGLCanvas):
         glPopMatrix()
         
         # Arrow
-        # glPushMatrix()
-        # glScale(0.5, 0.6, 1.0)
-        # glTranslatef(0.5, 0.5, 0.0)
-        # glRotatef(self.theta, 0.0, 1.0, 0.0)
+        glPushMatrix()
+        glRotatef(self.theta, 0.0, 0.0, 1.0)
         self.DrawArrow()
-        # glPopMatrix()
+        glPopMatrix()
         self.SwapBuffers()
 
     def DrawArrow(self):
