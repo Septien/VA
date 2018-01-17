@@ -9,7 +9,7 @@ Some plots:
 	-Osciloscope.
 	-Pieplot.
 	-Gauge*.
-	-Bubble chart*.
+	-Bubble chart* (can be used to display clusters).
 	-Line plot.
 	-Area plot.
 
