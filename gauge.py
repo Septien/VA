@@ -29,6 +29,8 @@ class GaugePlot(oglC.OGLCanvas):
     It will be displayed the beginning and end of the range, as well as marks 
     at regular intervals (to be defined). It will hold an arrow, which will point to 
     a the value of the input data at the moment. Animiations are to be done.
+    The actual range (possible values) that the data can take is needed by the class, in order to
+    normalize it.
     """
     def __init__(self, parent):
         # ctor
@@ -47,7 +49,7 @@ class GaugePlot(oglC.OGLCanvas):
         #
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-0.1, 1.1, -0.1, 1.1, 1.0, 10.0)
+        glOrtho(-1.1, 1.1, -1.1, 1.1, 1.0, 10.0)
         #
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -84,8 +86,8 @@ class GaugePlot(oglC.OGLCanvas):
         # Draw outer circle
         glColor3f(0.8, 0.8, 0.8)
         glPushMatrix()
-        glTranslatef(0.5, 0.5, 0.0)
-        glScale(0.5, 0.5, 1.0)
+        #glTranslatef(0.5, 0.5, 0.0)
+        #glScale(0.5, 0.5, 1.0)
         self.DrawCircle(GL_TRIANGLE_FAN)
 
         # Draw border
@@ -98,58 +100,45 @@ class GaugePlot(oglC.OGLCanvas):
         glScale(0.95, 0.95, 1.0)
         self.DrawCircle(GL_TRIANGLE_FAN)
         glPopMatrix()
+
         glPopMatrix()
         
         # Draw marks
+        glPushMatrix()
+        glScalef(0.95, 0.95, 0.0)
+
         glLineWidth(1.0)
         glColor3f(0.0, 0.0, 0.0)
         self.DrawMainMarks()
         glLineWidth(0.5)
         self.DrawSecondaryMarks()
+
+        glPopMatrix()
         
         # Arrow
-        glPushMatrix()
-        glScale(0.5, 0.6, 1.0)
-        glTranslatef(0.5, 0.5, 0.0)
-        glRotatef(self.theta, 0.0, 1.0, 0.0)
-        #self.DrawArrow()
-        glPopMatrix()
+        # glPushMatrix()
+        # glScale(0.5, 0.6, 1.0)
+        # glTranslatef(0.5, 0.5, 0.0)
+        # glRotatef(self.theta, 0.0, 1.0, 0.0)
+        self.DrawArrow()
+        # glPopMatrix()
         self.SwapBuffers()
 
     def DrawArrow(self):
         """Draws the arrow that indicates the current value of the data
         The arrow must be scalated to fit within the gauge, and rotated to point to the apropiate position"""
-        # Rectangle part: -
-        glBegin(GL_TRIANGLE_STRIP)
-        glVertex3f(0.0, 0.0, 0.0)
-        glVertex3f(0.0, 0.5, 0.0)
-        glVertex3f(0.5, 0.5, 0.0)
-        glVertex3f(0.5, 0.0, 0.0)
-        glEnd()
-        # Triangle part: >
+        glColor3f(0.0, 1.0, 0.0)
         glBegin(GL_TRIANGLES)
-        glVertex3f(-0.25, 0.5, 0.0)
-        glVertex3f(0.0, 1.0, 0.0)
-        glVertex3f(0.75, 0.5, 0.0)
+        glVertex3f(-0.05, -0.01, 0.0)
+        glVertex3f(0.0, 0.8, 0.0)
+        glVertex3f(0.05, 0.01, 0.0)
         glEnd()
 
-    def DrawBigStick(self):
-        """Draws the stick corresponding to the main marks"""
-        glBegin(GL_LINES)
-        glVertex3f(0.0, 0.0, 0.0)
-        glVertex3f(0.0, 0.125, 0.0)
-        # glVertex3f(0.0, 0.875, 0.0)
-        # glVertex3f(0.0, 1.0, 0.0)
-        # glVertex3f(0.5, 0.875, 0.0)
-        # glVertex3f(0.5, 1.0, 0.0)
-        glEnd()
-
-    def DrawSmallStick(self):
-        """"""
-        glBegin(GL_LINES)
-        glVertex3f(0.0, 0.9375, 0.0)
-        glVertex3f(0.0, 1.0, 0.0)
-        glEnd()
+        glColor3f(0.0, 1.0, 1.0)
+        glPushMatrix()
+        glScalef(0.05, 0.05, 0.0)
+        self.DrawCircle(GL_TRIANGLE_FAN)
+        glPopMatrix()
 
     def DrawMainMarks(self):
         """Draw the marks on the circle based on the interval.
@@ -157,29 +146,33 @@ class GaugePlot(oglC.OGLCanvas):
         numMarks = 5
         theta = -144.0
         incTheta = 72.0
-        glRotatef(-45.0, 0.0, 1.0, 0.0)
-        self.DrawBigStick()
-        glPushMatrix()
-        glTranslatef(0.5, 0.5, 0.0)
+        
         #self.DrawBigStick()
-        glPopMatrix()
-        # for i in range(numMarks):
-        #     glPushMatrix()
-        #     glTranslatef(0.5, 0.5, 0.0)
-        #     glRotatef(theta, 0.0, 1.0, 0.0)
-        #     self.DrawBigStick()
-        #     glPopMatrix()
-        #     theta += incTheta 
+        for i in range(numMarks):
+            glPushMatrix()
+            glRotatef(theta, 0.0, 0.0, 1.0)
+            #glTranslatef(0.0, 0.1875, 0.0)
+            
+            glBegin(GL_LINES)
+            glVertex3f(0.0, 0.875, 0.0)
+            glVertex3f(0.0, 1.0, 0.0)
+            glEnd()
+            
+            glPopMatrix()
+            theta += incTheta 
 
     def DrawSecondaryMarks(self):
         """These marks are smaller in length and width"""
         numMarks = 20
         theta = -144.0
-        incTheta = 18.0
+        incTheta = 14.4
         for i in range(numMarks):
             glPushMatrix()
-            #glRotatef(theta, 0.0, 1.0, 0.0)
-            self.DrawSmallStick()
+            glRotatef(theta, 0.0, 0.0, 1.0)
+            glBegin(GL_LINES)
+            glVertex3f(0.0, 0.9375, 0.0)
+            glVertex3f(0.0, 1.0, 0.0)
+            glEnd()
             glPopMatrix()
             theta += incTheta
 
