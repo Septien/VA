@@ -126,7 +126,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
 	def DrawCircle(self):
 		"""
-		Draw a circle based on the points previously calculated. Use a triangle fan.
+		Draw a circle based on the points previously calculated. Uses a triangle fan.
 		"""
 		#glBegin(GL_LINE_LOOP)
 		glBegin(GL_TRIANGLE_FAN)
