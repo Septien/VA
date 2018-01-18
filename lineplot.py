@@ -24,8 +24,8 @@ import math as m
 
 class LinePlot(oglC.OGLCanvas):
     """
-    Class for the line plot. It will hold variables for the domain and the range of the values.
-    The values of the data points. It will a dynamic graph, meaning that the variable, the range,
+    Class for the line plot. It will hold variables for the domain, the range,
+    and the values of the data points. It will be a dynamic graph, meaning that the variable, the range,
     and all its internal variables will be able to change as necessary. The drawing must be changed accordingly.
     Internal variables:
         -xdata: Array holding the x values to be displayed, could be an array of arrays, indicating multiple lines.
