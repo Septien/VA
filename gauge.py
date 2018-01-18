@@ -68,10 +68,9 @@ class GaugePlot(oglC.OGLCanvas):
         assert type(nRange) is list, "Invalid input type"
         assert len(nRange) == 2, "Invalid number of elements"
         assert nRange[0] < nRange[1], "Invalid range"
-        assert nRange[0] <= self.data <= nRange[1] , "Current variable out of range"
+        if self.data:
+            assert nRange[0] <= self.data <= nRange[1] , "Current variable out of range"
 
-        if self.range:
-            self.range.clear()
         self.range = nRange.copy()
         
         # Get the angle of the arrow
@@ -87,7 +86,7 @@ class GaugePlot(oglC.OGLCanvas):
     def SetValue(self, nValue):
         """Sets the value of the data"""
         assert type(nValue) is int, "Incorret input format"
-        assert nValue in self.range, "Variable out of range"
+        assert self.range[0] < nValue < self.range[1], "Variable out of range"
 
         self.data = nValue
         
@@ -102,7 +101,7 @@ class GaugePlot(oglC.OGLCanvas):
 
     def UpdateAngle(self, value):
         """Calculate the angle of rotation corresponding to the input value."""
-        assert self.range[0] <= value <= self.range[1]
+        # No initial invariants
 
         self.theta = (m.fabs(self.maxAngle - self.minAngle) / value) - self.maxAngle
 
