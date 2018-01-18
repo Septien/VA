@@ -77,6 +77,9 @@ class GaugePlot(oglC.OGLCanvas):
         # Get the angle of the arrow
         self.UpdateAngle()
 
+        # Send a draw event
+        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+
         # Output Invariants
         assert self.minAngle <= self.theta <= self.maxAngle, "Angle out of range"
         assert self.range[0] <= self.data <= self.range[1], "Variable out of current range"
@@ -90,6 +93,9 @@ class GaugePlot(oglC.OGLCanvas):
         
         # Get the angle of the arrow
         self.UpdateAngle()
+
+        # Set a draw event
+        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
         assert self.minAngle <= self.theta <= self.maxAngle, "Angle out of range"
         assert self.data in self.range, "Data out of range"
