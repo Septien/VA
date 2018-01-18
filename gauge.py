@@ -99,7 +99,7 @@ class GaugePlot(oglC.OGLCanvas):
         assert self.minAngle <= self.theta <= self.maxAngle, "Angle out of range"
         assert self.data in self.range, "Data out of range"
 
-    def UpdateAngle(self, value):
+    def UpdateAngle(self):
         """Calculate the angle of rotation corresponding to the input value."""
         # No initial invariants
 
