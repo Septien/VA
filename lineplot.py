@@ -183,10 +183,12 @@ class LinePlot(oglC.OGLCanvas):
         glColor(0.0, 0.0, 0.0)
         for i in range(len(self.xdata)):
             glBegin(GL_LINE_STRIP)
+            glVertex3f(0.0, 0.0, 0.0)
             for j in range(len(self.xdata[i])):
                 x = self.xdata[i][j]
                 y = self.ydata[i][j]
                 xNorm = Map(x, self.domain)
                 yNorm = Map(y, self.range)
                 glVertex3f(xNorm, yNorm, 0.0)
+            glVertex3f(1.0, 0.0, 0.0)
             glEnd()
