@@ -41,10 +41,16 @@ class GaugePlot(oglC.OGLCanvas):
         self.range = []
         self.marksSpacer = None
         # Angle of rotation
+        self.oldTheta = 144.0
         self.theta = 144.0
         # Range of angles
         self.minAngle = -144.0
         self.maxAngle = 144.0
+        # For animating
+        self.timer = wx.Timer(self, -1)
+        self.Bind(wx.EVT_TIMER, self.OnTimer)
+
+        self.timer.Start(100)# 100 ms
 
     def InitGL(self):
         glClearColor(0.9, 0.9, 0.9, 1)
@@ -106,6 +112,7 @@ class GaugePlot(oglC.OGLCanvas):
         if not self.data:
             return
 
+        self.oldTheta = self.theta
         self.theta = (m.fabs(self.maxAngle - self.minAngle) / self.data) - self.maxAngle
 
         assert self.minAngle <= self.theta <= self.maxAngle, "Angle out of range"
@@ -217,3 +224,18 @@ class GaugePlot(oglC.OGLCanvas):
             y = m.sqrt(1 - x * x)
             glVertex3f(x, -y, 0.0)
         glEnd()
+
+    def OnTimer(self, event):
+        """"""
+        if not event.GetEventObject() == self.timer:
+            event.Skip()
+            return
+
+        eps = 0.0000001
+        if (self.theta - self.oldTheta) < eps:
+            return
+
+        self.theta = (self.oldTheta + ((self.oldTheta - self.theta) * 0.01))
+
+        # Set a draw event
+        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
