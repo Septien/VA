@@ -157,8 +157,8 @@ class AreaPlot(oglC.OGLCanvas):
         assert len(self.xdata) == len(self.ydata), "x and y arrays must have the same length"
 
         alpha = 0.6
-        prevPoint = [0.0, 0.0, 0.0]
         for i in range(len(self.xdata)):
+            prevPoint = [0.0, 0.0, 0.0]
             glColor(r.random(), r.random(), r.random(), alpha)
             for j in range(len(self.ydata[i])):
                 x = self.xdata[i][j]
