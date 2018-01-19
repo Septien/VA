@@ -18,3 +18,5 @@ Some plots:
 TODO:
 	-Add labels to (all) plots.
 	-Give a 'pro' format.
+    -Treat stepped area plot as a bar graph. That is, the x-axis variable is a
+    qualitative variable, meaning that it represents non-numeric data.
