@@ -174,6 +174,12 @@ class AreaPlot(oglC.OGLCanvas):
                 glVertex3f(currPoint[0], 0.0, 0.0)
                 glEnd()
                 prevPoint = currPoint.copy()
+            # Draw last part of graph
+            glBegin(GL_TRIANGLES)
+            glVertex3f(prevPoint[0], 0.0, 0.0)
+            glVertex3fv(prevPoint)
+            glVertex3f(1.0, 0.0, 0.0)
+            glEnd()
 
 
     def DrawGrid(self):
