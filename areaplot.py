@@ -32,7 +32,7 @@ class AreaPlot(oglC.OGLCanvas):
         -xdata: Array holding the x values to be displayed, could be an array of arrays, indicating multiple areas-
         -ydata: Holds the y values of the data.
         -range: The range of the data.
-        .domain: The domain of the data.
+        -domain: The domain of the data.
     """
     def __init__(self, parent):
         super(AreaPlot, self).__init__(parent)
