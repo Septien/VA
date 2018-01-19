@@ -128,7 +128,9 @@ class AreaPlot(oglC.OGLCanvas):
     def OnDraw(self):
         glClear(GL_COLOR_BUFFER_BIT)
 
+        glLineWidth(1.0)
         self.DrawGrid()
+        glLineWidth(3.0)
         self.DrawArea()
 
         self.SwapBuffers()
@@ -167,11 +169,17 @@ class AreaPlot(oglC.OGLCanvas):
                 yNorm = Map(y, self.range)
                 currPoint = [xNorm, yNorm, 0.0]
                 assert currPoint != prevPoint, "Equal points"
+                # Area
                 glBegin(GL_TRIANGLE_FAN)
                 glVertex3f(prevPoint[0], 0.0, 0.0)
                 glVertex3fv(prevPoint)
                 glVertex3fv(currPoint)
                 glVertex3f(currPoint[0], 0.0, 0.0)
+                glEnd()
+                # Line
+                glBegin(GL_LINES)
+                glVertex3fv(prevPoint)
+                glVertex3fv(currPoint)
                 glEnd()
                 prevPoint = currPoint.copy()
             # Draw last part of graph
@@ -179,6 +187,11 @@ class AreaPlot(oglC.OGLCanvas):
             glVertex3f(prevPoint[0], 0.0, 0.0)
             glVertex3fv(prevPoint)
             glVertex3f(1.0, 0.0, 0.0)
+            glEnd()
+            # Line
+            glBegin(GL_LINES)
+            glVertex3fv(prevPoint)
+            glVertex3fv([1.0, 0.0, 0.0])
             glEnd()
 
 
