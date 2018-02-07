@@ -142,6 +142,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
             glColor3f(0.0, 0.0, 1.0)
             for i in range(len(self.points)):
                 self.DrawPoint(self.points[i][0], self.points[i][1], 0.01)
+        self.DrawLabels()
 
         self.SwapBuffers()
 
@@ -198,3 +199,33 @@ class ScatterPlot2D(oglC.OGLCanvas):
         glScalef(r, r, 0.0)
         self.DrawCircle()
         glPopMatrix()
+
+    def DrawLabels(self):
+        """Displays the corresponding values for the divisons of each of the axes.
+        Depends on the ranges already be set"""
+        def lerp(a, b, t):
+            """For interpolating between the range [a, b], according to the formula:
+            value = (1 - t) * a + t * b, for t in [0, 1]"""
+            assert 0.0 <= t <= 1.0
+            value = (1 - t) * a + t * b
+
+            assert a <= value <= b, "Out of range"
+            return value
+
+        assert self.ranges, "Ranges must be initialized"
+
+        # For the x-axis
+        for i in range(self.divisons):
+            xValue = lerp(self.range[0][0], self.range[0][1], i / self.divisons)
+            yValue = lerp(self.range[1][0], self.range[1][1], i / self.divisons)
+            strxValue = str(xValue)
+            stryValue = str(yValue)
+            pos = i / self.divisons
+            # For the x-axis
+            glRasterPos2f(pos, -0.1)
+            for c in strxValue:
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+            # For the y-axis
+            glRasterPos2f(-0.1, pos)
+            for c in stryValue:
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
