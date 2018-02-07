@@ -58,7 +58,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         assert len(newData) > 0, "Data must have length than zero"
         assert EqualLength(newData), "All rows must be the same lenght"
         if self.labels:
-            assert len(self.labels) == len(newData[0]), "Labels must be the same length as the number of dimensions"
+            assert len(self.Labels) == len(newData[0]), "Labels must be the same length as the number of dimensions"
 
         self.data.clear()
 
@@ -114,13 +114,23 @@ class ParallelCoordinates(oglC.OGLCanvas):
         glClear(GL_COLOR_BUFFER_BIT)
 
         glColor3f(0.0, 0.0, 0.0)
+        self.DrawBoundingBox()
         self.DrawParallelAxes()
         glColor3f(0.0, 0.0, 1.0)
         self.DrawLines()
-        glColor3f(0.0, 1.0, 0.0)
-        self.DrawLines()
+        glColor3f(0.0, 0.5, 0.9)
+        self.DrawLabels()
 
         self.SwapBuffers()
+
+    def DrawBoundingBox(self):
+        """Draws the bounding box of the coordinates"""
+        glBegin(GL_LINE_LOOP)
+        glVertex3f(0.0, 0.0, 0.0)
+        glVertex3f(0.0, 1.0, 0.0)
+        glVertex3f(1.0, 1.0, 0.0)
+        glVertex3f(1.0, 0.0, 0.0)
+        glEnd()
 
     def DrawParallelAxes(self):
         """Draws the axes of the plot"""
@@ -129,6 +139,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
 
         # Calculate the spacing between ||-lines
         spacing = 1.0 / self.dimensions
+        
         glBegin(GL_LINES)
         for i in range(self.dimensions):
             glVertex3f(i * spacing, 0.0, 0.0)
@@ -142,9 +153,12 @@ class ParallelCoordinates(oglC.OGLCanvas):
             # Formula for mapping [A, B] -> [a, b]:
             #
             #   (val - A) * (b - a) / (B - A) + a
+            assert type(value) is (float or int), str(type(value))
+            assert len(Range) > 0
             unitRange = [0.0, 1.0]
 
             norm = ((value - Range[0]) * (unitRange[1] - unitRange[0]) / (Range[1] - Range[0])) + unitRange[0]
+            assert unitRange[0] <= norm <= unitRange[1], "Out of range: " + str(norm) + " " + str(Range) + " " + str(value)
             return norm
         #
         assert self.data, "Data must be initialized"
@@ -154,14 +168,14 @@ class ParallelCoordinates(oglC.OGLCanvas):
 
         spacing = 1.0 / self.dimensions
         # Iterate over all rows
-        i = 0
         for row in self.data:
+            i = 0
             glBegin(GL_LINE_STRIP)
             for coord in row:
                 coordNorm = Map(coord, self.axesRange[i])
                 glVertex3f(i * spacing, coordNorm, 0.0)
+                i += 1
             glEnd()
-            i += 1
 
     def DrawLabels(self):
         """Print the labels on screen"""
@@ -181,8 +195,8 @@ class ParallelCoordinates(oglC.OGLCanvas):
         #
         assert self.labels, "Labels empty"
         
-        spacing = 1.0 / dimensions
-        i = 0.0
+        spacing = 1.0 / self.dimensions
+        i = 0
         for label in self.labels:
             width = GetLabelWidth(label)
             width /= self.size.width
@@ -190,7 +204,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
                 y = -0.04
             else:
                 y = -0.08
-            glRasterPos2f( i * spacing + width / 2.0, y)
+            glRasterPos2f(i * spacing - width / 2.0, y)
             for c in label:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
             i += 1
