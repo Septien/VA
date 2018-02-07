@@ -100,11 +100,11 @@ class ParallelCoordinates(oglC.OGLCanvas):
         assert newLabels, "Labels data can not be empty"
         assert len(newLabels) > 0, "Labels can not be empty"
         if self.data:
-            assert len(newLabels) == len(self.data[0]), "Number of labels must be the same as the number of axes"
-            assert len(newLabels) == self.dimensions, "Incorrect number of labels: " % self.dimensions % ", " % len(newLabels)
+            assert len(newLabels[0]) == len(self.data[0]), "Number of labels must be the same as the number of axes"
+            assert len(newLabels[0]) == self.dimensions, "Incorrect number of labels: " % self.dimensions % ", " % len(newLabels)
 
         self.labels.clear()
-        self.labels = newLabels.copy()
+        self.labels = newLabels[0].copy()
 
         assert self.labels, "Labels array empty"
         assert len(self.labels) == len(self.data[0]), "Different number of dimensions"
