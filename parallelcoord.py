@@ -172,7 +172,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
             
             length = 0
             for c in label:
-                length += glutBitmapWidth(self.font, ord(c))
+                length += glutBitmapWidth(GLUT_BITMAP_HELVETICA_18, ord(c))
 
             assert type(length) is int
             assert length >= 0
@@ -186,4 +186,4 @@ class ParallelCoordinates(oglC.OGLCanvas):
             width = GetLabelWidth(label)
             glRasterPos2f((width + i * spacing) / 2.0 , -0.1)
             for c in label:
-                glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, ord(c))
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
