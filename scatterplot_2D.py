@@ -32,7 +32,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         # center of a circle
         self.points = []
         self.range = []
-        self.division = 5
+        self.divisions = 5
 
         self.InitCirclePoints()
         self.initGrid()
@@ -41,6 +41,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         r.seed()
         for i in range(100):
             self.points.append((r.uniform(0, 1), r.uniform(0, 1)))
+        self.GetRanges()
 
     def InitCirclePoints(self):
         """
@@ -113,7 +114,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
                 maxY = self.points[i][1]
         
         self.range.append([minX, maxX])
-        self.ranges.append([minY, maxY])
+        self.range.append([minY, maxY])
 
         assert self.range, "Not initialized range array"
 
@@ -137,14 +138,18 @@ class ScatterPlot2D(oglC.OGLCanvas):
     def OnDraw(self):
         glClear(GL_COLOR_BUFFER_BIT)
         self.DrawGrid()
-
-        if self.points:
-            glColor3f(0.0, 0.0, 1.0)
-            for i in range(len(self.points)):
-                self.DrawPoint(self.points[i][0], self.points[i][1], 0.01)
+        self.DrawPoints()
         self.DrawLabels()
 
         self.SwapBuffers()
+
+    def DrawPoints(self):
+        """Draws the points of the plot"""
+        if not self.points:
+            return
+        glColor3f(0.0, 0.0, 1.0)
+        for i in range(len(self.points)):
+            self.DrawPoint(self.points[i][0], self.points[i][1], 0.01)
 
     def DrawGrid(self):
         # Face
@@ -212,20 +217,19 @@ class ScatterPlot2D(oglC.OGLCanvas):
             assert a <= value <= b, "Out of range"
             return value
 
-        assert self.ranges, "Ranges must be initialized"
+        assert self.range, "Ranges must be initialized"
 
-        # For the x-axis
-        for i in range(self.divisons):
-            xValue = lerp(self.range[0][0], self.range[0][1], i / self.divisons)
-            yValue = lerp(self.range[1][0], self.range[1][1], i / self.divisons)
-            strxValue = str(xValue)
-            stryValue = str(yValue)
-            pos = i / self.divisons
+        for i in range(self.divisions + 1):
+            xValue = lerp(self.range[0][0], self.range[0][1], i / self.divisions)
+            yValue = lerp(self.range[1][0], self.range[1][1], i / self.divisions)
+            strxValue = "%.2f" % xValue
+            stryValue = "%.2f" % yValue
+            pos = i / self.divisions
             # For the x-axis
-            glRasterPos2f(pos, -0.1)
+            glRasterPos2f(pos, -0.04)
             for c in strxValue:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
             # For the y-axis
-            glRasterPos2f(-0.1, pos)
+            glRasterPos2f(-0.07, pos)
             for c in stryValue:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
