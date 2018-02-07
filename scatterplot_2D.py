@@ -76,6 +76,24 @@ class ScatterPlot2D(oglC.OGLCanvas):
 		glShadeModel(GL_SMOOTH)
 		glutInit(sys.argv)
 
+    def SetData(self, newData):
+        """Copy the data to the internal variable"""
+        def EqualLenght(inputArray):
+            """Verifies that all the elements in the input are of equal length"""
+            for i in range(len(1, inputArray)):
+                if len(inputArray[i-1]) != len(inputArray[i]):
+                    return False;
+            return True
+
+        assert newData, "Input data must not be emtpy"
+        assert EqualLenght(newData), "All input data must be the same length"
+
+        self.points.clear()
+        self.points = newData.copy()
+
+        assert self.points, "Copy not made"
+
+
 	def initGrid(self):
 		"""Initialize the cube on the background, it defines the grid over which
 		the plot will be displayed."""
@@ -87,9 +105,11 @@ class ScatterPlot2D(oglC.OGLCanvas):
 	def OnDraw(self):
 		glClear(GL_COLOR_BUFFER_BIT)
 		self.DrawGrid()
-		glColor3f(0.0, 0.0, 1.0)
-		for i in range(len(self.points)):
-			self.DrawPoint(self.points[i][0], self.points[i][1], 0.01)
+
+        if self.points:
+    		glColor3f(0.0, 0.0, 1.0)
+    		for i in range(len(self.points)):
+    			self.DrawPoint(self.points[i][0], self.points[i][1], 0.01)
 
 		self.SwapBuffers()
 
