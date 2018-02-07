@@ -32,6 +32,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         # center of a circle
         self.points = []
         self.range = []
+        self.division = 5
 
         self.InitCirclePoints()
         self.initGrid()
@@ -90,6 +91,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         self.GetRanges()
 
         assert self.points, "Copy not made"
+        assert EqualLenght(self.points), "All rows must be the same length"
 
     def GetRanges(self):
         """Calculate the ranges of each dimension"""
@@ -115,13 +117,22 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
         assert self.range, "Not initialized range array"
 
+    def SetDivisionNumber(self, nDiv):
+        """Stablishes the number of divions on the grid"""
+        assert type(nDiv) is int, "Must be integer: " + str(type(nDiv))
+        assert nDiv > 0, "Number of divisions must be greater than zero"
+
+        self.divisions = nDiv
+
+        assert self.divisions > 0, "Number of divisions must be greater than zero"
+
     def initGrid(self):
         """Initialize the cube on the background, it defines the grid over which
         the plot will be displayed."""
         # Face for the cube. 	Format:		[x, y, z]
         self.face = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
         # For the grid
-        self.square = [[0.0, 0.0, 0.0], [0.25, 0.0, 0.0], [0.0, 0.25, 0.0], [0.25, 0.25, 0.0]]
+        self.square = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
 
     def OnDraw(self):
         glClear(GL_COLOR_BUFFER_BIT)
@@ -146,12 +157,14 @@ class ScatterPlot2D(oglC.OGLCanvas):
         glEnd()
         # Grid
         glPolygonMode(GL_FRONT, GL_LINE)
-        for j in range(4):
+        for j in range(self.divisions):
             glPushMatrix()
-            glTranslate(0.0, j * 0.25, 0.0)
-            for i in range(4):
+            width = 1.0 / self.divisions
+            glTranslate(0.0, j * width, 0.0)
+            for i in range(self.divisions):
                 glPushMatrix()
-                glTranslate(i * 0.25, 0.0, 0.0)
+                glTranslate(i * width, 0.0, 0.0)
+                glScalef(width, width, 0.0)
                 self.DrawSquare()
                 glPopMatrix()
             glPopMatrix()
