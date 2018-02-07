@@ -10,7 +10,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-class ParallelCoordindates(oglC.OGLCanvas):
+class ParallelCoordinates(oglC.OGLCanvas):
     """
     This class contains the implementation of the parallel coordinates graph.
     It has several attributes:
@@ -22,7 +22,7 @@ class ParallelCoordindates(oglC.OGLCanvas):
 
     """
     def __init__(self, parent):
-        super(ParallelCoorindates, self).__init__(parent)
+        super(ParallelCoordinates, self).__init__(parent)
 
         self.data = []
         self.dimensions = None
