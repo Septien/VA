@@ -182,8 +182,15 @@ class ParallelCoordinates(oglC.OGLCanvas):
         assert self.labels, "Labels empty"
         
         spacing = 1.0 / dimensions
+        i = 0.0
         for label in self.labels:
             width = GetLabelWidth(label)
-            glRasterPos2f((width + i * spacing) / 2.0 , -0.1)
+            width /= self.size.width
+            if i % 2 == 0:
+                y = -0.04
+            else:
+                y = -0.08
+            glRasterPos2f( i * spacing + width / 2.0, y)
             for c in label:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+            i += 1
