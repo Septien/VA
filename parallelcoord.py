@@ -90,7 +90,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
                     maxV = self.data[j][i]
             self.axesRange.append([minV, maxV])
 
-        assert len(self.axesRange) == len(self.data), "Incorrect number of ranges"
+        assert len(self.axesRange) == len(self.data[0]), "Incorrect number of ranges " + str(len(self.axesRange)) + " " + str(len(self.data))
         assert len(self.axesRange) == self.dimensions, "Incorrect number of ranges"
 
 
