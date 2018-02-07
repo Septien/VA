@@ -84,10 +84,10 @@ class ParallelCoordinates(oglC.OGLCanvas):
         for i in range(len(self.data[0])):
             minV = maxV = self.data[i][0]
             for j in range(len(self.data)):
-                if self.data[i][j] < minV:
-                    minV = self.data[i][j]
-                elif self.data[i][j] > maxV:
-                    maxV = self.data[i][j]
+                if self.data[j][i] < minV:
+                    minV = self.data[j][i]
+                elif self.data[j][i] > maxV:
+                    maxV = self.data[j][i]
             self.axesRange.append([minV, maxV])
 
         assert len(self.axesRange) == len(self.data), "Incorrect number of ranges"
