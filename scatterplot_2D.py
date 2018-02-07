@@ -1,5 +1,5 @@
 """
-A 2D scatterplo.
+A 2D scatterplot.
 """
 
 # wxPython
