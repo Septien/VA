@@ -26,7 +26,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
 
         self.data = []
         self.dimensions = None
-        self.Labels = []
+        self.labels = []
         self.axesRange = []
 
     def InitGL(self):
@@ -182,7 +182,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         assert self.labels, "Labels empty"
         
         spacing = 1.0 / dimensions
-        for label in self.Labels:
+        for label in self.labels:
             width = GetLabelWidth(label)
             glRasterPos2f((width + i * spacing) / 2.0 , -0.1)
             for c in label:
