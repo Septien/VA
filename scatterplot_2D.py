@@ -87,6 +87,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
         self.points.clear()
         self.points = newData.copy()
+        self.GetRanges()
 
         assert self.points, "Copy not made"
 
@@ -94,7 +95,25 @@ class ScatterPlot2D(oglC.OGLCanvas):
         """Calculate the ranges of each dimension"""
         if not self.points:
             return
-        return
+        
+        minX = maxX = self.points[0][0]
+        minY = maxY = self.points[0][1]
+        for i in range(len(self.points[0])):
+            # For the x coordinate
+            if self.points[i][0] < minX:
+                minX = self.points[i][0]
+            elif maxX < self.points[i][0]:
+                maxX = self.points[i][0]
+            # For the y coordinate
+            if self.points[i][1] < minY:
+                minY = self.points[i][1]
+            elif maxY < self.points[i][1]:
+                maxY = self.points[i][1]
+        
+        self.range.append([minX, maxX])
+        self.ranges.append([minY, maxY])
+
+        assert self.range, "Not initialized range array"
 
     def initGrid(self):
         """Initialize the cube on the background, it defines the grid over which
