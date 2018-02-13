@@ -38,10 +38,10 @@ class ScatterPlot2D(oglC.OGLCanvas):
         self.initGrid()
 
         # random points
-        r.seed()
-        for i in range(100):
-            self.points.append((r.uniform(0, 1), r.uniform(0, 1)))
-        self.GetRanges()
+        # r.seed()
+        # for i in range(100):
+        #     self.points.append((r.uniform(0, 1), r.uniform(0, 1)))
+        # self.GetRanges()
 
     def InitCirclePoints(self):
         """
@@ -79,7 +79,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         """Copy the data to the internal variable"""
         def EqualLenght(inputArray):
             """Verifies that all the elements in the input are of equal length"""
-            for i in range(len(1, inputArray)):
+            for i in range(1, len(inputArray)):
                 if len(inputArray[i-1]) != len(inputArray[i]):
                     return False;
             return True
@@ -98,20 +98,22 @@ class ScatterPlot2D(oglC.OGLCanvas):
         """Calculate the ranges of each dimension"""
         if not self.points:
             return
+
+        self.range.clear()
         
         minX = maxX = self.points[0][0]
         minY = maxY = self.points[0][1]
         for i in range(len(self.points[0])):
             # For the x coordinate
-            if self.points[i][0] < minX:
-                minX = self.points[i][0]
-            elif maxX < self.points[i][0]:
-                maxX = self.points[i][0]
+            if self.points[0][i] < minX:
+                minX = self.points[0][i]
+            elif maxX < self.points[0][i]:
+                maxX = self.points[0][i]
             # For the y coordinate
-            if self.points[i][1] < minY:
-                minY = self.points[i][1]
-            elif maxY < self.points[i][1]:
-                maxY = self.points[i][1]
+            if self.points[1][i] < minY:
+                minY = self.points[1][i]
+            elif maxY < self.points[1][i]:
+                maxY = self.points[1][i]
         
         self.range.append([minX, maxX])
         self.range.append([minY, maxY])
@@ -130,7 +132,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
     def initGrid(self):
         """Initialize the cube on the background, it defines the grid over which
         the plot will be displayed."""
-        # Face for the cube. 	Format:		[x, y, z]
+        # For the face of the square. 	Format:		[x, y, z]
         self.face = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
         # For the grid
         self.square = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
@@ -164,6 +166,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         # Grid
         glPolygonMode(GL_FRONT, GL_LINE)
         for j in range(self.divisions):
+            print(j)
             glPushMatrix()
             width = 1.0 / self.divisions
             glTranslate(0.0, j * width, 0.0)
@@ -233,3 +236,12 @@ class ScatterPlot2D(oglC.OGLCanvas):
             glRasterPos2f(-0.07, pos)
             for c in stryValue:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+    def SetNumDivisions(self, nDivisions):
+        """Stablishes the number of divisions on the grid"""
+        assert type(nDivisions) is int, "Incorrect input type"
+        assert nDivisions > 0, "Number of divisions must greater than zero"
+
+        self.divisions = nDivisions
+
+        assert self.divisions > 0, "Number of divisions must be greater than zero"
