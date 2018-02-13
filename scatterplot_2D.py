@@ -100,24 +100,28 @@ class ScatterPlot2D(oglC.OGLCanvas):
             return
 
         self.range.clear()
-        
         minX = maxX = self.points[0][0]
         minY = maxY = self.points[0][1]
         for i in range(len(self.points[0])):
             # For the x coordinate
             if self.points[0][i] < minX:
                 minX = self.points[0][i]
+            
             elif maxX < self.points[0][i]:
                 maxX = self.points[0][i]
+            
             # For the y coordinate
             if self.points[1][i] < minY:
                 minY = self.points[1][i]
+            
             elif maxY < self.points[1][i]:
                 maxY = self.points[1][i]
         
         self.range.append([minX, maxX])
         self.range.append([minY, maxY])
 
+        assert minX < maxX, "Incorrect x min and max " + str(minX) + " " + str(maxX)
+        assert minY < maxY, "Incorrect y min and max " + + str(minY) + " " + str(maxy)
         assert self.range, "Not initialized range array"
 
     def SetDivisionNumber(self, nDiv):
@@ -147,11 +151,30 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
     def DrawPoints(self):
         """Draws the points of the plot"""
+        def Map(value, Range):
+            """Map the value in range [range[0], range[1]] to the range [0, 1]"""
+            # Formula for mapping [A, B] -> [a, b]:
+            #
+            #   (val - A) * (b - a) / (B - A) + a
+            assert type(value) is (float or int), str(type(value))
+            assert len(Range) > 0
+            unitRange = [0.0, 1.0]
+
+            norm = ((value - Range[0]) * (unitRange[1] - unitRange[0]) / (Range[1] - Range[0])) + unitRange[0]
+            assert unitRange[0] <= norm <= unitRange[1], "Out of range: " + str(norm) + " " + str(Range) + " " + str(value)
+            return norm
+
+        assert self.range, "Ranges must exists"
+
         if not self.points:
             return
         glColor3f(0.0, 0.0, 1.0)
         for i in range(len(self.points)):
-            self.DrawPoint(self.points[i][0], self.points[i][1], 0.01)
+            # Normalize x
+            x = Map(self.points[0][i], self.range[0])
+            # Normalize y
+            y = Map(self.points[1][i], self.range[1])
+            self.DrawPoint(x, y, 0.01)
 
     def DrawGrid(self):
         # Face
@@ -166,7 +189,6 @@ class ScatterPlot2D(oglC.OGLCanvas):
         # Grid
         glPolygonMode(GL_FRONT, GL_LINE)
         for j in range(self.divisions):
-            print(j)
             glPushMatrix()
             width = 1.0 / self.divisions
             glTranslate(0.0, j * width, 0.0)
