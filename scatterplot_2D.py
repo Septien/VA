@@ -149,7 +149,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
         self.SwapBuffers()
 
-    def DrawPoints(self):
+    def DrawPoints(self, r = 0.01):
         """Draws the points of the plot"""
         def Map(value, Range):
             """Map the value in range [range[0], range[1]] to the range [0, 1]"""
@@ -169,12 +169,12 @@ class ScatterPlot2D(oglC.OGLCanvas):
         if not self.points:
             return
         glColor3f(0.0, 0.0, 1.0)
-        for i in range(len(self.points)):
+        for i in range(len(self.points[0])):
             # Normalize x
             x = Map(self.points[0][i], self.range[0])
             # Normalize y
             y = Map(self.points[1][i], self.range[1])
-            self.DrawPoint(x, y, 0.01)
+            self.DrawPoint(x, y, r)
 
     def DrawGrid(self):
         # Face
