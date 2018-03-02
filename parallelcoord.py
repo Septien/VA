@@ -82,7 +82,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
 
         self.axesRange.clear()
         for i in range(len(self.data[0])):
-            minV = maxV = self.data[i][0]
+            minV = maxV = self.data[0][i]
             for j in range(len(self.data)):
                 if self.data[j][i] < minV:
                     minV = self.data[j][i]
@@ -139,7 +139,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
 
         # Calculate the spacing between ||-lines
         spacing = 1.0 / self.dimensions
-        
+
         glBegin(GL_LINES)
         for i in range(self.dimensions):
             glVertex3f(i * spacing, 0.0, 0.0)
@@ -180,10 +180,10 @@ class ParallelCoordinates(oglC.OGLCanvas):
     def DrawLabels(self):
         """Print the labels on screen"""
         def GetLabelWidth(label):
-            """Returns the total width of the length of 'label', using the 
+            """Returns the total width of the length of 'label', using the
             fonts from glut"""
             assert type(label) is str, "Incorrect type"
-            
+
             length = 0
             for c in label:
                 length += glutBitmapWidth(GLUT_BITMAP_HELVETICA_18, ord(c))
@@ -194,7 +194,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
             return length
         #
         assert self.labels, "Labels empty"
-        
+
         spacing = 1.0 / self.dimensions
         i = 0
         for label in self.labels:
