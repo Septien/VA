@@ -138,10 +138,10 @@ class ParallelCoordinates(oglC.OGLCanvas):
         assert self.dimensions > 0, "Dimensions must be greater than zero"
 
         # Calculate the spacing between ||-lines
-        spacing = 1.0 / self.dimensions
+        spacing = 1.0 / (self.dimensions - 1.0)
 
         glBegin(GL_LINES)
-        for i in range(self.dimensions):
+        for i in range(self.dimensions - 1):
             glVertex3f(i * spacing, 0.0, 0.0)
             glVertex3f(i * spacing, 1.0, 0.0)
         glEnd()
@@ -166,7 +166,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         assert len(self.data[0]) == self.dimensions, "Dimensions in data must be the same as in the variable"
         assert len(self.axesRange) > 0, "Range must be initialized"
 
-        spacing = 1.0 / self.dimensions
+        spacing = 1.0 / (self.dimensions - 1.0)
         # Iterate over all rows
         for row in self.data:
             i = 0
@@ -195,7 +195,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         #
         assert self.labels, "Labels empty"
 
-        spacing = 1.0 / self.dimensions
+        spacing = 1.0 / (self.dimensions - 1.0)
         i = 0
         for label in self.labels:
             width = GetLabelWidth(label)
