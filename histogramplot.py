@@ -185,7 +185,7 @@ class HistogramPlot(oglC.OGLCanvas):
         n = len(self.data)
         # Compute quartiles
         fQpos = ( (n - 1) / 4 ) + 1
-        tQpos 0 ( 3 * (n - 1) / 4 ) + 1
+        tQpos = ( 3 * (n - 1) / 4 ) + 1
         # Compute the quartiles
         firstQ = 0.0
         thirdQ = 0.0
@@ -341,9 +341,9 @@ class HistogramContainer(wx.Panel):
         self.sizer.Add(self.canvas, 5, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
         self.sizer.Add(sliderSizer, 0, wx.ALIGN_BOTTOM | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
 
-        def getSizer(self):
-            """ Return the sizer """
-            return self.sizer
+    def getSizer(self):
+        """ Return the sizer """
+        return self.sizer
 
     def bindEvets(self):
         """
