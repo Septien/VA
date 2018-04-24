@@ -21,9 +21,6 @@ class HistogramPlot(oglC.OGLCanvas):
     of rectangles on the graph, the rectangles, the maximum frequency, and the maximum x value. The width 
     of the rectangles is the same for all, and depends on the number of bins the histogram have. 
     It draw the contour and then draw the rectagle. Draw histogram on canvas using OpenGL.
-
-    TODO:
-        Add labels to histogram
     """
     def __init__(self, parent):
         super(HistogramPlot, self).__init__(parent)
@@ -59,8 +56,9 @@ class HistogramPlot(oglC.OGLCanvas):
         self.DrawRect()
         glLineWidth(2.0)
         self.DrawAxes()
-        glLineWidth(1.0)
-        self.DrawFreqPol()
+        # glLineWidth(1.0)
+        # self.DrawFreqPol()
+        self.drawLabels()
 
         self.SwapBuffers()
 
@@ -107,8 +105,9 @@ class HistogramPlot(oglC.OGLCanvas):
         #
         self.rect.clear()
         self.rectWidth = 1.0 / self.numBins
+        offset = 0.025
         for i in range(self.numBins):
-            rect = ((self.rectWidth * i, 0), (self.rectWidth * (1 + i), self.frequencies[i]))
+            rect = ((self.rectWidth * i + offset, 0), (self.rectWidth * (1 + i) + offset, self.frequencies[i]))
             self.rect.append(rect)
 
     def setData(self, data):
@@ -237,6 +236,46 @@ class HistogramPlot(oglC.OGLCanvas):
         assert type(axis) is int, "Incorrect type."
         self.axis = axis
 
+    def drawLabels(self):
+        """ Draw labels for x and y axis """
+        def GetLabelWidth(label):
+            """Returns the total width of the length of 'label', using the
+            fonts from glut"""
+            assert type(label) is str, "Incorrect type"
+
+            length = 0
+            for c in label:
+                length += glutBitmapWidth(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+            assert type(length) is int
+            assert length >= 0
+
+            return length
+        # Draw the value of the ranges
+        a = self.range[0]
+        for i in range(self.numBins):
+            x = a + i * self.binWidth
+            xLabel = str(x)
+            length = GetLabelWidth(xLabel)
+            length /= self.size.width
+            glRasterPos2f(i * self.rectWidth - length / 2.0, -0.06)
+            for c in xLabel:
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+        # Draw the value of the frequencies
+        minFreq = 0
+        numDivisions = 10
+        divWidth = 1.0 / numDivisions
+        for i in range(numDivisions):
+            y = minFreq + i * divWidth
+            yLabel = str(y)
+            length = GetLabelWidth(yLabel)
+            length /= self.size.width
+            glRasterPos2f(-0.06, i * divWidth - length / 2.0)
+            for c in yLabel:
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+
 #------------------------------------------------------------------------------------------------------------------
 
 class HistogramContainer(wx.Panel):
@@ -271,6 +310,9 @@ class HistogramContainer(wx.Panel):
         self.tbxBins = wx.TextCtrl(self, -1, size=(50, 25))
         self.slBins = wx.Slider(self, -1, value=bins, minValue=0,
             maxValue=maxBins, name="Bins", style=wx.SL_HORIZONTAL | wx.SL_LABELS | wx.SL_AUTOTICKS)
+        #
+        self.histogram.SetMinSize((200, 200))
+        self.tbxBins.ChangeValue(str(bins))
 
     def groupControls(self):
         """
@@ -291,6 +333,10 @@ class HistogramContainer(wx.Panel):
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.canvas, 5, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
         self.sizer.Add(sliderSizer, 0, wx.ALIGN_BOTTOM | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+
+        def getSizer(self):
+            """ Return the sizer """
+            return self.sizer
 
     def bindEvets(self):
         """
