@@ -5,6 +5,8 @@ Histogram and frequencies polygon plot
 # wxPython
 import wx
 
+import math as m
+
 # OpenGL
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -26,17 +28,14 @@ class HistogramPlot(oglC.OGLCanvas):
     def __init__(self, parent):
         super(HistogramPlot, self).__init__(parent)
         self.numBins = 5
+        self.binWidth = 1 / self.numBins
         self.frequencies = []
+        self.binIntervals = []
+        self.range = []
         self.rect = []
-        self.color = []
-        self.maxFreq = 10
-        self.maxXValue = 10
-
-        # Drawing area width = 1.0 unit
-        self.rectWidth = 1.0 / self.numBins
-        for i in range(self.numBins):
-            self.frequencies.append(0.5)
-        self.UpdateRect()
+        self.maxFrequency = 0
+        self.axis = 0
+        self.data = []
 
     def InitGL(self):
         glClearColor(0.9, 0.9, 0.9, 1)
@@ -107,32 +106,38 @@ class HistogramPlot(oglC.OGLCanvas):
             return
         #
         self.rect.clear()
+        self.rectWidth = 1.0 / self.numBins
         for i in range(self.numBins):
             rect = ((self.rectWidth * i, 0), (self.rectWidth * (1 + i), self.frequencies[i]))
             self.rect.append(rect)
 
-    def SetFrequencies(self, freq):
+    def setData(self, data):
+        """ Stores a reference to the data in use """
+        assert type(data) is list, "Incorrect input type"
+        self.data = data
+        # Set the range
+        self.setRange()
+
+    def computeFrequencies(self, freq):
         """
-        Set the frequencies of the histogram. Such frequencies could not be in the range [0, 1],
+        Compute the frequencies of the histogram. Such frequencies could not be in the range [0, 1],
         so it normalize them. Such frequency is the height of the rectangle. If the number of 
         frequencies is different to the number of bins, the latter is updated.
         """
         assert type(freq) == list, "'freq' parameter is not a list"
-        # Check for consistency with bins size
-        size = len(freq)
-        if size != self.numBins:
-            self.SetNumBins(len(freq))
-        
-        # Update frequencies
-        self.frequencies.clear()
-        self.frequencies = freq.copy()
-        size = len(self.frequencies)
-
+        #
+        for x in self.data:
+            i = 0
+            for interval in self.binIntervals:
+                if interval[0] <= x <= interval[1]:
+                    self.frequencies[i] += 1
+                    break
+                i += 1
         # Normalize
-        maxF = 0
-        for i in range(size):
-            if self.frequencies[i] > maxF:
-                maxF = self.frequencies[i]
+        self.maxFrequency = 0
+        for f in self.frequencies:
+            if f > self.maxFrequency:
+                self.maxFrequency = self.frequencies[i]
         
         for i in range(size):
             self.frequencies[i] /= maxF
@@ -145,38 +150,198 @@ class HistogramPlot(oglC.OGLCanvas):
         # https://stackoverflow.com/questions/25299745/how-to-programmatically-generate-an-event-in-wxpython
         wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
     
+    def setRange(self):
+        """
+        Set the range of the x axis
+        """
+        self.range = [self.data[0], self.data[-1]]
+        assert len(self.range) == 2, "Incorrect lenght of range array"
+
     def SetNumBins(self, numB):
-        """ """
+        """ Sets the number of bins for the histogram """
         self.numBins = numB;
-        #print(self.numBins)
-        self.rectWidth = 1.0 / self.numBins
+        self.computeBinWidth()
+
+    def getNumBins(self):
+        """
+        Returns the number of bins
+        """
+        return self.numBins
+
+    def computeBins(self):
+        """
+        Computes the number of classes based on the formula by Freedman-Diaconis:
+            c = 2(IQ)*n^-1/3
+        where IQ is the interquartile range, and n is the number of data
+        """
+
+        # Get the number of points
+        n = len(self.data)
+        # Compute quartiles
+        fQpos = ( (n - 1) / 4 ) + 1
+        tQpos 0 ( 3 * (n - 1) / 4 ) + 1
+        # Compute the quartiles
+        firstQ = 0.0
+        thirdQ = 0.0
+        # First quartile
+        if fQpos == round(fQpos):
+            firstQ = self.data[int(fQpos)]
+        else:
+            up = round(fQpos)
+            firstQ = self.data[up - 1] + ( ( self.data[up] - self.data[up - 1]) / 4.0 )
+        # Third quartile
+        if tQpos == round(tQpos):
+            thirdQ = self.data[int(tQpos)]
+        else:
+            up = round(tQpos)
+            thirdQ = self.data[up - 1] + ( 3 * ( self.data[up] - self.data[up - 1]) / 4.0 )
+        # Compute IQR
+        IQR = thirdQ - firstQ
+        numB = int(2 * IQR * m.pow(n, -1/3))
+        self.SetNumBins(numB)
+
+        assert self.numBins > 0, "Bins not set"
+        assert self.binWidth > 0, "Incorrect class width"
+
+    def computeBinWidth(self):
+        """
+        Computes the width of each class.
+        """
+        self.binWidth = (self.data[-1] - self.data[0]) / self.numBins
+        # Fill the frequencies array with zeros
+        del(self.frequencies)
+        self.frequencies = []
+        for i in range(self.numBins):
+            self.frequencies.append(0)
+
+    def computeClassesInterval(self):
+        """
+        Computes the interval for each class
+        """
+        lower = 0
+        upper = 0
+        x = self.data[0]
+        for i in range(self.numBins):
+            lower = x
+            x = self.data[0] + (i + 1) * self.binWidth
+            upper = x
+            interval = [lower, upper]
+            self.binIntervals.append(interval.copy())
+
+    def getMaxBins(self):
+        """ Return the maximum number of bins """
+        return len(self.data)
+
+    def setAxis(self, axis):
+        """ Set the axis to analize """
+        assert type(axis) is int, "Incorrect type."
+        self.axis = axis
 
 #------------------------------------------------------------------------------------------------------------------
 
-class PolygonPlot(oglC.OGLCanvas):
-    """Draws the frequencies polygone associated with the histogram"""
-    def InitGL(self):
-        glClearColor(0.9, 0.9, 0.9, 1)
-        glClear(GL_COLOR_BUFFER_BIT)
-        #
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        glOrtho(-0.1, 1.1, -0.1, 1.1, 1.0, 10.0)
-        #
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-        gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
-        glShadeModel(GL_SMOOTH)
-        glutInit(sys.argv)
+class HistogramContainer(wx.Panel):
+    """
+    The panel containing the histogram plot and all of its controls
+    """
+    def __init__(self, parent, data, axis):
+        super(HistogramContainer, self).__init__(parent)
 
-    def DrawPolygone(self, freqRect):
-        """Draws the frequency polygone"""
-        glBegin(GL_LINE_STRIP)
-        glVertex3f(0, 0, 0)
-        for i in range(self.numBins):
-            glVertex3f((self.rect[i][0][0] + self.rect[i][1][0]) / 2.0, self.frequencies[i], 0)
-        glVertex3f(1, 0, 0)
-        glEnd()
+        self.initHistogram()
+        self.initCtrls()
+        self.groupControls()
 
-    def OnDraw(self):
-        glClear(GL_COLOR_BUFFER_BIT)
+    def initHistogram(self, data, axis):
+        """ Initialize the class for the histogram """
+        # Initialize the canvas for histogram
+        self.histogram = HistogramPlot(self)
+        self.histogram.setData(data)
+        self.histogram.setAxis(axis)
+        # Compute the defaul number of bins
+        self.histogram.computeBins()
+
+    def initCtrls(self):
+        """
+        Initializer the gui controls for the histogram
+        """
+        # Get the number of bins
+        bins = self.histogram.getNumBins()
+        maxBins = self.histogram.getMaxBins()
+        # For selecting the number of bins
+        self.binsLabel = wx.StaticText(self, -1, "Bins:")
+        self.tbxBins = wx.TextCtrl(self, -1, size=(50, 25))
+        self.slBins = wx.Slider(self, -1, value=bins, minValue=0,
+            maxValue=maxBins, name="Bins", style=wx.SL_HORIZONTAL | wx.SL_LABELS | wx.SL_AUTOTICKS)
+
+    def groupControls(self):
+        """
+        Group the controls of the class
+        """
+        # Group controls
+        # Group textbox and label
+        binsSizer = wx.BoxSizer(wx.HORIZONTAL)
+        binsSizer.Add(self.binsLabel, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 10)
+        binsSizer.Add(self.tbxBins, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL)
+
+        # Group slider and binsSizer
+        sliderSizer = wx.BoxSizer(wx.VERTICAL)
+        sliderSizer.Add(self.slBins, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_TOP | wx.EXPAND)
+        sliderSizer.Add(binsSizer, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_BOTTOM)
+
+        # Group controls with glcanvas
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+        self.sizer.Add(self.canvas, 5, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
+        self.sizer.Add(sliderSizer, 0, wx.ALIGN_BOTTOM | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+
+    def bindEvets(self):
+        """
+        Bind the events for the slider and text box
+        """
+        self.Bind(wx.EVT_TEXT, self.OnTxtChange, self.tbxBins)
+        self.Bind(wx.EVT_SCROLL_THUMBRELEASE, self.OnSldScroll, self.slBins)
+
+    def SetSldMaxValue(self, value):
+        self.sliderMaxValue = value
+        self.slBins.SetMax(value)
+
+    def OnTxtChange(self, event):
+        """
+        Response to the change of the text whithin the textbox. The user may enter the size of the
+        bins directly in the textbox (which will also be desplayed here if the slider position changes).
+        If so, the position of the slider is automatically changed.
+        """
+        prevValue = self.slBins.GetValue()
+        value = self.tbxBins.GetLineText(0)                                          # Get the content of the textbox
+        if not value.isdecimal():
+            self.tbxBins.ChangeValue("")
+            self.tbxBins.ChangeValue(str(value))
+            return
+        value = int(value)
+        # Verify that number of bins is within range.
+        if self.sliderMinValue <= value and value <= self.sliderMaxValue:
+            self.slBins.SetValue(value)
+            self.updateHistFreqs(value)
+
+        else:
+            #wx.MessageBox("Number of bins must be in [" + str(self.sliderMinValue) + "," +
+            # str(self.sliderMaxValue) + "]", "Help", wx.OK | wx.ICON_INFORMATION)
+            self.slBins.SetValue(prevValue)
+            self.tbxBins.ChangeValue("")    # Clear
+            self.tbxBins.ChangeValue(str(prevValue))
+
+    def OnSldScroll(self, event):
+        """
+        When the slider is moved. It changes the value displayed on the text box as well.
+        """
+        value = self.slBins.GetValue()
+        self.tbxBins.ChangeValue("")
+        self.tbxBins.ChangeValue(str(value))
+        self.updateHistFreqs(int(value))
+
+    def updateHistFreqs(self, bins):
+        """ When the number of bins change"""
+        assert type(int) is int, "Incorrect type"
+
+        # Set the bins
+        self.histogram.SetNumBins(bins)
+        self.histogram.computeClassesInterval()
+        self.Histogram.computeFrequencies()
