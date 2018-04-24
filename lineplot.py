@@ -1,8 +1,9 @@
 """
 For the line graph. A line graph is a type of chart that displays information as a
-serie of data points connected by straight line segments. Similar to a scatter ṕlot, 
+serie of data points connected by straight line segments. Similar to a scatter plot, 
 except that the measurement points are ordered (by x-axis value) and connected with 
-a straight line.
+a straight line. The y value of the point, corresponds to the frequencie or value of that
+data at that moment.
 """
 
 # wxPython
@@ -22,14 +23,21 @@ import numpy as np
 # math library
 import math as m
 
+# Auxiliary functions        
+def isSort(data):
+    """ Verifies if the array is sorted """
+    for i in range(1, len(data)):
+        if data[i - 1] > data[i]:
+            return False
+    return True
+
 class LinePlot(oglC.OGLCanvas):
     """
     Class for the line plot. It will hold variables for the domain, the range,
     and the values of the data points. It will be a dynamic graph, meaning that the variable, the range,
     and all its internal variables will be able to change as necessary. The drawing must be changed accordingly.
     Internal variables:
-        -xdata: Array holding the x values to be displayed, could be an array of arrays, indicating multiple lines.
-        -ydata: Array holding the y values of the xdata points
+        -data: Dictionary containing the values and its frequencies
         -range: Possible values that can be taken by the y-axis coordinates of the points. In format: [min, max].
         -domain: Possible values that can be taken by the x-axis coordinates of the points. In the format: [min, max]
     """
@@ -37,11 +45,13 @@ class LinePlot(oglC.OGLCanvas):
         super(LinePlot, self).__init__(parent)
 
         # Data points
-        self.xdata = []
-        self.ydata = []
+        self.data = {}
         # Range (y-axis) and Domain (x-axis)
         self.range = []
-        self.domain = []
+        self.maxFreq = 0
+        self.axis = 0
+        self.gridSize = 4
+        self.name = ""
 
         self.initGrid()
 
@@ -52,62 +62,7 @@ class LinePlot(oglC.OGLCanvas):
         self.face = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
         # For the grid
         self.square = [[0.0, 0.0, 0.0], [0.25, 0.0, 0.0], [0.0, 0.25, 0.0], [0.25, 0.25, 0.0]]
-
-    def SetDomain(self, nDomain):
-        """Set the domain of the x-coordinate"""
-        assert type(nDomain) == list, "Invalid input type"
-        assert len(nDomain) == 2, "Input domain must be in format: [lowerbound, upperbound]"
-        assert nDomain[0] < nDomain[1], "Invalid values, must be: lowerbound < upperbound"
-
-        self.domain = nDomain.copy()
-        # Send a draw event
-        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
-
-        assert self.domain, "Empty domain"
-        assert self.domain[0] < self.domain[1], "Invalid domain"
-
-    def SetRange(self, nRange):
-        """Set the range of the y-coordiante"""
-        assert type(nRange) == list, "Invalid input type"
-        assert len(nRange) == 2, "Input range must be in format: [lowerbound, upperbound]"
-        assert nRange[0] < nRange[1], "Invalid input values, must be: lowerbound < upperbound"
-
-        self.range = nRange.copy()
-        # Send a draw event
-        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
-
-        assert self.range, "Input range"
-        assert self.range[0] < self.range[1], "Invalid range"
-
-
-    def AddPoints(self, points):
-        """Add a new array of points to the graph.
-        -points is a variable of length 2, holding both the x values and the y values
-            of the new points"""
-        def IsSort(array):
-            """Verify if the array is in ascending order"""
-            x = array[0]
-            for y in array[1:]:
-                if x > y:
-                    return False
-                x = y
-            return True
-
-        assert type(points) is list, "Incorrect input type"
-        assert len(points) == 2, "Incorrect number of dimensions."
-        assert IsSort(points[0]), "Unordered x array"
-        assert len(points[0]) == len(points[1])
-
-        # Add to arrays
-        self.xdata.append(points[0].copy())
-        self.ydata.append(points[1].copy())
-
-        # Send a draw event
-        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
-
-        assert len(self.xdata) == len(self.ydata)
-        # assert over the last element
-
+    
     def InitGL(self):
         glClearColor(0.9, 0.9, 0.9, 1)
         glClear(GL_COLOR_BUFFER_BIT)
@@ -127,6 +82,8 @@ class LinePlot(oglC.OGLCanvas):
 
         self.DrawGrid()
         self.DrawPoints()
+        self.drawLabels()
+
         self.SwapBuffers()
 
     def DrawGrid(self):
@@ -141,10 +98,10 @@ class LinePlot(oglC.OGLCanvas):
         glEnd()
         # Grid
         glPolygonMode(GL_FRONT, GL_LINE)
-        for j in range(4):
+        for j in range(self.gridSize):
             glPushMatrix()
             glTranslate(0.0, j * 0.25, 0.0)
-            for i in range(4):
+            for i in range(self.gridSize):
                 glPushMatrix()
                 glTranslate(i * 0.25, 0.0, 0.0)
                 self.DrawSquare()
@@ -173,22 +130,99 @@ class LinePlot(oglC.OGLCanvas):
             return norm
         #
         # Don't draw if empty
-        if not self.xdata or not self.ydata:
+        if not self.data
             return
-        if not self.domain or not self.range:
+        if not self.range:
             return
-
-        assert len(self.xdata) == len(self.ydata), "x and y arrays must be the same length"
 
         glColor(0.0, 0.0, 0.0)
-        for i in range(len(self.xdata)):
-            glBegin(GL_LINE_STRIP)
-            glVertex3f(0.0, 0.0, 0.0)
-            for j in range(len(self.xdata[i])):
-                x = self.xdata[i][j]
-                y = self.ydata[i][j]
-                xNorm = Map(x, self.domain)
-                yNorm = Map(y, self.range)
-                glVertex3f(xNorm, yNorm, 0.0)
-            glVertex3f(1.0, 0.0, 0.0)
-            glEnd()
+        glBegin(GL_LINE_STRIP)
+        # Iterate over all elements of the dictionary
+        for d in self.data:
+            x = Map(d, self.range)
+            y = self.data[d]
+            glVertex3f(x, y, 0.0)
+        glEnd()
+
+    def setData(self, ndata):
+        """ Set the data of the line plot. data is an array containing the 
+        values of the axis on which the frequencies are calculated.
+            -ndata: The new data.
+        """
+        assert type(data) is list, "Incorrect input type"
+        assert isSort(data), "The data is not sorted"
+        
+        # Compute the frequencies
+        for d in ndata:
+            self.data.get(d, 0) += 1
+
+        # Get the max value
+        self.maxFreq = self.data[ndata[0]]
+        for d in self.data:
+            if self.data[d] > self.maxFreq:
+                self.maxFreq = self.data[d]
+        # Normalize the frequencies
+        for d in self.data:
+            self.data[d] /= self.maxFreq
+
+    def setRange(self, data):
+        """
+        Set the range of the x axis
+        """
+        assert type(data) is list, "Incorrect input type"
+        assert isSort(data), "The data is not sorted"
+
+        self.range = [data[0], data[-1]]
+
+        assert len(self.range) == 2, "Incorrect len of range"
+
+    def setAxis(self, nAxis):
+        """ Set the axis """
+        assert type(nAxis) is int, "Incorrect type"
+        self.axis = nAxis
+
+    def setGridSize(self, ngridSize):
+        """ Set the size of the grid """
+        assert type(ngridSize) is int, "Incorrect type"
+        self.gridSize = ngridSize
+
+    def drawLabels(self):
+        """ Draws labels on the graph """
+        def GetLabelWidth(label):
+            """Returns the total width of the length of 'label', using the
+            fonts from glut"""
+            assert type(label) is str, "Incorrect type"
+
+            length = 0
+            for c in label:
+                length += glutBitmapWidth(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+            assert type(length) is int
+            assert length >= 0
+
+            return length
+
+        # Draw the value variables
+        divWidth = 1.0 / len(self.data)
+        for d in self.data:
+            label = str(d)
+            lenght = GetLabelWidth(label)
+            length /= self.size.width
+            glRasterPos2f(i * divWidth - length / 2.0, -0.06)
+            for c in yLabel:
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+        # For the y axis
+        divWidth = 1.0 / self.gridSize
+        minFreq = 0
+        for i in range(self.gridSize):
+            y = minFreq + i * divWidth
+            yLabel = str(y)
+            length = GetLabelWidth(yLabel)
+            length /= self.size.width
+            glRasterPos2f(-0.06, i * divWidth - length / 2.0)
+            for c in yLabel:
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+
+#--------------------------------------------------------------------------------------------
