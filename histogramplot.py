@@ -112,7 +112,14 @@ class HistogramPlot(oglC.OGLCanvas):
 
     def setData(self, data):
         """ Stores a reference to the data in use """
+        def isSort(data):
+            """ Verifies if the array is sorted """
+            for i in range(1, len(data)):
+                if data[i - 1] > data[i]:
+                    return False
+            return True
         assert type(data) is list, "Incorrect input type"
+        assert isSort(data), "The data is not sorted"
         self.data = data
         # Set the range
         self.setRange()
@@ -285,7 +292,7 @@ class HistogramContainer(wx.Panel):
     def __init__(self, parent, data, axis):
         super(HistogramContainer, self).__init__(parent)
 
-        self.initHistogram()
+        self.initHistogram(data, axis)
         self.initCtrls()
         self.groupControls()
 
@@ -390,4 +397,4 @@ class HistogramContainer(wx.Panel):
         # Set the bins
         self.histogram.SetNumBins(bins)
         self.histogram.computeClassesInterval()
-        self.Histogram.computeFrequencies()
+        self.histogram.computeFrequencies()
