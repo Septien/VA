@@ -130,7 +130,7 @@ class LinePlot(oglC.OGLCanvas):
             return norm
         #
         # Don't draw if empty
-        if not self.data
+        if not self.data:
             return
         if not self.range:
             return
@@ -154,7 +154,7 @@ class LinePlot(oglC.OGLCanvas):
         
         # Compute the frequencies
         for d in ndata:
-            self.data.get(d, 0) += 1
+            self.data[d] = self.data.get(d, 0) + 1
 
         # Get the max value
         self.maxFreq = self.data[ndata[0]]
@@ -224,5 +224,45 @@ class LinePlot(oglC.OGLCanvas):
             for c in yLabel:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
+        if self.name == "":
+            return
+        # Draw the name of the variable
+        glRasterPos2f(0.5, 1.05)
+        for c in self.name:
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+    def setName(self, nName):
+        """ Set the name of the variable """
+        assert type(nName) in str, "Incorrect type"
+        self.name = nName
 
 #--------------------------------------------------------------------------------------------
+
+class LinePlotContainer(wx.Panel):
+    """ Holds the canvas for the panel, and all the widgets and events associated with it 
+            -data: reference to the original database
+    """
+    def __init__(self, parent, data, labels, axis):
+        super(LinePlotContainer, self).__init__(parent)
+        # Hold the reference
+        self.data = data
+        self.labels = labels
+        
+    def initPlot(self, axis):
+        """ Initialize the data with the corresponding data """
+        assert type(data) is list, "Incorrect type"
+
+        self.plot = LinePlot(self)
+        data = [ d[axis] for d in self.data ]
+        self.plot.setData(data)
+        self.plot.Range(data)
+        self.plot.setAxis(axis)
+        # Set size
+        self.SetMinSize((200, 200))
+        # Group
+        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer.Add(self.plot, 5, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
+
+    def getSizer(self):
+        """ Get the sizer of the class """
+        return self.sizer
