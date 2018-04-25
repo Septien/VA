@@ -1,5 +1,5 @@
 """
-For the parallel coordinates. A graph for visualizing high-dimensional data whitout informaiton lost.
+For the parallel coordinates. A graph for visualizing high-dimensional data whitout information lost.
 """
 
 import wx
@@ -67,8 +67,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         # Set number of dimensions
         self.dimensions = len(self.data[0])
         # Initialize the order of dimensions to the defeault
-        for i in range(self.dimensions):
-            self.axesOrder.append(i)
+        self.setDefaultAxesOrder()
 
         self.ComputeRanges()
 
@@ -104,11 +103,11 @@ class ParallelCoordinates(oglC.OGLCanvas):
         assert newLabels, "Labels data can not be empty"
         assert len(newLabels) > 0, "Labels can not be empty"
         if self.data:
-            assert len(newLabels[0]) == len(self.data[0]), "Number of labels must be the same as the number of axes"
-            assert len(newLabels[0]) == self.dimensions, "Incorrect number of labels: " % self.dimensions % ", " % len(newLabels)
+            assert len(newLabels) == len(self.data[0]), "Number of labels must be the same as the number of axes"
+            assert len(newLabels) == self.dimensions, "Incorrect number of labels: " % self.dimensions % ", " % len(newLabels)
 
         # Hold a reference for the labels
-        self.labels = newLabels[0]
+        self.labels = newLabels
 
         assert self.labels, "Labels array empty"
         assert len(self.labels) == len(self.data[0]), "Different number of dimensions"
@@ -119,6 +118,14 @@ class ParallelCoordinates(oglC.OGLCanvas):
         self.axesOrder[axis2] = axis1
         # Send event to redraw
         wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+
+    def setDefaultAxesOrder(self):
+        """ Set the default axis configuration """
+        # Remove previous configurations
+        self.axesOrder.clear()
+        # Set default
+        for i in range(self.dimensions):
+            self.axesOrder.append(i)
 
     def OnDraw(self):
         """Draw the graph"""
@@ -219,3 +226,4 @@ class ParallelCoordinates(oglC.OGLCanvas):
             for c in label:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
             i += 1
+
