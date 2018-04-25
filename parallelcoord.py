@@ -227,3 +227,108 @@ class ParallelCoordinates(oglC.OGLCanvas):
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
             i += 1
 
+#----------------------------------------------------------------------------------------------
+
+class Axes:
+    """ Simple class containing the axes name and number """
+    def __init__(self, number, name):
+        self.axisNumber = number
+        self.axisName = name
+
+#----------------------------------------------------------------------------------------------
+
+class PCWidget(wx.Panel):
+    """ For managing the widgets for the pc """
+    def __init__(self, parent, data, labels):
+        super(PCWidget, self).__init__(parent)
+
+        # Hold a reference for the data and labels
+        self.data = data
+        self.labels = labels
+
+        # Create the graph
+        self.pc = ParallelCoordinates(self)
+
+    def initPC(self):
+        """ Initialize the ||-coord """
+        self.pc = ParallelCoordinates(self)
+        self.pc.SetData(self.data)
+        self.pc.SetLabels(self.labels)
+        self.pc.SetMinSize((500, 400))
+
+    def initComboBox(self):
+        """ Fill the combo box with the axes data """
+        axes = []
+        for i in range(len(self.data[0])):
+            axes.append(Axes(i, self.labels[i]))
+
+        l = []
+        # Make the combo boxes
+        self.cb1 = wx.ComboBox(self, size=wx.DefaultSize, choices=l)
+        self.cb2 = wx.ComboBox(self, size=wx.DefaultSize, choices=l)
+
+        # Fill the cb
+        for axis in axes:
+            self.cb1.Append(axis.axisName, axis)
+            self.cb1.Append(axis.axisName, axis)
+
+    def initCtrls(self):
+        """ Initialize and group the controls """
+        interChangeAxisLabel = wx.StaticText(self, -1, "Change axis position")
+        axis1Label = wx.StaticText(self, -1, "Axis 1:")
+        axis2Label = wx.StaticText(self, -1, "Axis 2:")
+        self.changeBtn = wx.Button(self, label="Change axes")
+        self.resetBtn = wx.Button(self, label="Reset axes")
+        # Init cbs
+        self.initComboBox()
+
+        # Group the buttons
+        btnsSizer = wx.BoxSizer(wx.HORIZONTAL)
+        btnsSizer.Add(self.resetBtn, 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 10)
+        btnsSizer.Add(self.changeBtn, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        # Group the combo boxes with its respective labels
+        # Combo box 1
+        cbSizer1 = wx.BoxSizer(wx.HORIZONTAL)
+        cbSizer1.Add(axis1Label, 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 10)
+        cbSizer1.Add(self.cb1, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        # Combo box 2
+        cbSizer2 = wx.BoxSizer(wx.HORIZONTAL)
+        cbSizer1.Add(axis2Label, 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 10)
+        cbSizer1.Add(self.cb2, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        # Both combo boxes
+        cbSizer = wx.BoxSizer(wx.VERTICAL)
+        cbSizer.Add(cbSizer1, 0, wx.TOP | wx.ALIGN_CENTER_VERTICAL, 10)
+        cbSizer.Add(cbSizer2, 0, wx.BOTTOM | wx.ALIGN_CENTER_VERTICAL)
+        # Group label, combo boxes and buttons
+        widgetsSizer = wx.BoxSizer(wx.VERTICAL)
+        widgetsSizer.Add(interChangeAxisLabel, 0, wx.TOP | wx.ALIGN_CENTER_VERTICAL, 10)
+        widgetsSizer.Add(cbSizer, 0, wx.ALIGN_CENTER_VERTICAL)
+        widgetsSizer.Add(btnsSizer, 0, wx.ALIGN_CENTER_VERTICAL)
+
+        # Main sizer
+        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer.Add(self.pc, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
+        self.sizer.Add(widgetsSizer, 0, wx.ALIGN_LEFT | wx.EXPAND)
+
+    def getSizer(self):
+        """ Get the widget sizer """
+        return self.sizer
+
+    def bindBtnEvents(self):
+        """ Bind the event for both buttons """
+        self.changeBtn.bind(wx.EVT_BUTTON, self.onChangeBtn)
+        self.resetBtn.bind(wx.EVT_BUTTON, self.onResetBtn)
+
+    def onChangeBtn(self, event):
+        """ Handle the change button click """
+        # Get the index of the axes
+        cb1Selection = self.cb.GetClientData(self.cb.GetSelection())
+        cb2Selection = self.cb.GetClientData(self.cb.GetSelection())
+        # Change axes
+        axis1 = cb1Selection.axisNumber
+        axis2 = cb2Selection.axisNumber
+        self.pc.changeAxes(axis1, axis1)
+
+    def onResetBtn(self, event):
+        """ Hangle the reset button click """
+        self.pc.setDefaultAxesOrder()
