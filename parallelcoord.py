@@ -316,6 +316,7 @@ class PCWidget(wx.Panel):
 
     def bindBtnEvents(self):
         """ Bind the event for both buttons """
+        # https://wiki.python.org/self.Bind vs. self.button.Bind
         self.changeBtn.bind(wx.EVT_BUTTON, self.onChangeBtn)
         self.resetBtn.bind(wx.EVT_BUTTON, self.onResetBtn)
 
