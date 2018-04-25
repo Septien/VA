@@ -19,6 +19,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         -Labels: What represents each axis.
         -Axis range: Each coordinate is (linearly) interpolated between the maximum and minimum value among all
             the possible values of that axis
+        -axesOrder: The order on which the axes are displayed.
 
     """
     def __init__(self, parent):
@@ -28,6 +29,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         self.dimensions = None
         self.labels = []
         self.axesRange = []
+        self.axesOrder = []
 
     def InitGL(self):
         glClearColor(0.9, 0.9, 0.9, 1)
@@ -60,17 +62,19 @@ class ParallelCoordinates(oglC.OGLCanvas):
         if self.labels:
             assert len(self.Labels) == len(newData[0]), "Labels must be the same length as the number of dimensions"
 
-        self.data.clear()
-
-        # Copy data
-        self.data = newData.copy()
+        # Hold a reference for the data
+        self.data = newData
         # Set number of dimensions
         self.dimensions = len(self.data[0])
+        # Initialize the order of dimensions to the defeault
+        for i in range(self.dimensions):
+            self.axesOrder.append(i)
 
         self.ComputeRanges()
 
         assert self.data, "No data copied"
         assert EqualLength(self.data), "All rows must be the same lenght"
+        assert len(self.axesOrder) == self.dimensions, "The length of the array for the order of axes, must be the same to the number of dimensiones"
         if self.labels:
             assert len(self.labels) == len(self.data[0]), "Labels must be the same length as the number of dimensions"
             assert self.dimensions == len(self.labels)
@@ -103,11 +107,18 @@ class ParallelCoordinates(oglC.OGLCanvas):
             assert len(newLabels[0]) == len(self.data[0]), "Number of labels must be the same as the number of axes"
             assert len(newLabels[0]) == self.dimensions, "Incorrect number of labels: " % self.dimensions % ", " % len(newLabels)
 
-        self.labels.clear()
-        self.labels = newLabels[0].copy()
+        # Hold a reference for the labels
+        self.labels = newLabels[0]
 
         assert self.labels, "Labels array empty"
         assert len(self.labels) == len(self.data[0]), "Different number of dimensions"
+
+    def changeAxes(self, axis1, axis2):
+        """ Change the position of the axis 1 to the position of the axis 2, and viceversa """
+        self.axesOrder[axis1] = axis2
+        self.axesOrder[axis2] = axis1
+        # Send event to redraw
+        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
     def OnDraw(self):
         """Draw the graph"""
@@ -169,12 +180,11 @@ class ParallelCoordinates(oglC.OGLCanvas):
         spacing = 1.0 / (self.dimensions - 1.0)
         # Iterate over all rows
         for row in self.data:
-            i = 0
             glBegin(GL_LINE_STRIP)
-            for coord in row:
-                coordNorm = Map(coord, self.axesRange[i])
+            for index in self.axesOrder:
+                coord = row[index]
+                coordNorm = Map(coord, self.axesRange[index])
                 glVertex3f(i * spacing, coordNorm, 0.0)
-                i += 1
             glEnd()
 
     def DrawLabels(self):
@@ -197,7 +207,8 @@ class ParallelCoordinates(oglC.OGLCanvas):
 
         spacing = 1.0 / (self.dimensions - 1.0)
         i = 0
-        for label in self.labels:
+        for index in self.axesOrder:
+            label = self.label[index]
             width = GetLabelWidth(label)
             width /= self.size.width
             if i % 2 == 0:
