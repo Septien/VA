@@ -187,11 +187,13 @@ class ParallelCoordinates(oglC.OGLCanvas):
         spacing = 1.0 / (self.dimensions - 1.0)
         # Iterate over all rows
         for row in self.data:
+            i = 0
             glBegin(GL_LINE_STRIP)
             for index in self.axesOrder:
                 coord = row[index]
                 coordNorm = Map(coord, self.axesRange[index])
                 glVertex3f(i * spacing, coordNorm, 0.0)
+                i += 1
             glEnd()
 
     def DrawLabels(self):
@@ -215,7 +217,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         spacing = 1.0 / (self.dimensions - 1.0)
         i = 0
         for index in self.axesOrder:
-            label = self.label[index]
+            label = self.labels[index]
             width = GetLabelWidth(label)
             width /= self.size.width
             if i % 2 == 0:
@@ -245,6 +247,7 @@ class PCWidget(wx.Panel):
         # Hold a reference for the data and labels
         self.data = data
         self.labels = labels
+        self.sizer = None
 
         # Create the graph
         self.pc = ParallelCoordinates(self)
