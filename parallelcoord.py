@@ -248,6 +248,9 @@ class PCWidget(wx.Panel):
 
         # Create the graph
         self.pc = ParallelCoordinates(self)
+        self.initPC()
+        self.initCtrls()
+        self.bindBtnEvents()
 
     def initPC(self):
         """ Initialize the ||-coord """
