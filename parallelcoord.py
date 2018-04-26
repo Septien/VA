@@ -307,7 +307,7 @@ class PCWidget(wx.Panel):
 
         # Main sizer
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.sizer.Add(self.pc, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
+        self.sizer.Add(self.pc, 1, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
         self.sizer.Add(widgetsSizer, 0, wx.ALIGN_LEFT | wx.EXPAND)
 
     def getSizer(self):
