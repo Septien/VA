@@ -148,13 +148,22 @@ class mainGUI(wx.Frame):
     def SelectedDB(self):
         """ Check if a database or csv file is selected. If not prompts the user. """
         if not self.selectedDB:
-            wx.MessageBox("Select a database before proceeding", self.title)
+            wx.MessageBox("Select/load a database before proceeding", "No database selected")
             return False
         return True
 
     def OnPCSelected(self, event):
         """ When the ||-coord is selected """
-        pass
+        if not self.SelectedDB():
+            return
+        # Create pc widget
+        self.pc = pc.PCWidget(self.panel, self.data, self.labels)
+        pcSizer = self.pc.getSizer()
+        self.mainSizer.Add(self.pc, 1, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
+        # Force layout update
+        self.mainSizer.Layout()
+        self.panel.Layout()
+        self.Fit()
 
     def OnSPLOMSelected(self, event):
         """ When the SPLOM is selected """
