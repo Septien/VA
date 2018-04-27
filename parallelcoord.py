@@ -327,10 +327,6 @@ class PCWidget(wx.Panel):
         self.sizer.Add(widgetsSizer, 0, wx.ALIGN_RIGHT | wx.EXPAND)
         self.SetSizer(self.sizer)
 
-    def getSizer(self):
-        """ Get the widget sizer """
-        return self.sizer
-
     def bindBtnEvents(self):
         """ Bind the event for both buttons """
         # https://wiki.python.org/self.Bind vs. self.button.Bind
