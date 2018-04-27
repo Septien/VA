@@ -54,6 +54,7 @@ class mainGUI(wx.Frame):
         self.selectedDB = False
         self.data = None
         self.labels = None
+        self.category = None
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
         
         # Set the panel
@@ -124,13 +125,21 @@ class mainGUI(wx.Frame):
             path = dlg.GetPath()
             self.data = []
             self.labels = []
+            self.category = []
+            LabelsandCategoryLoaded = 0
             with open(path, "r") as dataFile:
-                LabelsLoaded = False
                 for line in dataFile:
                     row = line.split(",")
-                    if not LabelsLoaded:
+                    # Load category
+                    if LabelsandCategoryLoaded == 0:
                         self.labels = row.copy()
-                        LabelsLoaded = True
+                        LabelsandCategoryLoaded = 1
+                        continue
+                    if LabelsandCategoryLoaded == 1:
+                        # Copy as integer
+                        for r in row:
+                            self.category.append(int(r))
+                        LabelsandCategoryLoaded = 2
                         continue
                     incomplete = False
                     nRow = []
@@ -145,6 +154,15 @@ class mainGUI(wx.Frame):
             self.selectedDB = True
         dlg.Destroy()
 
+    def getSelectionableAxes(self):
+        """ Returns a list of all the axes suitable for the histogram """
+        selectionable = []
+        for i in range(len(self.category)):
+            # 0 -> Numerical variables
+            if self.category[i] == 0:
+                selectionable.append(self.labels[i])
+        return selectionable
+    
     def SelectedDB(self):
         """ Check if a database or csv file is selected. If not prompts the user. """
         if not self.selectedDB:
@@ -187,7 +205,25 @@ class mainGUI(wx.Frame):
 
     def OnHGSelected(self, event):
         """ When the histogram is selected """
-        pass
+        # Verify that a database is selected
+        if not self.SelectedDB():
+            return
+        # Get the selectionable axes
+        selectionable = self.getSelectionableAxes()
+        dlg = wx.SingleChoiceDialog(self, "Axes suitable for histogram", "Select an axis", selectionable)
+        if dlg.ShowModal() == wx.ID_OK:
+            axisName = dlg.GetStringSelection()
+            # Get the index
+            for i in range(len(self.labels)):
+                if self.labels[i] == axisName:
+                    axis = i
+            # Set it to the histogram
+            self.hist = hp.HistogramWidget(self, self.data, axis)
+            self.mainSizer.Add(self.hist, 1, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
+            # Force layout update
+            self.mainSizer.Layout()
+            self.panel.Layout()
+            self.Fit()
 
     def OnSCPSelected(self, event):
         """ When the scatterplot is selected """
