@@ -53,6 +53,7 @@ class mainGUI(wx.Frame):
 
         self.selectedDB = False
         self.data = None
+        self.labels = None
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
         
         # Set the panel
@@ -122,9 +123,15 @@ class mainGUI(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             self.data = []
+            self.labels = []
             with open(path, "r") as dataFile:
+                LabelsLoaded = False
                 for line in dataFile:
                     row = line.split(",")
+                    if not LabelsLoaded:
+                        self.labels = row.copy()
+                        LabelsLoaded = True
+                        continue
                     incomplete = False
                     nRow = []
                     for r in row:
