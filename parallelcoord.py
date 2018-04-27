@@ -114,8 +114,17 @@ class ParallelCoordinates(oglC.OGLCanvas):
 
     def changeAxes(self, axis1, axis2):
         """ Change the position of the axis 1 to the position of the axis 2, and viceversa """
-        self.axesOrder[axis1] = axis2
-        self.axesOrder[axis2] = axis1
+        # Get the position
+        index1 = 0
+        index2 = 0
+        for i in  range(len(self.axesOrder)):
+            if self.axesOrder[i] == axis1:
+                index1 = i
+            if self.axesOrder[i] == axis2:
+                index2 = i
+        # Change the order
+        self.axesOrder[index1] = axis2
+        self.axesOrder[index2] = axis1
         # Send event to redraw
         wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
@@ -126,6 +135,8 @@ class ParallelCoordinates(oglC.OGLCanvas):
         # Set default
         for i in range(self.dimensions):
             self.axesOrder.append(i)
+        # Send event to redraw
+        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
     def OnDraw(self):
         """Draw the graph"""
@@ -250,7 +261,6 @@ class PCWidget(wx.Panel):
         self.sizer = None
 
         # Create the graph
-        self.pc = ParallelCoordinates(self)
         self.initPC()
         self.initCtrls()
         self.bindBtnEvents()
@@ -276,11 +286,11 @@ class PCWidget(wx.Panel):
         # Fill the cb
         for axis in axes:
             self.cb1.Append(axis.axisName, axis)
-            self.cb1.Append(axis.axisName, axis)
+            self.cb2.Append(axis.axisName, axis)
 
     def initCtrls(self):
         """ Initialize and group the controls """
-        interChangeAxisLabel = wx.StaticText(self, -1, "Change axis position")
+        interChangeAxisLabel = wx.StaticText(self, -1, "Change axis position:")
         axis1Label = wx.StaticText(self, -1, "Axis 1:")
         axis2Label = wx.StaticText(self, -1, "Axis 2:")
         self.changeBtn = wx.Button(self, label="Change axes")
@@ -290,31 +300,32 @@ class PCWidget(wx.Panel):
 
         # Group the buttons
         btnsSizer = wx.BoxSizer(wx.HORIZONTAL)
-        btnsSizer.Add(self.resetBtn, 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 10)
-        btnsSizer.Add(self.changeBtn, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        btnsSizer.Add(self.resetBtn, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT)
+        btnsSizer.Add(self.changeBtn, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT)
         # Group the combo boxes with its respective labels
         # Combo box 1
-        cbSizer1 = wx.BoxSizer(wx.HORIZONTAL)
-        cbSizer1.Add(axis1Label, 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 10)
-        cbSizer1.Add(self.cb1, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        cbSizer1 = wx.BoxSizer(wx.VERTICAL)
+        cbSizer1.Add(axis1Label, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        cbSizer1.Add(self.cb1, 0, wx.EXPAND | wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
         # Combo box 2
-        cbSizer2 = wx.BoxSizer(wx.HORIZONTAL)
-        cbSizer1.Add(axis2Label, 0, wx.LEFT | wx.ALIGN_CENTER_VERTICAL, 10)
-        cbSizer1.Add(self.cb2, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        cbSizer2 = wx.BoxSizer(wx.VERTICAL)
+        cbSizer1.Add(axis2Label, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        cbSizer1.Add(self.cb2, 0, wx.EXPAND | wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
         # Both combo boxes
         cbSizer = wx.BoxSizer(wx.VERTICAL)
-        cbSizer.Add(cbSizer1, 0, wx.TOP | wx.ALIGN_CENTER_VERTICAL, 10)
-        cbSizer.Add(cbSizer2, 0, wx.BOTTOM | wx.ALIGN_CENTER_VERTICAL)
+        cbSizer.Add(cbSizer1, 0, wx.TOP | wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL)
+        cbSizer.Add(cbSizer2, 0, wx.BOTTOM | wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL)
         # Group label, combo boxes and buttons
         widgetsSizer = wx.BoxSizer(wx.VERTICAL)
-        widgetsSizer.Add(interChangeAxisLabel, 0, wx.TOP | wx.ALIGN_CENTER_VERTICAL, 10)
-        widgetsSizer.Add(cbSizer, 0, wx.ALIGN_CENTER_VERTICAL)
-        widgetsSizer.Add(btnsSizer, 0, wx.ALIGN_CENTER_VERTICAL)
+        widgetsSizer.Add(interChangeAxisLabel, 0, wx.TOP | wx.ALIGN_CENTER_VERTICAL)
+        widgetsSizer.Add(cbSizer, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL)
+        widgetsSizer.Add(btnsSizer, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL)
 
         # Main sizer
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.sizer.Add(self.pc, 1, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
-        self.sizer.Add(widgetsSizer, 0, wx.ALIGN_LEFT | wx.EXPAND)
+        self.sizer.Add(self.pc, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.ALL, 5)
+        self.sizer.Add(widgetsSizer, 0, wx.ALIGN_RIGHT | wx.EXPAND)
+        self.SetSizer(self.sizer)
 
     def getSizer(self):
         """ Get the widget sizer """
@@ -329,12 +340,12 @@ class PCWidget(wx.Panel):
     def onChangeBtn(self, event):
         """ Handle the change button click """
         # Get the index of the axes
-        cb1Selection = self.cb.GetClientData(self.cb.GetSelection())
-        cb2Selection = self.cb.GetClientData(self.cb.GetSelection())
+        cb1Selection = self.cb1.GetClientData(self.cb1.GetSelection())
+        cb2Selection = self.cb2.GetClientData(self.cb2.GetSelection())
         # Change axes
         axis1 = cb1Selection.axisNumber
         axis2 = cb2Selection.axisNumber
-        self.pc.changeAxes(axis1, axis1)
+        self.pc.changeAxes(axis1, axis2)
 
     def onResetBtn(self, event):
         """ Hangle the reset button click """
