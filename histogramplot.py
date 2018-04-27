@@ -285,7 +285,7 @@ class HistogramPlot(oglC.OGLCanvas):
 
 #------------------------------------------------------------------------------------------------------------------
 
-class HistogramContainer(wx.Panel):
+class HistogramWidget(wx.Panel):
     """
     The panel containing the histogram plot and all of its controls
     """
