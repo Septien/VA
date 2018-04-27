@@ -145,6 +145,13 @@ class mainGUI(wx.Frame):
             self.selectedDB = True
         dlg.Destroy()
 
+    def SelectedDB(self):
+        """ Check if a database or csv file is selected. If not prompts the user. """
+        if not self.selectedDB:
+            wx.MessageBox("Select a database before proceeding", self.title)
+            return False
+        return True
+
     def OnPCSelected(self, event):
         """ When the ||-coord is selected """
         pass
