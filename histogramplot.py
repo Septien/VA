@@ -105,9 +105,8 @@ class HistogramPlot(oglC.OGLCanvas):
         #
         self.rect.clear()
         self.rectWidth = 1.0 / self.numBins
-        offset = 0.025
         for i in range(self.numBins):
-            rect = ((self.rectWidth * i + offset, 0), (self.rectWidth * (1 + i) + offset, self.frequencies[i]))
+            rect = ((self.rectWidth * i, 0), (self.rectWidth * (1 + i), self.frequencies[i]))
             self.rect.append(rect)
 
     def setData(self, data):
@@ -126,13 +125,12 @@ class HistogramPlot(oglC.OGLCanvas):
         self.setRange()
         assert isSort(self.data), "The data is not sorted"
 
-    def computeFrequencies(self, freq):
+    def computeFrequencies(self):
         """
         Compute the frequencies of the histogram. Such frequencies could not be in the range [0, 1],
         so it normalize them. Such frequency is the height of the rectangle. If the number of 
         frequencies is different to the number of bins, the latter is updated.
         """
-        assert type(freq) == list, "'freq' parameter is not a list"
         #
         for x in self.data:
             i = 0
@@ -147,8 +145,8 @@ class HistogramPlot(oglC.OGLCanvas):
             if f > self.maxFrequency:
                 self.maxFrequency = self.frequencies[i]
         
-        for i in range(size):
-            self.frequencies[i] /= maxF
+        for i in range(len(self.frequencies)):
+            self.frequencies[i] /= self.maxFrequency
 
         # Update rectangles and redraw
         self.UpdateRect()
@@ -304,11 +302,14 @@ class HistogramWidget(wx.Panel):
         """ Initialize the class for the histogram """
         # Initialize the canvas for histogram
         self.histogram = HistogramPlot(self)
+        self.histogram.SetMinSize((200, 200))
         datum = [ d[self.axis] for d in self.data ]
         self.histogram.setData(datum)
         self.histogram.setAxis(self.axis)
         # Compute the defaul number of bins
         self.histogram.computeBins()
+        self.histogram.computeClassesInterval()
+        self.histogram.computeFrequencies()
 
     def initCtrls(self):
         """
@@ -323,7 +324,6 @@ class HistogramWidget(wx.Panel):
         self.slBins = wx.Slider(self, -1, value=bins, minValue=0,
             maxValue=maxBins, name="Bins", style=wx.SL_HORIZONTAL | wx.SL_LABELS | wx.SL_AUTOTICKS)
         #
-        self.histogram.SetMinSize((200, 200))
         self.tbxBins.ChangeValue(str(bins))
 
     def groupControls(self):
@@ -333,7 +333,7 @@ class HistogramWidget(wx.Panel):
         # Group controls
         # Group textbox and label
         binsSizer = wx.BoxSizer(wx.HORIZONTAL)
-        binsSizer.Add(self.binsLabel, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 10)
+        binsSizer.Add(self.binsLabel, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
         binsSizer.Add(self.tbxBins, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL)
 
         # Group slider and binsSizer
@@ -343,8 +343,9 @@ class HistogramWidget(wx.Panel):
 
         # Group controls with glcanvas
         self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.sizer.Add(self.canvas, 5, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
+        self.sizer.Add(self.histogram, 5, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
         self.sizer.Add(sliderSizer, 0, wx.ALIGN_BOTTOM | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+        self.SetSizer(self.sizer)
 
     def getSizer(self):
         """ Return the sizer """
