@@ -53,10 +53,12 @@ class mainGUI(wx.Frame):
 
         self.selectedDB = False
         self.data = None
+        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
         
         # Set the panel
         self.panel = wx.Panel(self)
         self.panel.SetBackgroundColour((255, 255, 255))
+        self.panel.SetSizer(self.mainSizer)
 
         self.initMenus()
 
@@ -135,8 +137,6 @@ class mainGUI(wx.Frame):
                         self.data.append(nRow)
             self.selectedDB = True
         dlg.Destroy()
-        print(self.selectedDB)
-
 
     def OnPCSelected(self, event):
         """ When the ||-coord is selected """
@@ -175,6 +175,7 @@ class mainGUI(wx.Frame):
 class visAnalyzer(wx.App):
     def OnInit(self):
         self.frame = mainGUI(None, title="Visual Analyzer")
+        self.frame.Fit()
         self.frame.Show()
         # Maximize
         self.frame.Maximize(True)
