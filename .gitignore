@@ -1,3 +1,6 @@
 __pycache__/
 *.lib
 gui.py
+data/
+Clustering/
+pymodules/
