@@ -119,10 +119,12 @@ class HistogramPlot(oglC.OGLCanvas):
                     return False
             return True
         assert type(data) is list, "Incorrect input type"
-        assert isSort(data), "The data is not sorted"
+        # Copy and sort
         self.data = data
+        self.data.sort()
         # Set the range
         self.setRange()
+        assert isSort(self.data), "The data is not sorted"
 
     def computeFrequencies(self, freq):
         """
@@ -290,18 +292,21 @@ class HistogramWidget(wx.Panel):
     The panel containing the histogram plot and all of its controls
     """
     def __init__(self, parent, data, axis):
-        super(HistogramContainer, self).__init__(parent)
+        super(HistogramWidget, self).__init__(parent)
 
-        self.initHistogram(data, axis)
+        self.data = data
+        self.axis = axis
+        self.initHistogram()
         self.initCtrls()
         self.groupControls()
 
-    def initHistogram(self, data, axis):
+    def initHistogram(self):
         """ Initialize the class for the histogram """
         # Initialize the canvas for histogram
         self.histogram = HistogramPlot(self)
-        self.histogram.setData(data)
-        self.histogram.setAxis(axis)
+        datum = [ d[self.axis] for d in self.data ]
+        self.histogram.setData(datum)
+        self.histogram.setAxis(self.axis)
         # Compute the defaul number of bins
         self.histogram.computeBins()
 
