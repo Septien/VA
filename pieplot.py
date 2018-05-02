@@ -139,7 +139,7 @@ class PiePlot(oglC.OGLCanvas):
 
 		self.axis = axis
 
-	def computeFrequencies(self):
+	def computeFrequencies(self, draw):
 		""" Compute the relative frequencies of the data """
 		if not (self.data and self.labels):
 			return
@@ -154,3 +154,8 @@ class PiePlot(oglC.OGLCanvas):
 		# Compute relative frequencies
 		for f in self.frequencies:
 			self.frequencies[f] /= N
+
+		# Set drawing event if required
+		if draw:
+			wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+
