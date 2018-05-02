@@ -136,7 +136,18 @@ class PiePlot(oglC.OGLCanvas):
 
 		self.axis = axis
 
-
 	def computeFrequencies(self):
 		""" Compute the relative frequencies of the data """
-		wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+		if not (self.data and self.labels):
+			return
+
+		# Compute absolute frequencies
+		for d in self.data[axis]:
+			self.frequencies[d] = self.frequencies.get(d, 0) + 1
+
+		# Get the total number of elements
+		N = len(self.data[axis])
+
+		# Compute relative frequencies
+		for f in self.frequencies:
+			self.frequencies[f] /= N
