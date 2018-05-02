@@ -176,7 +176,6 @@ class mainGUI(wx.Frame):
             return
         # Create pc widget
         self.pc = pc.PCWidget(self.panel, self.data, self.labels)
-        pcSizer = self.pc.getSizer()
         self.mainSizer.Add(self.pc, 1, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
         # Force layout update
         self.mainSizer.Layout()
