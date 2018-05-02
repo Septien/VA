@@ -18,32 +18,6 @@ import splom as spm
 
 import random as r
 
-# Create custom events for the graphs
-# Parallel coordinates
-PCEvent, EVT_PC_EVENT = wx.lib.newevent.NewEvent()
-PCCommandEvent, EVT_PC_COMMAND_EVENT = wx.lib.newevent.NewCommandEvent()
-# Scatterplot matrix
-SPLOMEvent, EVT_SPLOM_EVENT = wx.lib.newevent.NewEvent()
-SPLOMCommandEvent, EVT_SPLOM_COMMAND_EVENT = wx.lib.newevent.NewCommandEvent()
-# Lineplot
-LPvent, EVT_LP_EVENT = wx.lib.newevent.NewEvent()
-LPCommandEvent, EVT_LP_COMMAND_EVENT = wx.lib.newevent.NewCommandEvent()
-# Gauge
-GPEvent, EVT_GP_EVENT = wx.lib.newevent.NewEvent()
-GPCommandEvent, EVT_GP_COMMAND_EVENT = wx.lib.newevent.NewCommandEvent()
-# Pieplot
-PPEvent, EVT_PP_EVENT = wx.lib.newevent.NewEvent()
-PPCommandEvent, EVT_PP_COMMAND_EVENT = wx.lib.newevent.NewCommandEvent()
-# Osciloscope
-OSCEvent, EVT_OSC_EVENT = wx.lib.newevent.NewEvent()
-OSCCommandEvent, EVT_OSC_COMMAND_EVENT = wx.lib.newevent.NewCommandEvent()
-# Histogram
-HGEvent, EVT_HG_EVENT = wx.lib.newevent.NewEvent()
-HGCommandEvent, EVT_HG_COMMAND_EVENT = wx.lib.newevent.NewCommandEvent()
-# Scatterplot
-SCPEvent, EVT_SCP_EVENT = wx.lib.newevent.NewEvent()
-SCPCommandEvent, EVT_SCP_COMMAND_EVENT = wx.lib.newevent.NewCommandEvent()
-
 class mainGUI(wx.Frame):
     """
     Handles the widgets for the gui.
