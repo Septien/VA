@@ -140,7 +140,7 @@ class HistogramPlot(oglC.OGLCanvas):
                     break
                 i += 1
         # Normalize
-        self.maxFrequency = 0
+        self.maxFrequency = self.frequencies[0]
         for f in self.frequencies:
             if f > self.maxFrequency:
                 self.maxFrequency = self.frequencies[i]
