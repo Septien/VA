@@ -125,7 +125,7 @@ class HistogramPlot(oglC.OGLCanvas):
         self.setRange()
         assert isSort(self.data), "The data is not sorted"
 
-    def computeFrequencies(self):
+    def computeFrequencies(self, draw):
         """
         Compute the frequencies of the histogram. Such frequencies could not be in the range [0, 1],
         so it normalize them. Such frequency is the height of the rectangle. If the number of 
@@ -154,7 +154,8 @@ class HistogramPlot(oglC.OGLCanvas):
         # https://stackoverflow.com/questions/747781/wxpython-calling-an-event-manually
         # https://www.blog.pythonlibrary.org/2010/05/22/wxpython-and-threads/
         # https://stackoverflow.com/questions/25299745/how-to-programmatically-generate-an-event-in-wxpython
-        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+        if draw:
+            wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
     
     def setRange(self):
         """
@@ -309,7 +310,7 @@ class HistogramWidget(wx.Panel):
         # Compute the defaul number of bins
         self.histogram.computeBins()
         self.histogram.computeClassesInterval()
-        self.histogram.computeFrequencies()
+        self.histogram.computeFrequencies(False)
 
     def initCtrls(self):
         """
@@ -403,4 +404,4 @@ class HistogramWidget(wx.Panel):
         # Set the bins
         self.histogram.SetNumBins(bins)
         self.histogram.computeClassesInterval()
-        self.histogram.computeFrequencies()
+        self.histogram.computeFrequencies(True)

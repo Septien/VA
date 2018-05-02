@@ -69,7 +69,9 @@ class ParallelCoordinates(oglC.OGLCanvas):
         # Initialize the order of dimensions to the defeault
         self.setDefaultAxesOrder()
 
-        self.ComputeRanges()
+        # Set the default axes order
+        for i in range(self.dimensions):
+            self.axesOrder.append(i)
 
         assert self.data, "No data copied"
         assert EqualLength(self.data), "All rows must be the same lenght"
