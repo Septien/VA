@@ -262,7 +262,3 @@ class LinePlotContainer(wx.Panel):
         # Group
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer.Add(self.plot, 5, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
-
-    def getSizer(self):
-        """ Get the sizer of the class """
-        return self.sizer
