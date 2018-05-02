@@ -69,6 +69,10 @@ class PiePlot(oglC.OGLCanvas):
 		startAngle = 0.0
 		for freq in sortedFrequencies:
 			arcAngle = 360.0 * freq[1]
+			glColor3f(0.0, 0.0, 0.0)
+			labelAngle = (arcAngle / 2.0) + startAngle
+			radious = 1.1
+			self.drawLabels(labelAngle, str(freq[0]), radious)
 			glColor3f(r.random(), r.random(), r.random())
 			self.DrawFilledArc(0, 0, 1, startAngle, arcAngle)
 			startAngle += arcAngle
@@ -159,3 +163,29 @@ class PiePlot(oglC.OGLCanvas):
 		if draw:
 			wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
+	def drawLabels(self, angle, label, radious):
+		""" Draw the labels of the pieplot.
+				-angle: Angle at which the label is to be drawn.
+				-label: label to draw.
+		"""
+		def GetLabelWidth(label):
+			"""Returns the total width of the length of 'label', using the
+			fonts from glut"""
+			assert type(label) is str, "Incorrect type"
+
+			length = 0
+			for c in label:
+			    length += glutBitmapWidth(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+			assert type(length) is int
+			assert length >= 0
+
+			return length
+
+		# Draw the value variables
+		lenght = GetLabelWidth(label)
+		x = r * m.sin(angle)
+		y = r * m.cos(angle)
+		glRasterPos2f(x, y)
+		for c in yLabel:
+			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
