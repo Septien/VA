@@ -30,6 +30,8 @@ class PiePlot(oglC.OGLCanvas):
 		super(PiePlot, self).__init__(parent)
 		# Relative frequency
 		self.frequencies = []
+		self.data = None
+		self.axis = -1
 		# Labels corresponding to the ith frequency
 		self.labels = []
 
@@ -106,6 +108,34 @@ class PiePlot(oglC.OGLCanvas):
 
 			glVertex3f(x, y, 0.0)
 		glEnd()
+
+	def setData(self, data):
+		""" Sets the data """
+		assert type(data) is list, "Incorrect input type"
+		# Store a reference
+		self.data = data
+
+		assert self.data, "Data not copied"
+
+	def setLabels(self, labels):
+		""" Set the labels for the graph """
+		assert type(labels) is list, "Incorrect input type: is " + str(type(labels)) + " must be list."
+
+		self.labels = labels
+
+		assert self.labels, "Labels not set"
+		if self.data:
+			assert len(self.data) == len(self.labels), "Incorrect number of labels"
+
+	def setAxis(self, axis):
+		""" Set the number of the axis to analize """
+		assert type(axis) is int, "Incorrect input type: is " + str(type(axis)) + " must be integer."
+		assert axis > -1, "Axis must be greater than zero"
+		if self.data:
+			assert axis < len(self.data), "Axis must be less than: " + str(len(self.data))
+
+		self.axis = axis
+
 
 	def computeFrequencies(self):
 		""" Compute the relative frequencies of the data """
