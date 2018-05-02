@@ -107,21 +107,6 @@ class PiePlot(oglC.OGLCanvas):
 			glVertex3f(x, y, 0.0)
 		glEnd()
 
-	def SetFrequencies(self, freq):
-		"""
-		Copies the freq to frequencies list.
-		Ereases the previous values.
-		Sends an event to redraw the pie
-		"""
-		if type(freq) is not list:
-			return
-
-		self.frequencies.clear()
-		totalF = 0
-		for f in freq:
-			totalF += f
-		# Get the ralative frequencies
-		for f in freq:
-			self.frequencies.append(f / totalF)
-		# Redraw
+	def computeFrequencies(self):
+		""" Compute the relative frequencies of the data """
 		wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
