@@ -348,10 +348,6 @@ class HistogramWidget(wx.Panel):
         self.sizer.Add(sliderSizer, 0, wx.ALIGN_BOTTOM | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
         self.SetSizer(self.sizer)
 
-    def getSizer(self):
-        """ Return the sizer """
-        return self.sizer
-
     def bindEvets(self):
         """
         Bind the events for the slider and text box
