@@ -59,13 +59,16 @@ class PiePlot(oglC.OGLCanvas):
 		Draw the pie based on the of frequencies. The lenght of the arc (angle) is
 		proportinal to relative frequencies.
 		"""
+		# Get the frequencies ordered
+		import operator
+		sortedFrequencies = sorted(self.frequencies.items(), key=operator.itemgetter(1))
 		r.seed()
 		glPushMatrix()
 		glTranslatef(0.5, 0.5, 0.0)
 		glScalef(0.5, 0.5, 0.0)
 		startAngle = 0.0
-		for freq in self.frequencies:
-			arcAngle = 360.0 * freq
+		for freq in sortedFrequencies:
+			arcAngle = 360.0 * freq[1]
 			glColor3f(r.random(), r.random(), r.random())
 			self.DrawFilledArc(0, 0, 1, startAngle, arcAngle)
 			startAngle += arcAngle
