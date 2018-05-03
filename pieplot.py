@@ -184,8 +184,8 @@ class PiePlot(oglC.OGLCanvas):
 
 		# Draw the value variables
 		lenght = GetLabelWidth(label)
-		x = radious * m.sin(m.radians(angle))
-		y = radious * m.cos(m.radians(angle))
+		x = radious * m.cos(m.radians(angle))
+		y = radious * m.sin(m.radians(angle))
 		glRasterPos2f(x, y)
 		for c in label:
 			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
@@ -215,7 +215,7 @@ class PPWidget(wx.Panel):
 
     def initPiePlot(self, axis):
         self.pp = PiePlot(self)
-        self.pp.SetMinSize((300, 300))
+        self.pp.SetMinSize((500, 500))
         self.pp.setData(self.data)
         self.pp.setLabels(self.labels)
         self.pp.setAxis(axis)
@@ -243,7 +243,7 @@ class PPWidget(wx.Panel):
         sizer1.Add(self.cb, 0, wx.EXPAND | wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
 
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.sizer.Add(self.pp, 1,  wx.ALIGN_RIGHT | wx.EXPAND | wx.ALL, 5)
+        self.sizer.Add(self.pp, 1,  wx.ALIGN_RIGHT | wx.SHAPED | wx.ALL, 5)
         self.sizer.Add(sizer1, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
 
         self.SetSizer(self.sizer)
