@@ -65,7 +65,7 @@ class PiePlot(oglC.OGLCanvas):
 		r.seed()
 		glPushMatrix()
 		glTranslatef(0.5, 0.5, 0.0)
-		glScalef(0.5, 0.5, 0.0)
+		glScalef(0.45, 0.45, 0.0)
 		startAngle = 0.0
 		for freq in sortedFrequencies:
 			arcAngle = 360.0 * freq[1]
@@ -148,6 +148,8 @@ class PiePlot(oglC.OGLCanvas):
 		if not (self.data and self.labels):
 			return
 
+		# Clear any previous values
+		self.frequencies.clear()
 		# Get the data
 		datum = [d[self.axis] for d in self.data]
 		# Compute absolute frequencies
