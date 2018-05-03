@@ -29,7 +29,7 @@ class PiePlot(oglC.OGLCanvas):
 		"""
 		super(PiePlot, self).__init__(parent)
 		# Relative frequency
-		self.frequencies = []
+		self.frequencies = {}
 		self.data = None
 		self.axis = -1
 		# Labels corresponding to the ith frequency
@@ -132,7 +132,7 @@ class PiePlot(oglC.OGLCanvas):
 
 		assert self.labels, "Labels not set"
 		if self.data:
-			assert len(self.data) == len(self.labels), "Incorrect number of labels"
+			assert len(self.data[0]) == len(self.labels), "Incorrect number of labels"
 
 	def setAxis(self, axis):
 		""" Set the number of the axis to analize """
@@ -149,11 +149,11 @@ class PiePlot(oglC.OGLCanvas):
 			return
 
 		# Compute absolute frequencies
-		for d in self.data[axis]:
+		for d in self.data[self.axis]:
 			self.frequencies[d] = self.frequencies.get(d, 0) + 1
 
 		# Get the total number of elements
-		N = len(self.data[axis])
+		N = len(self.data[self.axis])
 
 		# Compute relative frequencies
 		for f in self.frequencies:
@@ -184,8 +184,8 @@ class PiePlot(oglC.OGLCanvas):
 
 		# Draw the value variables
 		lenght = GetLabelWidth(label)
-		x = r * m.sin(angle)
-		y = r * m.cos(angle)
+		x = radious * m.sin(m.radians(angle))
+		y = radious * m.cos(m.radians(angle))
 		glRasterPos2f(x, y)
-		for c in yLabel:
+		for c in label:
 			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
