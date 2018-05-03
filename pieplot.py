@@ -189,3 +189,67 @@ class PiePlot(oglC.OGLCanvas):
 		glRasterPos2f(x, y)
 		for c in label:
 			glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+#------------------------------------------------------------------------------------------------------------------
+
+class Axes:
+    """ Simple class containing the axes name and number """
+    def __init__(self, number, name):
+        self.axisNumber = number
+        self.axisName = name
+
+#------------------------------------------------------------------------------------------------------------------
+
+class PPWidget(wx.Panel):
+    """
+        Widget containing all the controls necessary for interacting with the pieplot.
+    """
+    def __init__(self, parent, data, labels, axis):
+        super(PPWidget, self).__init__(parent)
+
+        self.data = data
+        self.labels = labels
+        self.initPiePlot(axis)
+        self.initCtrls()
+        self.groupCtrls()
+
+    def initPiePlot(self, axis):
+        self.pp = PiePlot(self)
+        self.pp.SetMinSize((300, 300))
+        self.pp.setData(self.data)
+        self.pp.setLabels(self.labels)
+        self.pp.setAxis(axis)
+        self.pp.computeFrequencies(False)
+
+    def initCtrls(self):
+        axes = []
+        for i in range(len(self.data[0])):
+            axes.append(Axes(i, self.labels[i]))
+
+        self.cb = wx.ComboBox(self, size=wx.DefaultSize, choices=[])
+
+        # Fill the cb
+        for axis in axes:
+            self.cb.Append(axis.axisName, axis)
+
+        # Bind event
+        self.cb.Bind(wx.EVT_COMBOBOX, self.OnCBChange)
+
+    def groupCtrls(self):
+        label = wx.StaticText(self, -1, "Change axis:")
+
+        sizer1 = wx.BoxSizer(wx.VERTICAL)
+        sizer1.Add(label, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        sizer1.Add(self.cb, 0, wx.EXPAND | wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+
+        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer.Add(self.pp, 1,  wx.ALIGN_RIGHT | wx.EXPAND | wx.ALL, 5)
+        self.sizer.Add(sizer1, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+
+        self.SetSizer(self.sizer)
+
+    def OnCBChange(self, event):
+        """ Handle the events for the combo box """
+        cbSelection = self.cb.GetClientData(self.cb.GetSelection())
+        self.pp.setAxis(cbSelection.axisNumber)
+        self.pp.computeFrequencies(True)
