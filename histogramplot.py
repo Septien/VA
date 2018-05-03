@@ -53,7 +53,10 @@ class HistogramPlot(oglC.OGLCanvas):
 
         #Draw rectangles and axes
         glLineWidth(1.0)
+        glPushMatrix()
+        glTranslatef(0.03, 0.0, 0.0)
         self.DrawRect()
+        glPopMatrix()
         glLineWidth(2.0)
         self.DrawAxes()
         # glLineWidth(1.0)
@@ -269,14 +272,17 @@ class HistogramPlot(oglC.OGLCanvas):
             return length
         # Draw the value of the ranges
         a = self.range[0]
+        glPushMatrix()
+        glTranslatef(0.03, 0.0, 0.0)
         for i in range(self.numBins+1):
             x = a + i * self.binWidth
-            xLabel = '{:.2f}'.format(x)
+            xLabel = '{:.1f}'.format(x)
             length = GetLabelWidth(xLabel)
             length /= self.size.width
-            glRasterPos2f(i * self.rectWidth - length / 2.0, -0.06)
+            glRasterPos2f(i * self.rectWidth - length / 2.0, -0.08)
             for c in xLabel:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+        glPopMatrix()
 
         # Draw the value of the frequencies
         minFreq = 0
@@ -287,7 +293,7 @@ class HistogramPlot(oglC.OGLCanvas):
             yLabel = '{:.1f}'.format(y)
             length = GetLabelWidth(yLabel)
             length /= self.size.width
-            glRasterPos2f(-0.06, i * divWidth - length / 2.0)
+            glRasterPos2f(-0.08, i * divWidth - length / 2.0)
             for c in yLabel:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
@@ -311,7 +317,7 @@ class HistogramWidget(wx.Panel):
         """ Initialize the class for the histogram """
         # Initialize the canvas for histogram
         self.histogram = HistogramPlot(self)
-        self.histogram.SetMinSize((200, 200))
+        self.histogram.SetMinSize((300, 300))
         datum = [ d[self.axis] for d in self.data ]
         self.histogram.setData(datum)
         self.histogram.setAxis(self.axis)
