@@ -71,7 +71,7 @@ class PiePlot(oglC.OGLCanvas):
 			arcAngle = 360.0 * freq[1]
 			glColor3f(0.0, 0.0, 0.0)
 			labelAngle = (arcAngle / 2.0) + startAngle
-			radious = 1.1
+			radious = 1.2
 			self.drawLabels(labelAngle, str(freq[0]), radious)
 			glColor3f(r.random(), r.random(), r.random())
 			self.DrawFilledArc(0, 0, 1, startAngle, arcAngle)
@@ -148,12 +148,13 @@ class PiePlot(oglC.OGLCanvas):
 		if not (self.data and self.labels):
 			return
 
+		# Get the data
+		datum = [d[self.axis] for d in self.data]
 		# Compute absolute frequencies
-		for d in self.data[self.axis]:
+		for d in datum:
 			self.frequencies[d] = self.frequencies.get(d, 0) + 1
-
 		# Get the total number of elements
-		N = len(self.data[self.axis])
+		N = len(datum)
 
 		# Compute relative frequencies
 		for f in self.frequencies:
