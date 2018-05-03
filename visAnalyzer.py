@@ -144,6 +144,23 @@ class mainGUI(wx.Frame):
             return False
         return True
 
+    def GetSelectedAxis(self, selectionable, title="", text=""):
+        """ Returns the index of the axis selected.
+            -selectionable: List of selectionable axes.
+            -title: Title of the dialog.
+            -text: Text of the dialog.
+        """
+        axis = -1
+        dlg = wx.SingleChoiceDialog(self, title, text, selectionable)
+        if dlg.ShowModal() == wx.ID_OK:
+            axisName = dlg.GetStringSelection()
+            # Get the index
+            for i in range(len(self.labels)):
+                if self.labels[i] == axisName:
+                    axis = i
+        return axis
+
+
     def OnPCSelected(self, event):
         """ When the ||-coord is selected """
         if not self.SelectedDB():
@@ -183,13 +200,8 @@ class mainGUI(wx.Frame):
             return
         # Get the selectionable axes
         selectionable = self.getSelectionableAxes()
-        dlg = wx.SingleChoiceDialog(self, "Axes suitable for histogram", "Select an axis", selectionable)
-        if dlg.ShowModal() == wx.ID_OK:
-            axisName = dlg.GetStringSelection()
-            # Get the index
-            for i in range(len(self.labels)):
-                if self.labels[i] == axisName:
-                    axis = i
+        axis = self.GetSelectedAxis(selectionable, title="Axes suitable for histogram", text="Select an axis")
+        if axis > -1:
             # Set it to the histogram
             self.hist = hp.HistogramWidget(self.panel, self.data, axis)
             self.mainSizer.Add(self.hist, 1, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
