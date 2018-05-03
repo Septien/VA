@@ -167,7 +167,7 @@ class mainGUI(wx.Frame):
             return
         # Create pc widget
         self.pc = pc.PCWidget(self.panel, self.data, self.labels)
-        self.mainSizer.Add(self.pc, 1, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
+        self.mainSizer.Add(self.pc, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
         # Force layout update
         self.mainSizer.Layout()
         self.panel.Layout()
@@ -214,7 +214,7 @@ class mainGUI(wx.Frame):
         if axis > -1:
             # Set it to the histogram
             self.hist = hp.HistogramWidget(self.panel, self.data, axis)
-            self.mainSizer.Add(self.hist, 1, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
+            self.mainSizer.Add(self.hist, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
             # Force layout update
             self.mainSizer.Layout()
             self.panel.Layout()
