@@ -142,9 +142,15 @@ class ParallelCoordinates(oglC.OGLCanvas):
         """Draw the graph"""
         glClear(GL_COLOR_BUFFER_BIT)
 
+        # Dotted line
+        glPushAttrib(GL_ENABLE_BIT)
+        glLineStipple(1, 0xAAAA)
+        glEnable(GL_LINE_STIPPLE)
         glColor3f(0.0, 0.0, 0.0)
         self.DrawBoundingBox()
         self.DrawParallelAxes()
+        glPopAttrib()
+
         glColor3f(0.0, 0.0, 1.0)
         self.DrawLines()
         glColor3f(0.0, 0.5, 0.9)
