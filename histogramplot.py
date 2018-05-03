@@ -269,9 +269,9 @@ class HistogramPlot(oglC.OGLCanvas):
             return length
         # Draw the value of the ranges
         a = self.range[0]
-        for i in range(self.numBins):
+        for i in range(self.numBins+1):
             x = a + i * self.binWidth
-            xLabel = str(x)
+            xLabel = '{:.2f}'.format(x)
             length = GetLabelWidth(xLabel)
             length /= self.size.width
             glRasterPos2f(i * self.rectWidth - length / 2.0, -0.06)
@@ -282,9 +282,9 @@ class HistogramPlot(oglC.OGLCanvas):
         minFreq = 0
         numDivisions = 10
         divWidth = 1.0 / numDivisions
-        for i in range(numDivisions):
+        for i in range(numDivisions+1):
             y = minFreq + i * divWidth
-            yLabel = str(y)
+            yLabel = '{:.1f}'.format(y)
             length = GetLabelWidth(yLabel)
             length /= self.size.width
             glRasterPos2f(-0.06, i * divWidth - length / 2.0)
