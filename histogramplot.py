@@ -142,6 +142,7 @@ class HistogramPlot(oglC.OGLCanvas):
         so it normalize them. Such frequency is the height of the rectangle. If the number of 
         frequencies is different to the number of bins, the latter is updated.
         """
+        self.initFrequencies()
         #
         for x in self.data:
             i = 0
@@ -227,10 +228,15 @@ class HistogramPlot(oglC.OGLCanvas):
         """
         self.binWidth = (self.data[-1] - self.data[0]) / self.numBins
         # Fill the frequencies array with zeros
+        self.initFrequencies()
+
+    def initFrequencies(self):
+        """ Initialize the frequency array with zeros """
         del(self.frequencies)
         self.frequencies = []
         for i in range(self.numBins):
             self.frequencies.append(0)
+
 
     def computeClassesInterval(self):
         """
@@ -239,6 +245,7 @@ class HistogramPlot(oglC.OGLCanvas):
         lower = 0
         upper = 0
         x = self.data[0]
+        self.binIntervals.clear()
         for i in range(self.numBins):
             lower = x
             x = self.data[0] + (i + 1) * self.binWidth
@@ -312,6 +319,8 @@ class HistogramWidget(wx.Panel):
         self.initHistogram()
         self.initCtrls()
         self.groupControls()
+        self.bindEvets()
+        self.sliderMinValue = 1
 
     def initHistogram(self):
         """ Initialize the class for the histogram """
@@ -339,6 +348,7 @@ class HistogramWidget(wx.Panel):
         self.slBins = wx.Slider(self, -1, value=bins, minValue=0,
             maxValue=maxBins, name="Bins", style=wx.SL_HORIZONTAL | wx.SL_LABELS | wx.SL_AUTOTICKS)
         #
+        self.SetSldMaxValue(maxBins)
         self.tbxBins.ChangeValue(str(bins))
 
     def groupControls(self):
@@ -409,7 +419,7 @@ class HistogramWidget(wx.Panel):
 
     def updateHistFreqs(self, bins):
         """ When the number of bins change"""
-        assert type(int) is int, "Incorrect type"
+        assert type(bins) is int, "Incorrect type"
 
         # Set the bins
         self.histogram.SetNumBins(bins)
