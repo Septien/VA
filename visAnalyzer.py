@@ -187,7 +187,17 @@ class mainGUI(wx.Frame):
 
     def OnPPSelected(self, event):
         """ When the pieplot is selected """
-        pass
+        if not self.SelectedDB():
+            return
+        # Request the axis to draw
+        axis = self.GetSelectedAxis(self.labels, title="Axes", text="Select an axis")
+        if axis > -1:
+            self.pp = pp.PPWidget(self.panel, self.data, self.labels, axis)
+            self.mainSizer.Add(self.pp, 0, wx.SHAPED | wx.ALIGN_CENTER | wx.ALL, 5)
+            # Force layout update
+            self.mainSizer.Layout()
+            self.panel.Layout()
+            self.Fit()
 
     def OnOSCSelected(self, event):
         """ When the osciloscope is selected """
