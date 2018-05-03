@@ -100,8 +100,16 @@ class HistogramPlot(oglC.OGLCanvas):
         glEnd()
 
     def UpdateRect(self):
+        """ Update the width and height of the bars according to the number of bins """
+        def inRange(array):
+            """ Verifies that all the elements in 'array' are within the [0, 1] interval """
+            for e in array:
+                if not 0 <= e <= 1:
+                    return False
+            return True
         if not self.frequencies:
             return
+        assert inRange(self.frequencies), "Frecuencies out of range"
         #
         self.rect.clear()
         self.rectWidth = 1.0 / self.numBins
@@ -143,7 +151,7 @@ class HistogramPlot(oglC.OGLCanvas):
         self.maxFrequency = self.frequencies[0]
         for f in self.frequencies:
             if f > self.maxFrequency:
-                self.maxFrequency = self.frequencies[i]
+                self.maxFrequency = f
         
         for i in range(len(self.frequencies)):
             self.frequencies[i] /= self.maxFrequency
