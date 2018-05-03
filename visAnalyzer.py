@@ -214,7 +214,7 @@ class mainGUI(wx.Frame):
         if axis > -1:
             # Set it to the histogram
             self.hist = hp.HistogramWidget(self.panel, self.data, axis)
-            self.mainSizer.Add(self.hist, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
+            self.mainSizer.Add(self.hist, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
             # Force layout update
             self.mainSizer.Layout()
             self.panel.Layout()
