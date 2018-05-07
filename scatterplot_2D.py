@@ -33,6 +33,8 @@ class ScatterPlot2D(oglC.OGLCanvas):
         self.points = []
         self.range = []
         self.divisions = 5
+        self.axis1Name = ""
+        self.axis2Name = ""
 
         self.InitCirclePoints()
         self.initGrid()
@@ -92,6 +94,14 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
         assert self.points, "Copy not made"
         assert EqualLenght(self.points), "All rows must be the same length"
+
+    def setAxesNames(self, axis1Name, axis2Name):
+        """ Set the name of the axis """
+        assert type(axis1Name) is str, "Incorrect input type"
+        assert type(axis2Name) is str, "Incorrect input type"
+
+        self.axis1Name = axis1Name
+        self.axis2Name = axis2Name
 
     def GetRanges(self):
         """Calculate the ranges of each dimension"""
@@ -240,6 +250,20 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
             assert a <= value <= b, "Out of range"
             return value
+        #
+        def GetLabelWidth(label):
+            """Returns the total width of the length of 'label', using the
+            fonts from glut"""
+            assert type(label) is str, "Incorrect type"
+
+            length = 0
+            for c in label:
+                length += glutBitmapWidth(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+            assert type(length) is int
+            assert length >= 0
+
+            return length
 
         assert self.range, "Ranges must be initialized"
 
@@ -257,6 +281,24 @@ class ScatterPlot2D(oglC.OGLCanvas):
             glRasterPos2f(-0.07, pos)
             for c in stryValue:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+        # Draw the name of the axis
+        width = GetLabelWidth(self.axis1Name)
+        width /= self.size.width
+        # For the first axis
+        glRasterPos2f(0.5, 1.05)
+        for c in self.axis1Name:
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+        # For the second axis
+        length = len(self.axis2Name)
+        fontHeight = 19 # As specified by font size
+        # Normalize to [0, 1] range
+        fontHeight /= self.size.height
+        i = 0
+        start = 1.0 # Start at one
+        for c in self.axis2Name:
+            glRasterPos2f(-0.05, start - i * fontHeight)
+            i += 1
 
     def SetNumDivisions(self, nDivisions):
         """Stablishes the number of divisions on the grid"""
