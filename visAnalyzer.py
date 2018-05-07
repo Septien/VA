@@ -225,7 +225,29 @@ class mainGUI(wx.Frame):
 
     def OnSCPSelected(self, event):
         """ When the scatterplot is selected """
-        pass
+        if not self.SelectedDB():
+            return
+        dlg = wx.MultiChoiceDialog(self, "Pick two axes", "Select the axes to display", self.labels)
+        options = 1
+        while options != 2:
+            if dlg.ShowModal() == wx.ID_OK:
+                selections = dlg.GetSelections()
+                if len(selections) != 2:
+                    wx.MessageBox("", "Select only two axes")
+                    continue
+                else:
+                    index1 = selections[0]
+                    index2 = selections[1]
+                    self.scp = sc2.ScatterplotWidget(self, self.data, self.labels, index1, index2)
+                    self.mainSizer.Add(self.scp, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
+                    # Force layout update
+                    self.mainSizer.Layout()
+                    self.panel.Layout()
+                    self.Fit()
+                    break
+            else:
+                break
+
 
 #---------------------------------------------------------------------------------------------
 
