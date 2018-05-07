@@ -320,3 +320,105 @@ class ScatterPlot2D(oglC.OGLCanvas):
         self.divisions = nDivisions
 
         assert self.divisions > 0, "Number of divisions must be greater than zero"
+
+    def reDraw(self):
+        """ Send an event to redraw the graph """
+        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+
+#----------------------------------------------------------------------------------------------
+
+class Axes:
+    """ Simple class containing the axes name and number """
+    def __init__(self, number, name):
+        self.axisNumber = number
+        self.axisName = name
+
+#----------------------------------------------------------------------------------------------
+
+class ScatterplotWidget(wx.Panel):
+    """ Widget for the scatterplot widget and its controls """
+    def __init__(self, parent, data, labels, axis1, axis2):
+        super(ScatterplotWidget, self).__init__(parent)
+
+        # Hold a reference for the data and labels
+        self.data = data
+        self.labels = labels
+        self.sizer = None
+        self.axis1 = axis1
+        self.axis2 = axis2
+
+        # Init controls and canvas
+        self.initScp()
+        self.initCtrls()
+        self.bindEvents()
+
+    def initScp(self):
+        """ Initialize the canvas for the scp """
+        self.scp = ScatterPlot2D(self)
+        self.updateAxes()
+        self.scp.SetMinSize((300, 300))
+
+    def initComboBox(self):
+        """ Initialize and fill the combobox with the name and number of the axis. """
+        axes = []
+        for i in range(len(self.data[0])):
+            axes.append(Axes(i, self.labels[i]))
+
+        self.cb1 = wx.ComboBox(self, sizer=wx.DefaultSizer, options=[])
+        self.cb2 = wx.ComboBox(self, sizer=wx.DefaultSizer, options=[])
+        for axis in axes:
+            self.cb1.Append(axis.axisName, axis)
+            self.cb2.Append(axis.axisName, axis)
+
+    def initCtrls(self):
+        """ Initialize all necessary controls and group them. """
+        label = wx.StaticText(self, -1, "Change an axis.")
+        axis1Label = wx.StaticText(self, -1, "Axis 1: ")
+        axis2Label = wx.StaticText(self, -1, "Axis 2: ")
+        self.initComboBox()
+
+        # Group the controls of the axis change
+        axis1Sizer = wx.BoxSizer(wx.HORIZONTAL)
+        axis1Sizer.Add(axis1Label, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        axis1Sizer.Add(self.cb1, wx.EXPAND | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        axis2Sizer = wx.BoxSizer(wx.HORIZONTAL)
+        axis2Sizer.Add(axis2Label, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        axis2Sizer.Add(self.cb2, wx.EXPAND | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        changeSizer = wx.BoxSizer(wx.VERTICAL)
+        changeSizer.Add(axis1Sizer, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+        changeSizer.Add(axis2Sizer, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+
+        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer.Add(self.scp, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.ALL, 5)
+        self.sizer.Add(changeSizer, wx.ALIGN_CENTER_VERTICAL)
+        self.SetSizer(self.sizer)
+
+    def bindEvents(self):
+        """ Bind the combobox events to its corresponding events """
+        self.cb1.Bind(wx.EVT_COMBOBOX, self.onAxis1Changed)
+        self.cb2.Bind(wx.EVT_COMBOBOX, self.onAxis2Changed)
+
+    def updateAxes(self):
+        """ Update the data and the labels of the scatterplot """
+        axesData = [self.data[self.axis1], self.data[self.axis2]]
+        self.scp.SetData(axesData)
+        self.scp.setAxesNames(self.labels[axis1], self.labels[axis2])
+
+    def onAxis1Changed(self, event):
+        """ When another axis is selected. Get the selected
+        axis, set it to the scatterplot, and update it. """
+        selection = self.cb1.GetClientData(self.cb1.GetSelection())
+        axis = selection.axisNumber
+        # Update axis
+        self.axis1 = axis
+        self.updateAxes()
+        self.scp.reDraw()
+
+    def onAxis2Chaned(self, event):
+        """ When the y axis variable change. """
+        selection = self.cb2.GetClientData(self.cb2.GetSelection())
+        axis = selection.axisNumber
+        # Update axis
+        self.axis2 = axis
+        self.updateAxes()
+        self.scp.reDraw()
