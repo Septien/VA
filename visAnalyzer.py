@@ -4,6 +4,7 @@ be called from here.
 """
 import wx
 import wx.lib.newevent
+import wx.lib.scrolledpanel as scp
 import oglCanvas as oglC
 
 # Plots
@@ -31,8 +32,10 @@ class mainGUI(wx.Frame):
         self.category = None
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
         
-        # Set the panel
-        self.panel = wx.Panel(self)
+        #https://stackoverflow.com/questions/30797443/add-a-vertical-scrollbar-to-a-wxframe-accross-multiple-wxpanels
+        # Create a scrolled panel
+        self.panel = scp.ScrolledPanel(self, -1, style=wx.SIMPLE_BORDER, size=(400, 200))
+        self.panel.SetupScrolling()
         self.panel.SetBackgroundColour((255, 255, 255))
         self.panel.SetSizer(self.mainSizer)
 
