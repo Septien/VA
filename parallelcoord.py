@@ -20,7 +20,8 @@ class ParallelCoordinates(oglC.OGLCanvas):
         -Axis range: Each coordinate is (linearly) interpolated between the maximum and minimum value among all
             the possible values of that axis
         -axesOrder: The order on which the axes are displayed.
-
+        -filterAxis: The axis to apply the filtering.
+        -filterRange: The range to filter
     """
     def __init__(self, parent):
         super(ParallelCoordinates, self).__init__(parent)
@@ -30,6 +31,8 @@ class ParallelCoordinates(oglC.OGLCanvas):
         self.labels = []
         self.axesRange = []
         self.axesOrder = []
+        self.filterAxis = -1
+        self.filterRange = []
 
     def InitGL(self):
         glClearColor(0.9, 0.9, 0.9, 1)
@@ -138,6 +141,33 @@ class ParallelCoordinates(oglC.OGLCanvas):
         # Send event to redraw
         wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
+    def setFilterAxis(self, axis):
+        """ Sets the axis to filter """
+        assert type(axis) is int, "Incorrect axis input type"
+
+        self.filterAxis = axis
+
+    def setFilterRange(self, nRange):
+        """ Sets the range to filter """
+        assert type(nRange) is list, "Incorrect input type"
+        assert self.axesRange[self.filterAxis][0] <= nRange[0] <= self.axesRange[self.filterAxis][1], "Out of range"
+        assert self.axesRange[self.filterAxis][0] <= nRange[1] <= self.axesRange[self.filterAxis][1], "Out of range"
+
+        self.filterRange = nRange.copy()
+        # Send event to redraw
+        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+
+    def getAxisRange(self, axis):
+        """ Gets the range of the axis 'axis' """
+        assert 0 <= axis < self.dimensions, "Out of range"
+        return self.axesRange[axis]
+
+    def resetFilter(self):
+        """ Resets the class so all lines are drawn """
+        self.filterAxis = -1
+        self.filterRange = []
+        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+
     def OnDraw(self):
         """Draw the graph"""
         glClear(GL_COLOR_BUFFER_BIT)
@@ -205,13 +235,20 @@ class ParallelCoordinates(oglC.OGLCanvas):
         # Iterate over all rows
         for row in self.data:
             i = 0
-            glBegin(GL_LINE_STRIP)
-            for index in self.axesOrder:
-                coord = row[index]
-                coordNorm = Map(coord, self.axesRange[index])
-                glVertex3f(i * spacing, coordNorm, 0.0)
-                i += 1
-            glEnd()
+            drawLine = True
+            # Check if line is within interval, and a filter must be applied
+            if self.filterAxis > -1:        # If a filter must be applied
+                if not (self.filterRange[0] <= row[self.filterAxis] <= self.filterRange[1]): # If the variable is out of range
+                    drawLine = False
+            if drawLine:
+                glBegin(GL_LINE_STRIP)
+                for index in self.axesOrder:
+                    coord = row[index]
+                    coordNorm = Map(coord, self.axesRange[index])
+                    glVertex3f(i * spacing, coordNorm, 0.0)
+                    i += 1
+                glEnd()
+
 
     def DrawLabels(self):
         """Print the labels on screen"""
@@ -265,6 +302,8 @@ class PCWidget(wx.Panel):
         self.data = data
         self.labels = labels
         self.sizer = None
+        self.axis = -1
+        self.axisRange = []
 
         # Create the graph
         self.initPC()
@@ -288,14 +327,17 @@ class PCWidget(wx.Panel):
         # Make the combo boxes
         self.cb1 = wx.ComboBox(self, size=wx.DefaultSize, choices=l)
         self.cb2 = wx.ComboBox(self, size=wx.DefaultSize, choices=l)
+        self.cb3 = wx.ComboBox(self, size=wx.DefaultSize, choices=l)
 
         # Fill the cb
         for axis in axes:
             self.cb1.Append(axis.axisName, axis)
             self.cb2.Append(axis.axisName, axis)
+            self.cb3.Append(axis.axisName, axis)
 
     def initCtrls(self):
         """ Initialize and group the controls """
+        # For the controls for changing axes position
         interChangeAxisLabel = wx.StaticText(self, -1, "Change axis position:")
         axis1Label = wx.StaticText(self, -1, "Axis 1:")
         axis2Label = wx.StaticText(self, -1, "Axis 2:")
@@ -303,6 +345,18 @@ class PCWidget(wx.Panel):
         self.resetBtn = wx.Button(self, label="Reset axes")
         # Init cbs
         self.initComboBox()
+
+        # For the controls to filter
+        filterLabel = wx.StaticText(self, -1, "Filter an axis:")
+        axisLabel = wx.StaticText(self, -1, "Axis:")
+        rangeLabel = wx.StaticText(self, -1, "Range:")
+        lowerLimitLabel = wx.StaticText(self, -1, "Lower limit:")
+        upperLimitLabel = wx.StaticText(self, -1, "Upper limit:")
+        self.tbxRange = wx.TextCtrl(self, -1, style=wx.TE_READONLY)
+        self.tbxLower = wx.TextCtrl(self, -1)
+        self.tbxUpper = wx.TextCtrl(self, -1)
+        self.resetFilterBtn = wx.Button(self, label="Reset")
+        self.filterBtn = wx.Button(self, label="Filter")
 
         # Group the buttons
         btnsSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -326,11 +380,34 @@ class PCWidget(wx.Panel):
         widgetsSizer.Add(interChangeAxisLabel, 0, wx.TOP | wx.ALIGN_CENTER_VERTICAL)
         widgetsSizer.Add(cbSizer, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL)
         widgetsSizer.Add(btnsSizer, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL)
+        # For filtering
+        widgetsSizer.Add(filterLabel, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        axSizer = wx.BoxSizer(wx.HORIZONTAL)
+        axSizer.Add(axisLabel, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        axSizer.Add(self.cb3, wx.EXPAND | wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        rgSizer = wx.BoxSizer(wx.HORIZONTAL)
+        rgSizer.Add(rangeLabel, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        rgSizer.Add(self.tbxRange, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        lowSizer = wx.BoxSizer(wx.HORIZONTAL)
+        lowSizer.Add(lowerLimitLabel, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        lowSizer.Add(self.tbxLower, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        upSizer = wx.BoxSizer(wx.HORIZONTAL)
+        upSizer.Add(upperLimitLabel, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        upSizer.Add(self.tbxUpper, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        btnsSizer2 = wx.BoxSizer(wx.HORIZONTAL)
+        btnsSizer2.Add(self.resetFilterBtn, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT)
+        btnsSizer2.Add(self.filterBtn, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT)
+
+        widgetsSizer.Add(axSizer, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+        widgetsSizer.Add(rgSizer, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+        widgetsSizer.Add(lowSizer, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+        widgetsSizer.Add(upSizer, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+        widgetsSizer.Add(btnsSizer2, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
 
         # Main sizer
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer.Add(self.pc, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.ALL, 5)
-        self.sizer.Add(widgetsSizer, 0, wx.ALIGN_RIGHT | wx.EXPAND)
+        self.sizer.Add(widgetsSizer, 0, wx.ALIGN_RIGHT)
         self.SetSizer(self.sizer)
 
     def bindBtnEvents(self):
@@ -338,6 +415,9 @@ class PCWidget(wx.Panel):
         # https://wiki.python.org/self.Bind vs. self.button.Bind
         self.changeBtn.Bind(wx.EVT_BUTTON, self.onChangeBtn)
         self.resetBtn.Bind(wx.EVT_BUTTON, self.onResetBtn)
+        self.cb3.Bind(wx.EVT_COMBOBOX, self.onAxisSelected)
+        self.filterBtn.Bind(wx.EVT_BUTTON, self.onFilterBtn)
+        self.resetFilterBtn.Bind(wx.EVT_BUTTON, self.onResetFilterBtn)
 
     def onChangeBtn(self, event):
         """ Handle the change button click """
@@ -352,3 +432,43 @@ class PCWidget(wx.Panel):
     def onResetBtn(self, event):
         """ Hangle the reset button click """
         self.pc.setDefaultAxesOrder()
+
+    def onAxisSelected(self, event):
+        """ When an axis is selected, get the range of the corresponding axis """
+        selection = self.cb3.GetClientData(self.cb3.GetSelection())
+        # Get the axis number
+        self.axis = selection.axisNumber
+        self.axisRange = self.pc.getAxisRange(self.axis)
+        # Display it on the text box
+        self.tbxRange.SetValue("")
+        self.tbxRange.SetValue(str(self.axisRange))
+
+    def onFilterBtn(self, event):
+        """ When the filter button is pressed """
+        upperS = self.tbxUpper.GetLineText(0)
+        lowerS = self.tbxLower.GetLineText(0)
+        if not upperS.isdecimal():
+            #self.tbxUpper.SetToolTip("Only numbers within the range")
+            return
+        if not lowerS.isdecimal():
+            return
+        upper = float(upperS)
+        lower = float(lowerS)
+        if not self.axisRange[0] <= upper <= self.axisRange[1]:
+            return
+        if not self.axisRange[0] <= lower <= self.axisRange[1]:
+            return
+        if upper < lower:
+            return
+
+        # Set the range
+        self.pc.setFilterAxis(self.axis)
+        self.pc.setFilterRange([lower, upper])
+
+
+    def onResetFilterBtn(self, event):
+        """ Reset all the data points """
+        self.pc.resetFilter()
+        self.tbxRange.SetValue("")
+        self.tbxUpper.SetValue("")
+        self.tbxLower.SetValue("")
