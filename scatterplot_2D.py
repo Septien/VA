@@ -356,7 +356,7 @@ class ScatterplotWidget(wx.Panel):
         """ Initialize the canvas for the scp """
         self.scp = ScatterPlot2D(self)
         self.updateAxes()
-        self.scp.SetMinSize((300, 300))
+        self.scp.SetMinSize((400, 400))
 
     def initComboBox(self):
         """ Initialize and fill the combobox with the name and number of the axis. """
@@ -364,8 +364,9 @@ class ScatterplotWidget(wx.Panel):
         for i in range(len(self.data[0])):
             axes.append(Axes(i, self.labels[i]))
 
-        self.cb1 = wx.ComboBox(self, sizer=wx.DefaultSizer, options=[])
-        self.cb2 = wx.ComboBox(self, sizer=wx.DefaultSizer, options=[])
+        l = []
+        self.cb1 = wx.ComboBox(self, size=wx.DefaultSize, choices=[])
+        self.cb2 = wx.ComboBox(self, size=wx.DefaultSize, choices=[])
         for axis in axes:
             self.cb1.Append(axis.axisName, axis)
             self.cb2.Append(axis.axisName, axis)
@@ -402,7 +403,7 @@ class ScatterplotWidget(wx.Panel):
         """ Update the data and the labels of the scatterplot """
         axesData = [self.data[self.axis1], self.data[self.axis2]]
         self.scp.SetData(axesData)
-        self.scp.setAxesNames(self.labels[axis1], self.labels[axis2])
+        self.scp.setAxesNames(self.labels[self.axis1], self.labels[self.axis2])
 
     def onAxis1Changed(self, event):
         """ When another axis is selected. Get the selected
@@ -414,7 +415,7 @@ class ScatterplotWidget(wx.Panel):
         self.updateAxes()
         self.scp.reDraw()
 
-    def onAxis2Chaned(self, event):
+    def onAxis2Changed(self, event):
         """ When the y axis variable change. """
         selection = self.cb2.GetClientData(self.cb2.GetSelection())
         axis = selection.axisNumber
