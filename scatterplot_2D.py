@@ -408,7 +408,12 @@ class ScatterplotWidget(wx.Panel):
 
     def updateAxes(self):
         """ Update the data and the labels of the scatterplot """
-        axesData = [self.data[self.axis1], self.data[self.axis2]]
+        # Load the data for the x-axis
+        print(self.axis1, self.axis2)
+        xAxis = [ x[self.axis1] for x in self.data ]
+        # Load the data for the y axis
+        yAxis = [ y[self.axis2] for y in self.data ]
+        axesData = [ xAxis, yAxis ]
         self.scp.SetData(axesData)
         self.scp.setAxesNames(self.labels[self.axis1], self.labels[self.axis2])
 
