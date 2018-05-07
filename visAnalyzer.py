@@ -233,7 +233,7 @@ class mainGUI(wx.Frame):
             if dlg.ShowModal() == wx.ID_OK:
                 selections = dlg.GetSelections()
                 if len(selections) != 2:
-                    wx.MessageBox("", "Select only two axes")
+                    wx.MessageBox("Select only two axes", "")
                     continue
                 else:
                     index1 = selections[0]
