@@ -364,7 +364,6 @@ class ScatterplotWidget(wx.Panel):
         for i in range(len(self.data[0])):
             axes.append(Axes(i, self.labels[i]))
 
-        l = []
         self.cb1 = wx.ComboBox(self, size=wx.DefaultSize, choices=[])
         self.cb2 = wx.ComboBox(self, size=wx.DefaultSize, choices=[])
         for axis in axes:
@@ -373,25 +372,26 @@ class ScatterplotWidget(wx.Panel):
 
     def initCtrls(self):
         """ Initialize all necessary controls and group them. """
-        label = wx.StaticText(self, -1, "Change an axis.")
+        label = wx.StaticText(self, -1, "Change axes.")
         axis1Label = wx.StaticText(self, -1, "Axis 1: ")
         axis2Label = wx.StaticText(self, -1, "Axis 2: ")
         self.initComboBox()
 
         # Group the controls of the axis change
         axis1Sizer = wx.BoxSizer(wx.HORIZONTAL)
-        axis1Sizer.Add(axis1Label, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
-        axis1Sizer.Add(self.cb1, wx.EXPAND | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        axis1Sizer.Add(axis1Label, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        axis1Sizer.Add(self.cb1, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
         axis2Sizer = wx.BoxSizer(wx.HORIZONTAL)
-        axis2Sizer.Add(axis2Label, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
-        axis2Sizer.Add(self.cb2, wx.EXPAND | wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
-        changeSizer = wx.BoxSizer(wx.VERTICAL)
-        changeSizer.Add(axis1Sizer, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
-        changeSizer.Add(axis2Sizer, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+        axis2Sizer.Add(axis2Label, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        axis2Sizer.Add(self.cb2, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        changeSizer = wx.BoxSizer(wx.HORIZONTAL)
+        changeSizer.Add(label, 0, wx.ALIGN_TOP | wx.ALIGN_CENTER_VERTICAL)
+        changeSizer.Add(axis1Sizer, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        changeSizer.Add(axis2Sizer, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_VERTICAL)
 
-        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.scp, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.ALL, 5)
-        self.sizer.Add(changeSizer, wx.ALIGN_CENTER_VERTICAL)
+        self.sizer.Add(changeSizer, 0, wx.ALIGN_CENTER_VERTICAL)
         self.SetSizer(self.sizer)
 
     def bindEvents(self):
