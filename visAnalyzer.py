@@ -245,7 +245,7 @@ class mainGUI(wx.Frame):
                     self.panel.Layout()
                     self.Fit()
                     break
-            else:
+            else:       # When cancel is pressed
                 break
 
 
