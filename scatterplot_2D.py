@@ -76,7 +76,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         #
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-0.1, 1.1, -0.1, 1.1, 1.0, 10.0)
+        glOrtho(-0.2, 1.1, -0.1, 1.1, 1.0, 10.0)
         #
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -165,6 +165,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         glClear(GL_COLOR_BUFFER_BIT)
         self.DrawGrid()
         self.DrawPoints()
+        glColor3f(0.0, 0.0, 0.0)
         self.DrawLabels()
 
         self.SwapBuffers()
@@ -207,6 +208,9 @@ class ScatterPlot2D(oglC.OGLCanvas):
         glVertex3fv(self.face[3])
         glEnd()
         # Grid
+        glPushAttrib(GL_ENABLE_BIT)
+        glLineStipple(1, 0xAAAA)
+        glEnable(GL_LINE_STIPPLE)
         glPolygonMode(GL_FRONT, GL_LINE)
         for j in range(self.divisions):
             glPushMatrix()
@@ -219,6 +223,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
                 self.DrawSquare()
                 glPopMatrix()
             glPopMatrix()
+        glPopAttrib()
 
     def DrawSquare(self):
         glColor(0.0, 0.0, 0.0, 1.0)
@@ -279,18 +284,19 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
         assert self.range, "Ranges must be initialized"
 
+        offset = 0.05
         for i in range(self.divisions + 1):
             xValue = lerp(self.range[0][0], self.range[0][1], i / self.divisions)
             yValue = lerp(self.range[1][0], self.range[1][1], i / self.divisions)
-            strxValue = "%.2f" % xValue
-            stryValue = "%.2f" % yValue
+            strxValue = "%.1f" % xValue
+            stryValue = "%.1f" % yValue
             pos = i / self.divisions
             # For the x-axis
-            glRasterPos2f(pos, -0.04)
+            glRasterPos2f(pos - offset, -0.05)
             for c in strxValue:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
             # For the y-axis
-            glRasterPos2f(-0.07, pos)
+            glRasterPos2f(-0.15, pos)
             for c in stryValue:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
@@ -309,7 +315,8 @@ class ScatterPlot2D(oglC.OGLCanvas):
         i = 0
         start = 1.0 # Start at one
         for c in self.axis2Name:
-            glRasterPos2f(-0.05, start - i * fontHeight)
+            glRasterPos2f(1.05, start - i * fontHeight)
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
             i += 1
 
     def SetNumDivisions(self, nDivisions):
