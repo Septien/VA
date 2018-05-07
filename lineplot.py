@@ -149,11 +149,11 @@ class LinePlot(oglC.OGLCanvas):
         values of the axis on which the frequencies are calculated.
             -ndata: The new data.
         """
-        assert type(data) is list, "Incorrect input type"
-        assert isSort(data), "The data is not sorted"
+        assert type(ndata) is list, "Incorrect input type"
         
+        data = sorted(ndata)
         # Compute the frequencies
-        for d in ndata:
+        for d in data:
             self.data[d] = self.data.get(d, 0) + 1
 
         # Get the max value
@@ -164,6 +164,8 @@ class LinePlot(oglC.OGLCanvas):
         # Normalize the frequencies
         for d in self.data:
             self.data[d] /= self.maxFreq
+
+        self.setRange(data)
 
     def setRange(self, data):
         """
@@ -238,27 +240,24 @@ class LinePlot(oglC.OGLCanvas):
 
 #--------------------------------------------------------------------------------------------
 
-class LinePlotContainer(wx.Panel):
+class LinePlotWidget(wx.Panel):
     """ Holds the canvas for the panel, and all the widgets and events associated with it 
-            -data: reference to the original database
+            -data: reference to the original database.
+            -labels: Name of the axes.
+            -axis: Axis to analyze
     """
     def __init__(self, parent, data, labels, axis):
-        super(LinePlotContainer, self).__init__(parent)
+        super(LinePlotWidget, self).__init__(parent)
         # Hold the reference
         self.data = data
         self.labels = labels
+        self.axis = axis
         
-    def initPlot(self, axis):
-        """ Initialize the data with the corresponding data """
-        assert type(data) is list, "Incorrect type"
-
-        self.plot = LinePlot(self)
-        data = [ d[axis] for d in self.data ]
-        self.plot.setData(data)
-        self.plot.Range(data)
-        self.plot.setAxis(axis)
-        # Set size
+    def initLP(self):
+        """ Initialize the lineplot """
+        self.lp = LinePlot(self)
+        self.lp.setName(self.labels[self.axis])
+        self.lp.setAxis(self.axis)
+        data = [d[self.axis] for d in self.data]
+        self.lp.setData(data)
         self.SetMinSize((200, 200))
-        # Group
-        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.sizer.Add(self.plot, 5, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
