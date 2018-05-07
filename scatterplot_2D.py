@@ -24,7 +24,13 @@ import numpy as np
 
 class ScatterPlot2D(oglC.OGLCanvas):
     """
-    For the 2D version of the scatter plot.
+    Class for the 2D scatterplot. Members:
+        -points: Array of arrays containing the two variable to display.
+                In the format: [[x_i],[y_i]], i = 1, 2, ..., N.
+        -range: Array containing the ranges of each axis: [[x_min, x_max],[y_min, y_max]].
+        -divisions: The number of divisions to show on the graph.
+        -axis1Name: The name of the variable for the x-axis (horizontal).
+        -axis2Name: The name of the variable for the y-axis (vertical).
     """
     def __init__(self, parent):
         super(ScatterPlot2D, self).__init__(parent)
@@ -64,6 +70,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
             self.circle.append((x, y))
 
     def InitGL(self):
+        """ Initialize the OpenGL context """
         glClearColor(0.9, 0.9, 0.9, 1)
         glClear(GL_COLOR_BUFFER_BIT)
         #
@@ -78,7 +85,8 @@ class ScatterPlot2D(oglC.OGLCanvas):
         glutInit(sys.argv)
 
     def SetData(self, newData):
-        """Copy the data to the internal variable"""
+        """Copy the data to the internal variable.
+            -newData: Array containing the two variables to draw in the form: [[x_i],[y_i]]"""
         def EqualLenght(inputArray):
             """Verifies that all the elements in the input are of equal length"""
             for i in range(1, len(inputArray)):
@@ -96,7 +104,9 @@ class ScatterPlot2D(oglC.OGLCanvas):
         assert EqualLenght(self.points), "All rows must be the same length"
 
     def setAxesNames(self, axis1Name, axis2Name):
-        """ Set the name of the axis """
+        """ Set the name of the variable of each axis:
+            -axis1Name: The name of the first variable (x-axis).
+            -axis2Name: The name of the second variable (y-axis). """
         assert type(axis1Name) is str, "Incorrect input type"
         assert type(axis2Name) is str, "Incorrect input type"
 
@@ -134,7 +144,8 @@ class ScatterPlot2D(oglC.OGLCanvas):
         assert self.range, "Not initialized range array"
 
     def SetDivisionNumber(self, nDiv):
-        """Stablishes the number of divions on the grid"""
+        """Stablishes the number of divions on the grid.
+            nDiv: The number of divisions."""
         assert type(nDiv) is int, "Must be integer: " + str(type(nDiv))
         assert nDiv > 0, "Number of divisions must be greater than zero"
 
@@ -241,7 +252,8 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
     def DrawLabels(self):
         """Displays the corresponding values for the divisons of each of the axes.
-        Depends on the ranges already be set"""
+        Depends on the ranges already be set.
+        Displays as well the name of each of the variables on its corresponding axis. """
         def lerp(a, b, t):
             """For interpolating between the range [a, b], according to the formula:
             value = (1 - t) * a + t * b, for t in [0, 1]"""
