@@ -87,8 +87,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         assert newData, "Input data must not be emtpy"
         assert EqualLenght(newData), "All input data must be the same length"
 
-        self.points.clear()
-        self.points = newData.copy()
+        self.points = newData
         self.GetRanges()
 
         assert self.points, "Copy not made"
