@@ -36,7 +36,7 @@ class mainGUI(wx.Frame):
         # Create a scrolled panel
         self.panel = scp.ScrolledPanel(self, -1, style=wx.SIMPLE_BORDER, size=(400, 200))
         self.panel.SetupScrolling()
-        self.panel.ShowScrolbars(horz=wx.SHOW_SB_ALWAYS)
+        self.panel.ShowScrollbars(horz=wx.SHOW_SB_DEFAULT, vert=wx.SHOW_SB_ALWAYS)
         self.panel.SetBackgroundColour((255, 255, 255))
         self.panel.SetSizer(self.mainSizer)
 
