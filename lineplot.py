@@ -192,11 +192,6 @@ class LinePlot(oglC.OGLCanvas):
 
         assert len(self.range) == 2, "Incorrect len of range"
 
-    def setAxis(self, nAxis):
-        """ Set the axis """
-        assert type(nAxis) is int, "Incorrect type"
-        self.axis = nAxis
-
     def setGridSize(self, ngridSize):
         """ Set the size of the grid """
         assert type(ngridSize) is int, "Incorrect type"
@@ -294,7 +289,6 @@ class LinePlotWidget(wx.Panel):
         """ Initialize the lineplot """
         self.lp = LinePlot(self)
         self.lp.setName(self.labels[self.axis])
-        self.lp.setAxis(self.axis)
         data = [d[self.axis] for d in self.data]
         self.lp.setData(data)
         self.lp.SetMinSize((300, 300))
