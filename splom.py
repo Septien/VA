@@ -58,7 +58,7 @@ class SPLOM(sc.ScatterPlot2D):
         assert newData, "Data cannot be empty"
         assert EqualLenght(newData), "All rows must be the same length"
 
-        self.data = newData.copy()
+        self.data = newData
         self.numAxis = len(newData[0])
 
         # Init scroll bar
@@ -72,10 +72,10 @@ class SPLOM(sc.ScatterPlot2D):
         """Loads the names of each of the variables to be displayed."""
         assert newVarNames, "Variable name labels cannot be empty"
         if self.data:
-            assert len(newVarNames[0]) == len(self.data[0]), "Unequal size: " + str(len(newVarNames[0])) + " " + str(len(self.data[0]))
+            assert len(newVarNames) == len(self.data[0]), "Unequal size: " + str(len(newVarNames)) + " " + str(len(self.data[0]))
 
         self.variablesName.clear()
-        self.variablesName = newVarNames[0].copy()
+        self.variablesName = newVarNames
 
         assert self.variablesName, "Labels not loaded"
         if self.data:
@@ -121,13 +121,14 @@ class SPLOM(sc.ScatterPlot2D):
             x1 = [x[i] for x in self.data]
             for j in range(self.numAxis):                
                 if i == j:
+                    # if i == j, draw the name of the variable
                     glPushMatrix()
                     glTranslatef(1.0 / (2.0 * self.numAxis), -1.0 / (2.0 * self.numAxis), 0.0)
                     glTranslatef(j / self.numAxis, 1.0 - (i / self.numAxis), 0.0)
                     self.DrawNames(i)
                     glPopMatrix()
                     continue
-                #
+                # Draw the graphs
                 x2 = [x[j] for x in self.data]
                 self.points = [x1, x2]
                 self.GetRanges()
@@ -141,10 +142,35 @@ class SPLOM(sc.ScatterPlot2D):
                 glPopMatrix()
 
     def DrawNames(self, i):
-        """Draw the names of the variable."""
+        """Draw the names of the variable.
+            i: The position of the name on the labels array """
         assert type(i) is int, "Incorrect type: " + str(type(i))
         assert 0 <= i <= len(self.variablesName)
         label = self.variablesName[i]
         glRasterPos2f(0.0, 0.0)
         for c in label:
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+#----------------------------------------------------------------------------------------------
+
+class SPLOMWidget(wx.Panel):
+    """ Widget para la matriz de gráficas de dispersión """
+    def __init__(self, parent, data, labels):
+        super(SPLOMWidget, self).__init__(parent)
+
+        self.data = data
+        self.labels = labels
+        self.initSPLOM()
+        self.groupCtrls()
+
+    def initSPLOM(self):
+        """ Initialize the SPLOM """
+        self.splom = SPLOM(self)
+        self.splom.SetData(self.data)
+        self.splom.SetLabels(self.labels)
+        self.splom.SetMinSize((500, 500))
+
+    def groupCtrls(self):
+        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.sizer.Add(self.splom, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.ALL, 5)
+        self.SetSizer(self.sizer)
