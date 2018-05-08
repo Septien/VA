@@ -6,6 +6,7 @@ corresponds to one dimension, and each cell displays two dimensions.
 """
 
 import wx
+import wx.lib.scrolledpanel as scp
 
 import scatterplot_2D as sc
 
@@ -153,22 +154,25 @@ class SPLOM(sc.ScatterPlot2D):
 
 #----------------------------------------------------------------------------------------------
 
-class SPLOMWidget(wx.Panel):
+class SPLOMWidget(scp):
     """ Widget para la matriz de gráficas de dispersión """
     def __init__(self, parent, data, labels):
-        super(SPLOMWidget, self).__init__(parent)
+        super(SPLOMWidget, self).__init__(parent, -1, style=wx.SIMPLE_BORDER)
 
         self.data = data
         self.labels = labels
+        self.size = size
+        self.SetupScrolling()
         self.initSPLOM()
         self.groupCtrls()
+
 
     def initSPLOM(self):
         """ Initialize the SPLOM """
         self.splom = SPLOM(self)
         self.splom.SetData(self.data)
         self.splom.SetLabels(self.labels)
-        self.splom.SetMinSize((500, 500))
+        self.splom.SetMinSize((1000, 1000))
 
     def groupCtrls(self):
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
