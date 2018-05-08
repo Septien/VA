@@ -49,6 +49,7 @@ class LinePlot(oglC.OGLCanvas):
         # Range (y-axis) and Domain (x-axis)
         self.range = []
         self.maxFreq = 0
+        self.minFreq = 0
         self.axis = 0
         self.gridSize = 4
         self.name = ""
@@ -97,6 +98,11 @@ class LinePlot(oglC.OGLCanvas):
         glVertex3fv(self.face[3])
         glEnd()
         # Grid
+        # Dotted line
+        glPushAttrib(GL_ENABLE_BIT)
+        glLineStipple(1, 0xAAAA)
+        glEnable(GL_LINE_STIPPLE)
+        glColor3f(0.0, 0.0, 0.0)
         glPolygonMode(GL_FRONT, GL_LINE)
         for j in range(self.gridSize):
             glPushMatrix()
@@ -107,6 +113,7 @@ class LinePlot(oglC.OGLCanvas):
                 self.DrawSquare()
                 glPopMatrix()
             glPopMatrix()
+        glPopAttrib()
 
     def DrawSquare(self):
         glColor(0.0, 0.0, 0.0, 1.0)
@@ -162,9 +169,12 @@ class LinePlot(oglC.OGLCanvas):
 
         # Get the max value
         self.maxFreq = self.data[ndata[0]]
+        self.minFreq = self.data[ndata[0]]
         for d in self.data:
             if self.data[d] > self.maxFreq:
                 self.maxFreq = self.data[d]
+            if self.data[d] < self.minFreq:
+                self.minFreq = self.data[d]
         # Normalize the frequencies
         for d in self.data:
             self.data[d] /= self.maxFreq
@@ -230,7 +240,7 @@ class LinePlot(oglC.OGLCanvas):
         yoffset = 0.01
         for i in range(self.gridSize + 1):
             y = minFreq + i * divWidth
-            yLabel = str(y)
+            yLabel = str(self.minFreq + i * self.gridSize)
             length = GetLabelWidth(yLabel)
             length /= self.size.width
             glRasterPos2f(-0.13, yoffset + (i * divWidth) - (length / 2.0))
