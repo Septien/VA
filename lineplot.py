@@ -124,9 +124,12 @@ class LinePlot(oglC.OGLCanvas):
             # Formula for mapping [A, B] -> [a, b]:
             #
             #   (val - A) * (b - a) / (B - A) + a
+            assert Range[0] < Range[1]
+            assert Range[0] <= value <= Range[1]
             unitRange = [0.0, 1.0]
 
             norm = ((value - Range[0]) * (unitRange[1] - unitRange[0]) / (Range[1] - Range[0])) + unitRange[0]
+            assert unitRange[0] <= norm <= unitRange[1], "Out of range: " + str(norm)
             return norm
         #
         # Don't draw if empty
@@ -151,6 +154,7 @@ class LinePlot(oglC.OGLCanvas):
         """
         assert type(ndata) is list, "Incorrect input type"
         
+        self.data.clear()
         data = sorted(ndata)
         # Compute the frequencies
         for d in data:
