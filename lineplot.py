@@ -206,12 +206,14 @@ class LinePlot(oglC.OGLCanvas):
 
         # Draw the value variables
         divWidth = 1.0 / len(self.data)
+        i = 0
         for d in self.data:
             label = str(d)
-            lenght = GetLabelWidth(label)
+            length = GetLabelWidth(label)
             length /= self.size.width
             glRasterPos2f(i * divWidth - length / 2.0, -0.06)
-            for c in yLabel:
+            i += 1
+            for c in label:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
         # For the y axis
@@ -235,10 +237,18 @@ class LinePlot(oglC.OGLCanvas):
 
     def setName(self, nName):
         """ Set the name of the variable """
-        assert type(nName) in str, "Incorrect type"
+        assert type(nName) is str, "Incorrect type"
         self.name = nName
 
 #--------------------------------------------------------------------------------------------
+
+class Axes:
+    """ Simple class containing the axes name and number """
+    def __init__(self, number, name):
+        self.axisNumber = number
+        self.axisName = name
+
+#----------------------------------------------------------------------------------------------
 
 class LinePlotWidget(wx.Panel):
     """ Holds the canvas for the panel, and all the widgets and events associated with it 
@@ -252,6 +262,9 @@ class LinePlotWidget(wx.Panel):
         self.data = data
         self.labels = labels
         self.axis = axis
+
+        self.initLP()
+        self.initCtrls()
         
     def initLP(self):
         """ Initialize the lineplot """
@@ -260,4 +273,27 @@ class LinePlotWidget(wx.Panel):
         self.lp.setAxis(self.axis)
         data = [d[self.axis] for d in self.data]
         self.lp.setData(data)
-        self.SetMinSize((200, 200))
+        self.lp.SetMinSize((300, 300))
+
+    def initComboBox(self):
+        """ Initialize and fill the combobox with the name and number of the axis. """
+        axes = []
+        for i in range(len(self.data[0])):
+            axes.append(Axes(i, self.labels[i]))
+
+        self.cb1 = wx.ComboBox(self, size=wx.DefaultSize, choices=[])
+        for axis in axes:
+            self.cb1.Append(axis.axisName, axis)
+
+    def initCtrls(self):
+        """ Group all the controls for the lineplot """
+        label = wx.StaticText(self, -1, "Change Axis: ")
+        self.initComboBox()
+
+        axesSizer = wx.BoxSizer(wx.HORIZONTAL)
+        axesSizer.Add(label, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_LEFT)
+        axesSizer.Add(self.cb1, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_HORIZONTAL)
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+        self.sizer.Add(self.lp, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+        self.sizer.Add(axesSizer, 0, wx.ALIGN_CENTER_VERTICAL)
+        self.SetSizer(self.sizer)
