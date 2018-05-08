@@ -182,7 +182,16 @@ class mainGUI(wx.Frame):
 
     def OnLPSelected(self, event):
         """ When the line plot is selected"""
-        pass
+        if not self.SelectedDB():
+            return
+        axis = self.GetSelectedAxis(self.labels, title="Axes", text="Select an axis")
+        if axis > -1:
+            self.lp = lp.LinePlotWidget(self, self.data, self.labels, axis)
+            self.mainSizer.Add(self.lp, 0, wx.SHAPED | wx.ALIGN_CENTER | wx.ALL, 5)
+            # Force layout update
+            self.mainSizer.Layout()
+            self.panel.Layout()
+            self.Fit()
 
     def OnGPSelected(self, event):
         """ When the Gauge is selected """
