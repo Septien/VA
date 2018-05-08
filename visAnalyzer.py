@@ -131,6 +131,12 @@ class mainGUI(wx.Frame):
             self.selectedDB = True
         dlg.Destroy()
 
+    def fitLayout(self):
+        """ Fit the layout of the window when a graph is added or deleted """
+        self.mainSizer.Layout()
+        self.panel.Layout()
+        self.Fit()
+
     def getSelectionableAxes(self):
         """ Returns a list of all the axes suitable for the histogram """
         selectionable = []
@@ -172,9 +178,7 @@ class mainGUI(wx.Frame):
         self.pc = pc.PCWidget(self.panel, self.data, self.labels)
         self.mainSizer.Add(self.pc, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
         # Force layout update
-        self.mainSizer.Layout()
-        self.panel.Layout()
-        self.Fit()
+        self.fitLayout()
 
     def OnSPLOMSelected(self, event):
         """ When the SPLOM is selected """
@@ -189,9 +193,7 @@ class mainGUI(wx.Frame):
             self.lp = lp.LinePlotWidget(self, self.data, self.labels, axis)
             self.mainSizer.Add(self.lp, 0, wx.SHAPED | wx.ALIGN_CENTER | wx.ALL, 5)
             # Force layout update
-            self.mainSizer.Layout()
-            self.panel.Layout()
-            self.Fit()
+            self.fitLayout()
 
     def OnGPSelected(self, event):
         """ When the Gauge is selected """
@@ -207,9 +209,7 @@ class mainGUI(wx.Frame):
             self.pp = pp.PPWidget(self.panel, self.data, self.labels, axis)
             self.mainSizer.Add(self.pp, 0, wx.SHAPED | wx.ALIGN_CENTER | wx.ALL, 5)
             # Force layout update
-            self.mainSizer.Layout()
-            self.panel.Layout()
-            self.Fit()
+            self.fitLayout()
 
     def OnOSCSelected(self, event):
         """ When the osciloscope is selected """
@@ -228,9 +228,7 @@ class mainGUI(wx.Frame):
             self.hist = hp.HistogramWidget(self.panel, self.data, axis)
             self.mainSizer.Add(self.hist, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
             # Force layout update
-            self.mainSizer.Layout()
-            self.panel.Layout()
-            self.Fit()
+            self.fitLayout()
 
     def OnSCPSelected(self, event):
         """ When the scatterplot is selected """
