@@ -36,6 +36,7 @@ class mainGUI(wx.Frame):
         # Create a scrolled panel
         self.panel = scp.ScrolledPanel(self, -1, style=wx.SIMPLE_BORDER, size=(400, 200))
         self.panel.SetupScrolling()
+        self.panel.ShowScrolbars(horz=wx.SHOW_SB_ALWAYS)
         self.panel.SetBackgroundColour((255, 255, 255))
         self.panel.SetSizer(self.mainSizer)
 
@@ -182,7 +183,14 @@ class mainGUI(wx.Frame):
 
     def OnSPLOMSelected(self, event):
         """ When the SPLOM is selected """
-        pass
+        if not self.SelectedDB():
+            return
+        size = (500, 500)
+        self.splom = spm.SPLOMWidget(self, self.data, self.labels)
+        self.mainSizer.Add(self.splom, 0, wx.SHAPED | wx.ALIGN_CENTER | wx.ALL, 5)
+        # Force layout update
+        self.fitLayout()
+
 
     def OnLPSelected(self, event):
         """ When the line plot is selected"""
