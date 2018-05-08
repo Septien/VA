@@ -245,6 +245,10 @@ class LinePlot(oglC.OGLCanvas):
         assert type(nName) is str, "Incorrect type"
         self.name = nName
 
+    def reDraw(self):
+        """ Send an event for drawing """
+        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+
 #--------------------------------------------------------------------------------------------
 
 class Axes:
@@ -270,6 +274,7 @@ class LinePlotWidget(wx.Panel):
 
         self.initLP()
         self.initCtrls()
+        self.bindEvents()
         
     def initLP(self):
         """ Initialize the lineplot """
@@ -302,3 +307,17 @@ class LinePlotWidget(wx.Panel):
         self.sizer.Add(self.lp, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
         self.sizer.Add(axesSizer, 0, wx.ALIGN_CENTER_VERTICAL)
         self.SetSizer(self.sizer)
+
+    def bindEvents(self):
+        """ Bind the event to the combobox """
+        self.cb1.Bind(wx.EVT_COMBOBOX, self.onCBSelected)
+
+    def onCBSelected(self, event):
+        """ Manage the combobox events. When the axis is changed, make the 
+        appropiate changes to graph """
+        selection = self.cb1.GetClientData(self.cb1.GetSelection())
+        self.axis = selection.axisNumber
+        data = [d[self.axis] for d in self.data]
+        self.lp.setData(data)
+        self.lp.setName(self.labels[self.axis])
+        self.lp.reDraw()
