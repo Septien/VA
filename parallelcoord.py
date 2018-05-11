@@ -40,7 +40,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         #
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-0.1, 1.1, -0.1, 1.1, 1.0, 10.0)
+        glOrtho(-0.1, 1.1, -0.2, 1.1, 1.0, 10.0)
         #
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -275,9 +275,9 @@ class ParallelCoordinates(oglC.OGLCanvas):
             width = GetLabelWidth(label)
             width /= self.size.width
             if i % 2 == 0:
-                y = -0.04
+                y = -0.1
             else:
-                y = -0.08
+                y = -0.16
             glRasterPos2f(i * spacing - width / 2.0, y)
             for c in label:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
@@ -304,6 +304,7 @@ class PCWidget(wx.Panel):
         self.sizer = None
         self.axis = -1
         self.axisRange = []
+        self.size = (500, 400)
 
         # Create the graph
         self.initPC()
@@ -315,7 +316,7 @@ class PCWidget(wx.Panel):
         self.pc = ParallelCoordinates(self)
         self.pc.SetData(self.data)
         self.pc.SetLabels(self.labels)
-        self.pc.SetMinSize((500, 400))
+        self.pc.SetMinSize(self.size)
 
     def initComboBox(self):
         """ Fill the combo box with the axes data """
