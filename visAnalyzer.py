@@ -15,7 +15,7 @@ import pieplot as pp
 import gauge as gg
 import lineplot as lp
 import parallelcoord as pc
-import splom as spm
+#import splom as spm
 
 import random as r
 
@@ -56,6 +56,7 @@ class mainGUI(wx.Frame):
         loadDB = wx.Menu()
         self.registerMenuAction(loadDB, -1, self.OnDBSelected, "Select a database")
         self.registerMenuAction(loadDB, -1, self.OnLoadCSVFile, "Load a .csv file")
+        self.registerMenuAction(loadDB, -1, self.onStreamSelected, "Recieve a stream of data")
         # Add to menu bar
         menubar.Append(loadDB, "Databases")
 
@@ -131,6 +132,10 @@ class mainGUI(wx.Frame):
                         self.data.append(nRow)
             self.selectedDB = True
         dlg.Destroy()
+
+    def onStreamSelected(self, event):
+        """ When a stream of data is selected """
+        pass
 
     def fitLayout(self):
         """ Fit the layout of the window when a graph is added or deleted """
