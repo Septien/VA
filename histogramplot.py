@@ -49,7 +49,7 @@ class HistogramPlot(oglC.OGLCanvas):
         #
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-0.1, 1.3, -0.1, 1.1, 1.0, 10.0)
+        glOrtho(-0.2, 1.3, -0.1, 1.1, 1.0, 10.0)
         #
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -330,7 +330,7 @@ class HistogramPlot(oglC.OGLCanvas):
             yLabel = '{:.1f}'.format(y)
             length = GetLabelWidth(yLabel)
             length /= self.size.width
-            glRasterPos2f(-0.08, i * divWidth - length / 2.0)
+            glRasterPos2f(-0.12, i * divWidth)
             for c in yLabel:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
 
