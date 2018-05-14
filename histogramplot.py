@@ -55,6 +55,9 @@ class HistogramPlot(oglC.OGLCanvas):
         glLoadIdentity()
         gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
         glShadeModel(GL_SMOOTH)
+        # Enable alpha channel
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glEnable(GL_BLEND)
         glutInit(sys.argv)
 
     def OnDraw(self):
@@ -97,16 +100,15 @@ class HistogramPlot(oglC.OGLCanvas):
     def DrawRect(self):
         """Draw each rectangle of the histogram"""
         # Interior of the rectangles
+        glColor4f(0.0, 0.36, 0.9, 0.8)
+        glPolygonMode(GL_FRONT, GL_FILL)
         for i in range(self.numBins):
-            glColor3f(1.0, 1.0, 1.0)
-            glPolygonMode(GL_FRONT, GL_FILL)
             glRectfv(self.rect[i][0], self.rect[i][1])
         # Contour
+        glColor3f(0.0, 0.0, 1.0)
+        glPolygonMode(GL_FRONT, GL_LINE)
         for i in range(self.numBins):
-            glColor3f(1.0, 1.0, 0.0)
-            glPolygonMode(GL_FRONT, GL_LINE)
             glRectfv(self.rect[i][0], self.rect[i][1])
-            #glRecti(self.rect[i].top, self.rect[i].left, self.rect[i].bottom, self.rect[i].right)
 
     def DrawFreqPol(self):
         """Draws the frequency polygone"""
@@ -308,6 +310,14 @@ class HistogramPlot(oglC.OGLCanvas):
             assert length >= 0
 
             return length
+        def lerp(a, b, t):
+            """For interpolating between the range [a, b], according to the formula:
+            value = (1 - t) * a + t * b, for t in [0, 1]"""
+            assert 0.0 <= t <= 1.0
+            value = (1 - t) * a + t * b
+
+            assert a <= value <= b, "Out of range"
+            return value
         # Draw the value of the ranges
         a = self.range[0]
         glPushMatrix()
@@ -326,7 +336,7 @@ class HistogramPlot(oglC.OGLCanvas):
         minFreq = 0
         divWidth = 1.0 / self.numDivisions
         for i in range(self.numDivisions+1):
-            y = minFreq + i * self.numDivisions
+            y = lerp(minFreq, self.maxFrequency, i / self.numDivisions)
             yLabel = '{:.1f}'.format(y)
             length = GetLabelWidth(yLabel)
             length /= self.size.width
@@ -334,9 +344,9 @@ class HistogramPlot(oglC.OGLCanvas):
             for c in yLabel:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
 
-        glRasterPos2f(1.06, 0.0)
+        glRasterPos2f(1.08, 0.0)
         for c in self.axis:
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
 
 #------------------------------------------------------------------------------------------------------------------
