@@ -57,7 +57,6 @@ class HistogramPlot(oglC.OGLCanvas):
         glTranslatef(0.03, 0.0, 0.0)
         self.DrawRect()
         glPopMatrix()
-        glLineWidth(2.0)
         self.DrawAxes()
         # glLineWidth(1.0)
         # self.DrawFreqPol()
@@ -70,6 +69,11 @@ class HistogramPlot(oglC.OGLCanvas):
         Draw the axes of the histogram.
         """
         glColor3f(0, 0, 0, 1)
+        glLineWidth(1.0)
+        # Dotted line
+        glPushAttrib(GL_ENABLE_BIT)
+        glLineStipple(1, 0xAAAA)
+        glEnable(GL_LINE_STIPPLE)
         glBegin(GL_LINES)
         # x axis
         glVertex3f(0.0, 0.0, 0.0)
@@ -78,6 +82,7 @@ class HistogramPlot(oglC.OGLCanvas):
         glVertex3f(0.0, 0.0, 0.0)
         glVertex3f(0.0, 1.05, 0.0)
         glEnd()
+        glPopAttrib()
 
     def DrawRect(self):
         """Draw each rectangle of the histogram"""
@@ -288,7 +293,7 @@ class HistogramPlot(oglC.OGLCanvas):
             length /= self.size.width
             glRasterPos2f(i * self.rectWidth - length / 2.0, -0.08)
             for c in xLabel:
-                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
         glPopMatrix()
 
         # Draw the value of the frequencies
@@ -296,13 +301,13 @@ class HistogramPlot(oglC.OGLCanvas):
         numDivisions = 10
         divWidth = 1.0 / numDivisions
         for i in range(numDivisions+1):
-            y = minFreq + i * divWidth
+            y = minFreq + i * numDivisions
             yLabel = '{:.1f}'.format(y)
             length = GetLabelWidth(yLabel)
             length /= self.size.width
             glRasterPos2f(-0.08, i * divWidth - length / 2.0)
             for c in yLabel:
-                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
 
 
 #------------------------------------------------------------------------------------------------------------------
