@@ -38,7 +38,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         # center of a circle
         self.points = []
         self.range = []
-        self.divisions = 5
+        self.divisions = 10
         self.axis1Name = ""
         self.axis2Name = ""
 
@@ -97,6 +97,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         assert newData, "Input data must not be emtpy"
         assert EqualLenght(newData), "All input data must be the same length"
 
+        self.points.clear()
         self.points = newData
         self.GetRanges()
 
@@ -117,10 +118,11 @@ class ScatterPlot2D(oglC.OGLCanvas):
         """Calculate the ranges of each dimension"""
         if not self.points:
             return
-
+        assert len(self.points[0]) == len(self.points[1])
+        
         self.range.clear()
         minX = maxX = self.points[0][0]
-        minY = maxY = self.points[0][1]
+        minY = maxY = self.points[1][0]
         for i in range(len(self.points[0])):
             # For the x coordinate
             if self.points[0][i] < minX:
@@ -165,7 +167,6 @@ class ScatterPlot2D(oglC.OGLCanvas):
         glClear(GL_COLOR_BUFFER_BIT)
         self.DrawGrid()
         self.DrawPoints()
-        glColor3f(0.0, 0.0, 0.0)
         self.DrawLabels()
 
         self.SwapBuffers()
@@ -189,7 +190,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
         if not self.points:
             return
-        glColor3f(0.0, 0.0, 1.0)
+        glColor3f(0.1411, 0.1411, 0.561)
         for i in range(len(self.points[0])):
             # Normalize x
             x = Map(self.points[0][i], self.range[0])
@@ -208,21 +209,20 @@ class ScatterPlot2D(oglC.OGLCanvas):
         glVertex3fv(self.face[3])
         glEnd()
         # Grid
+        start = 1.0 / self.divisions
+        glColor3f(0.0, 0.0, 0.0)
         glPushAttrib(GL_ENABLE_BIT)
         glLineStipple(1, 0xAAAA)
         glEnable(GL_LINE_STIPPLE)
         glPolygonMode(GL_FRONT, GL_LINE)
-        for j in range(self.divisions):
-            glPushMatrix()
-            width = 1.0 / self.divisions
-            glTranslate(0.0, j * width, 0.0)
-            for i in range(self.divisions):
-                glPushMatrix()
-                glTranslate(i * width, 0.0, 0.0)
-                glScalef(width, width, 0.0)
-                self.DrawSquare()
-                glPopMatrix()
-            glPopMatrix()
+        glBegin(GL_LINES)
+        for i in range(self.divisions + 1):
+            x = i * start
+            glVertex3f(x, 0.0, 0.1)
+            glVertex3f(x, 1.0, 0.1)
+            glVertex3f(0.0, x, 0.1)
+            glVertex3f(1.0, x, 0.1)
+        glEnd()
         glPopAttrib()
 
     def DrawSquare(self):
@@ -284,6 +284,8 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
         assert self.range, "Ranges must be initialized"
 
+        glColor3f(0.0, 0.0, 0.0)
+        font = GLUT_BITMAP_HELVETICA_12
         offset = 0.05
         for i in range(self.divisions + 1):
             xValue = lerp(self.range[0][0], self.range[0][1], i / self.divisions)
@@ -294,11 +296,11 @@ class ScatterPlot2D(oglC.OGLCanvas):
             # For the x-axis
             glRasterPos2f(pos - offset, -0.05)
             for c in strxValue:
-                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+                glutBitmapCharacter(font, ord(c))
             # For the y-axis
             glRasterPos2f(-0.15, pos)
             for c in stryValue:
-                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+                glutBitmapCharacter(font, ord(c))
 
         # Draw the name of the axis
         width = GetLabelWidth(self.axis1Name)
@@ -306,17 +308,17 @@ class ScatterPlot2D(oglC.OGLCanvas):
         # For the first axis
         glRasterPos2f(0.5, 1.05)
         for c in self.axis1Name:
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+            glutBitmapCharacter(font, ord(c))
         # For the second axis
         length = len(self.axis2Name)
         fontHeight = 19 # As specified by font size
         # Normalize to [0, 1] range
         fontHeight /= self.size.height
         i = 0
-        start = 1.0 # Start at one
+        start = 0.5 + ((fontHeight * length) / 2.0)
         for c in self.axis2Name:
             glRasterPos2f(1.05, start - i * fontHeight)
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+            glutBitmapCharacter(font, ord(c))
             i += 1
 
     def SetNumDivisions(self, nDivisions):
@@ -344,12 +346,13 @@ class Axes:
 
 class ScatterplotWidget(wx.Panel):
     """ Widget for the scatterplot widget and its controls """
-    def __init__(self, parent, data, labels, axis1, axis2):
+    def __init__(self, parent, data, labels, category, axis1, axis2):
         super(ScatterplotWidget, self).__init__(parent)
 
         # Hold a reference for the data and labels
         self.data = data
         self.labels = labels
+        self.category = category
         self.sizer = None
         self.axis1 = axis1
         self.axis2 = axis2
@@ -369,7 +372,9 @@ class ScatterplotWidget(wx.Panel):
         """ Initialize and fill the combobox with the name and number of the axis. """
         axes = []
         for i in range(len(self.data[0])):
-            axes.append(Axes(i, self.labels[i]))
+            # Store only the numerical variables
+            if self.category[i] == 0:
+                axes.append(Axes(i, self.labels[i]))
 
         self.cb1 = wx.ComboBox(self, size=wx.DefaultSize, choices=[])
         self.cb2 = wx.ComboBox(self, size=wx.DefaultSize, choices=[])
