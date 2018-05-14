@@ -23,6 +23,8 @@ import numpy as np
 # math library
 import math as m
 
+import operator
+
 # Auxiliary functions        
 def isSort(data):
     """ Verifies if the array is sorted """
@@ -51,7 +53,7 @@ class LinePlot(oglC.OGLCanvas):
         self.maxFreq = 0
         self.minFreq = 0
         self.axis = 0
-        self.gridSize = 4
+        self.gridSize = 10
         self.name = ""
 
         self.initGrid()
@@ -61,8 +63,6 @@ class LinePlot(oglC.OGLCanvas):
         the plot will be displayed."""
         # Face for the cube.    Format:     [x, y, z]
         self.face = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
-        # For the grid
-        self.square = [[0.0, 0.0, 0.0], [0.25, 0.0, 0.0], [0.0, 0.25, 0.0], [0.25, 0.25, 0.0]]
     
     def InitGL(self):
         glClearColor(0.9, 0.9, 0.9, 1)
@@ -98,31 +98,20 @@ class LinePlot(oglC.OGLCanvas):
         glVertex3fv(self.face[3])
         glEnd()
         # Grid
-        # Dotted line
+        glColor(0.0, 0.0, 0.0, 1.0)
+        start = 1.0 / self.gridSize
         glPushAttrib(GL_ENABLE_BIT)
         glLineStipple(1, 0xAAAA)
         glEnable(GL_LINE_STIPPLE)
-        glColor3f(0.0, 0.0, 0.0)
-        glPolygonMode(GL_FRONT, GL_LINE)
-        for j in range(self.gridSize):
-            glPushMatrix()
-            glTranslate(0.0, j * 0.25, 0.0)
-            for i in range(self.gridSize):
-                glPushMatrix()
-                glTranslate(i * 0.25, 0.0, 0.0)
-                self.DrawSquare()
-                glPopMatrix()
-            glPopMatrix()
-        glPopAttrib()
-
-    def DrawSquare(self):
-        glColor(0.0, 0.0, 0.0, 1.0)
-        glBegin(GL_QUADS)
-        glVertex3fv(self.square[0])
-        glVertex3fv(self.square[1])
-        glVertex3fv(self.square[3])
-        glVertex3fv(self.square[2])
+        glBegin(GL_LINES)
+        for i in range(self.gridSize + 1):
+            x = i * start
+            glVertex3f(x, 0.0, 0.1)
+            glVertex3f(x, 1.0, 0.1)
+            glVertex3f(0.0, x, 0.1)
+            glVertex3f(1.0, x, 0.1)
         glEnd()
+        glPopAttrib()
 
     def DrawPoints(self):
         """Display the points on the graph"""
@@ -145,12 +134,13 @@ class LinePlot(oglC.OGLCanvas):
         if not self.range:
             return
 
-        glColor(0.0, 0.0, 0.0)
+        glColor(0.0, 0.4, 0.6)
+        glLineWidth(2)
         glBegin(GL_LINE_STRIP)
         # Iterate over all elements of the dictionary
-        for d in self.data:
-            x = Map(d, self.range)
-            y = self.data[d]
+        for d in self.sortedData:
+            x = Map(d[0], self.range)
+            y = d[1]
             glVertex3f(x, y, 0.0)
         glEnd()
 
@@ -180,6 +170,8 @@ class LinePlot(oglC.OGLCanvas):
             self.data[d] /= self.maxFreq
 
         self.setRange(data)
+        # Get the ordered sequence of values
+        self.sortedData = sorted(self.data.items(), key=operator.itemgetter(0))
 
     def setRange(self, data):
         """
@@ -213,11 +205,12 @@ class LinePlot(oglC.OGLCanvas):
 
             return length
 
+        glColor3f(0.0, 0.0, 0.0)
         # Draw the value variables
         divWidth = 1.0 / len(self.data)
         i = 0
-        for d in self.data:
-            label = str(d)
+        for d in self.sortedData:
+            label = str(d[0])
             length = GetLabelWidth(label)
             length /= self.size.width
             if i % 2 == 0:
@@ -227,7 +220,7 @@ class LinePlot(oglC.OGLCanvas):
             glRasterPos2f(i * divWidth - length / 2.0, y)
             i += 1
             for c in label:
-                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
 
         # For the y axis
         divWidth = 1.0 / self.gridSize
@@ -240,14 +233,14 @@ class LinePlot(oglC.OGLCanvas):
             length /= self.size.width
             glRasterPos2f(-0.13, yoffset + (i * divWidth) - (length / 2.0))
             for c in yLabel:
-                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
 
         if self.name == "":
             return
         # Draw the name of the variable
         glRasterPos2f(0.5, 1.05)
         for c in self.name:
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
 
     def setName(self, nName):
         """ Set the name of the variable """
@@ -313,7 +306,7 @@ class LinePlotWidget(wx.Panel):
         axesSizer.Add(self.cb1, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_HORIZONTAL)
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.lp, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
-        self.sizer.Add(axesSizer, 0, wx.ALIGN_CENTER_VERTICAL)
+        self.sizer.Add(axesSizer, 0, wx.ALIGN_CENTER_HORIZONTAL)
         self.SetSizer(self.sizer)
 
     def bindEvents(self):
