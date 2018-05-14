@@ -64,6 +64,7 @@ class HistogramPlot(oglC.OGLCanvas):
         glLineWidth(1.0)
         glPushMatrix()
         glTranslatef(0.03, 0.0, 0.0)
+        self.drawGrid()
         self.DrawRect()
         glPopMatrix()
         self.DrawAxes()
@@ -278,7 +279,19 @@ class HistogramPlot(oglC.OGLCanvas):
 
     def drawGrid(self):
         """ Draw a grid on the canvas """
-
+        start = 1.0 / self.numDivisions
+        glPushAttrib(GL_ENABLE_BIT)
+        glLineStipple(1, 0xAAAA)
+        glEnable(GL_LINE_STIPPLE)
+        glBegin(GL_LINES)
+        for i in range(self.numDivisions + 1):
+            x = i * start
+            glVertex3f(x, 0.0, 0.0)
+            glVertex3f(x, 1.0, 0.0)
+            glVertex3f(0.0, x, 0.0)
+            glVertex3f(1.0, x, 0.0)
+        glEnd()
+        glPopAttrib()
 
     def drawLabels(self):
         """ Draw labels for x and y axis """
