@@ -238,7 +238,7 @@ class mainGUI(wx.Frame):
         axis = self.GetSelectedAxis(selectionable, title="Axes suitable for histogram", text="Select an axis")
         if axis > -1:
             # Set it to the histogram
-            self.hist = hp.HistogramWidget(self.panel, self.data, axis)
+            self.hist = hp.HistogramWidget(self.panel, self.data, axis, self.labels[axis])
             self.mainSizer.Add(self.hist, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
             # Force layout update
             self.fitLayout()
