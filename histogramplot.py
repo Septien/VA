@@ -21,6 +21,14 @@ class HistogramPlot(oglC.OGLCanvas):
     of rectangles on the graph, the rectangles, the maximum frequency, and the maximum x value. The width 
     of the rectangles is the same for all, and depends on the number of bins the histogram have. 
     It draw the contour and then draw the rectagle. Draw histogram on canvas using OpenGL.
+        -numBins: number of classes on the histogram.
+        -binWidth: the width of each class.
+        -frequencies: The frecuency of each class.
+        -range: The range of each class.
+        -maxFrequency.
+        -axis: Axis in analysis.
+        -data: The data.
+        -numDivisions: Number of divisions on the grid.
     """
     def __init__(self, parent):
         super(HistogramPlot, self).__init__(parent)
@@ -33,6 +41,7 @@ class HistogramPlot(oglC.OGLCanvas):
         self.maxFrequency = 0
         self.axis = 0
         self.data = []
+        self.numDivisions = 10
 
     def InitGL(self):
         glClearColor(0.9, 0.9, 0.9, 1)
@@ -267,6 +276,10 @@ class HistogramPlot(oglC.OGLCanvas):
         assert type(axis) is int, "Incorrect type."
         self.axis = axis
 
+    def drawGrid(self):
+        """ Draw a grid on the canvas """
+
+
     def drawLabels(self):
         """ Draw labels for x and y axis """
         def GetLabelWidth(label):
@@ -298,10 +311,9 @@ class HistogramPlot(oglC.OGLCanvas):
 
         # Draw the value of the frequencies
         minFreq = 0
-        numDivisions = 10
-        divWidth = 1.0 / numDivisions
-        for i in range(numDivisions+1):
-            y = minFreq + i * numDivisions
+        divWidth = 1.0 / self.numDivisions
+        for i in range(self.numDivisions+1):
+            y = minFreq + i * self.numDivisions
             yLabel = '{:.1f}'.format(y)
             length = GetLabelWidth(yLabel)
             length /= self.size.width
