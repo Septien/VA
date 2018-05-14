@@ -183,7 +183,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
 
         glColor3f(0.0, 0.0, 1.0)
         self.DrawLines()
-        glColor3f(0.0, 0.5, 0.9)
+        glColor3f(0.0, 0, 0)
         self.DrawLabels()
 
         self.SwapBuffers()
@@ -281,6 +281,16 @@ class ParallelCoordinates(oglC.OGLCanvas):
             glRasterPos2f(i * spacing - width / 2.0, y)
             for c in label:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+            
+            label = str(self.axesRange[index][0])
+            glRasterPos2f(i * spacing, -0.04)
+            for c in label:
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, ord(c))
+            label = str(self.axesRange[index][1])
+            glRasterPos2f(i * spacing, 1.01)
+            for c in label:
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, ord(c))
+
             i += 1
 
 #----------------------------------------------------------------------------------------------
