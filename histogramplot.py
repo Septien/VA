@@ -26,7 +26,7 @@ class HistogramPlot(oglC.OGLCanvas):
         -frequencies: The frecuency of each class.
         -range: The range of each class.
         -maxFrequency.
-        -axis: Axis in analysis.
+        -axis: Name of the axis in analysis.
         -data: The data.
         -numDivisions: Number of divisions on the grid.
     """
@@ -39,7 +39,7 @@ class HistogramPlot(oglC.OGLCanvas):
         self.range = []
         self.rect = []
         self.maxFrequency = 0
-        self.axis = 0
+        self.axis = ""
         self.data = []
         self.numDivisions = 10
 
@@ -49,7 +49,7 @@ class HistogramPlot(oglC.OGLCanvas):
         #
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-0.1, 1.1, -0.1, 1.1, 1.0, 10.0)
+        glOrtho(-0.1, 1.3, -0.1, 1.1, 1.0, 10.0)
         #
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -273,8 +273,8 @@ class HistogramPlot(oglC.OGLCanvas):
         return len(self.data)
 
     def setAxis(self, axis):
-        """ Set the axis to analize """
-        assert type(axis) is int, "Incorrect type."
+        """ Set the axis name to analize """
+        assert type(axis) is str, "Incorrect type."
         self.axis = axis
 
     def drawGrid(self):
@@ -334,6 +334,10 @@ class HistogramPlot(oglC.OGLCanvas):
             for c in yLabel:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
 
+        glRasterPos2f(1.06, 0.0)
+        for c in self.axis:
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
+
 
 #------------------------------------------------------------------------------------------------------------------
 
@@ -341,11 +345,12 @@ class HistogramWidget(wx.Panel):
     """
     The panel containing the histogram plot and all of its controls
     """
-    def __init__(self, parent, data, axis):
+    def __init__(self, parent, data, axis, axisName):
         super(HistogramWidget, self).__init__(parent)
 
         self.data = data
         self.axis = axis
+        self.axisName = axisName
         self.initHistogram()
         self.initCtrls()
         self.groupControls()
@@ -359,7 +364,7 @@ class HistogramWidget(wx.Panel):
         self.histogram.SetMinSize((300, 300))
         datum = [ d[self.axis] for d in self.data ]
         self.histogram.setData(datum)
-        self.histogram.setAxis(self.axis)
+        self.histogram.setAxis(self.axisName)
         # Compute the defaul number of bins
         self.histogram.computeBins()
         self.histogram.computeClassesInterval()
