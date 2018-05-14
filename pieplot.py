@@ -71,8 +71,11 @@ class PiePlot(oglC.OGLCanvas):
 			arcAngle = 360.0 * freq[1]
 			glColor3f(0.0, 0.0, 0.0)
 			labelAngle = (arcAngle / 2.0) + startAngle
-			radious = 1.2
+			radious = 1.15
+			glPushMatrix()
+			glTranslatef(-0.1, 0.0, 0.0)
 			self.drawLabels(labelAngle, str(freq[0]), radious)
+			glPopMatrix()
 			glColor3f(r.random(), r.random(), r.random())
 			self.DrawFilledArc(0, 0, 1, startAngle, arcAngle)
 			startAngle += arcAngle
@@ -242,12 +245,12 @@ class PPWidget(wx.Panel):
         label = wx.StaticText(self, -1, "Change axis:")
 
         sizer1 = wx.BoxSizer(wx.VERTICAL)
-        sizer1.Add(label, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
-        sizer1.Add(self.cb, 0, wx.EXPAND | wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+        sizer1.Add(label, 0, wx.ALIGN_CENTER_HORIZONTAL)
+        sizer1.Add(self.cb, 0, wx.ALIGN_CENTER_HORIZONTAL)
 
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.sizer.Add(self.pp, 1,  wx.ALIGN_RIGHT | wx.SHAPED | wx.ALL, 5)
-        self.sizer.Add(sizer1, 0, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+        self.sizer.Add(self.pp, 0,  wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_CENTER_HORIZONTAL | wx.SHAPED | wx.ALL, 5)
+        self.sizer.Add(sizer1, 0, wx.ALIGN_LEFT)
 
         self.SetSizer(self.sizer)
 
