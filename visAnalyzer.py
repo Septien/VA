@@ -17,6 +17,12 @@ import lineplot as lp
 import parallelcoord as pc
 import splom as spm
 
+# For loading the db
+import getdbDialog as dbD
+
+# For mysql
+import pymysql.cursors
+
 import random as r
 
 class mainGUI(wx.Frame):
@@ -91,9 +97,77 @@ class mainGUI(wx.Frame):
             # Let it propagate
             event.Skip()
 
+    def connect2DB(self, name, passw, db):
+        """ Connect to the database specified by 'db', with the user credentials provided """
+        # Get the connection object
+        self.connection = pymysql.connect(host='localhost', user=name, password=passw, db=db,
+                            charset='utf8mb4', cursorclass=pymysql.cursors.SSCursor)
+
+    def loadData(self):
+        """ Get the name of the variables, its types, and the data from the database """
+        def isNumeric(dataType):
+            """ Returns true if the type of the datum is numeric """
+            types = ['float', 'real', 'double precision', 'int', 'integer', 'smallint', 'decimal', 'numeric',
+                    'dec', 'fixed']
+            numeric = False
+            for t in types:
+                if dataType == t:
+                    numeric = True
+            return numeric
+        #
+        if not self.connection:
+            return
+
+        self.labels = []
+        self.category = []
+        self.data = []
+        with self.connection.cursor() as cursor:
+            # Get the information of the tables
+            sqlcmd = "SHOW TABLES"
+            cursor.execute(sqlcmd)
+            # Get the first table
+            table = cursor.fetchone()
+            for name in table:
+                # Get the description of the table
+                sqlcmd = "DESCRIBE " + name
+                cursor.execute(sqlcmd)
+                descr = cursor.fetchall()
+                # Get the type and name of each column
+                for variable in descr:
+                    # The name of the variable
+                    self.labels.append(variable[0])
+                    # The type of the variable
+                    if isNumeric(variable[1]):
+                        self.category.append(0)
+                    else:
+                        self.category.append(1)
+                # Get the data
+                sqlcmd = "SELECT * FROM " + name
+                cursor.execute(sqlcmd)
+                datum = cursor.fetchall_unbuffered()
+                for data in datum:
+                    nData = []
+                    for d in data:
+                        if type(d) is str:
+                            nData.append(float(d))
+                        else:
+                            nData.append(d)
+                    self.data.append(nData.copy())
+
     def OnDBSelected(self, event):
         """ Displays the available mysql databases and loads the selected one """
-        pass
+        if self.selectedDB:
+            # Delete previous values
+            self.data.clear()
+            self.labels.clear()
+            self.category.clear()
+
+        with dbD.GetDBDialog(self, "Connect to a database") as dlg:
+            if dlg.ShowModal() == wx.ID_OK:
+                name, passw, db = dlg.getUserData()
+                self.connect2DB(name, passw, db)
+                self.loadData()
+                self.selectedDB = True
 
     def OnLoadCSVFile(self, event):
         """ Loads a csv file """
