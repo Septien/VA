@@ -27,6 +27,7 @@ class SPLOM(sc.ScatterPlot2D):
         super(SPLOM, self).__init__(parent)
         self.data = []
         self.variablesName = []
+        self.variablesCategory = []
         self.divisions = 5
         self.databaseName = None
         self.numAxis = 0
@@ -82,6 +83,17 @@ class SPLOM(sc.ScatterPlot2D):
         if self.data:
             assert len(self.variablesName) == len(self.data[0]), "Number of labels must be the same as the number of dimension"
 
+    def SetCategory(self, category):
+        """ Loads the category of each of the variables. Assumes one-to-one correspondance, and
+        that the indexes corresponds to each other. """
+        assert type(category) is list, "Incorrect input type"
+        assert len(category) == self.numAxis, "Incorrect length of category array"
+
+        # Store reference
+        self.variablesCategory = category
+
+        assert self.variablesCategory, "Category array not initilize"
+
     def LoadDatabaseName(self, dbName):
         """Load the name of the database to be displayed"""
         assert type(dbName) is str, "Incorrect name format: " + str(type(dbName))
@@ -117,10 +129,15 @@ class SPLOM(sc.ScatterPlot2D):
     def DrawSCPM(self):
         """Draws the matrix of plots"""
         # Iterate over all axes
-        count = 1
         for i in range(self.numAxis):
+            # If the variable type is not nummeric
+            if self.variablesCategory[i] != 0:
+                continue
             x1 = [x[i] for x in self.data]
-            for j in range(self.numAxis):                
+            for j in range(self.numAxis):
+                # If the variable type is not nummeric
+                if self.variablesCategory[j] != 0:
+                    continue
                 if i == j:
                     # if i == j, draw the name of the variable
                     glPushMatrix()
@@ -154,27 +171,27 @@ class SPLOM(sc.ScatterPlot2D):
 
 #----------------------------------------------------------------------------------------------
 
-class SPLOMWidget(scp):
-    """ Widget para la matriz de gráficas de dispersión """
-    def __init__(self, parent, data, labels):
-        super(SPLOMWidget, self).__init__(parent, -1, style=wx.SIMPLE_BORDER)
+class SPLOMWidget(scp.ScrolledPanel):
+    """ Widget for the scatterplot matrix """
+    def __init__(self, parent, data, labels, category):
+        super(SPLOMWidget, self).__init__(parent, -1, style=wx.SIMPLE_BORDER, size=(500, 400))
 
         self.data = data
         self.labels = labels
-        self.size = size
-        self.SetupScrolling()
+        self.category = category
         self.initSPLOM()
         self.groupCtrls()
-
+        self.SetupScrolling()
 
     def initSPLOM(self):
         """ Initialize the SPLOM """
         self.splom = SPLOM(self)
         self.splom.SetData(self.data)
         self.splom.SetLabels(self.labels)
-        self.splom.SetMinSize((1000, 1000))
+        self.splom.SetCategory(self.category)
+        self.splom.SetMinSize((500, 400))
 
     def groupCtrls(self):
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.sizer.Add(self.splom, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.ALL, 5)
+        self.sizer.Add(self.splom, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.ALL, 5)
         self.SetSizer(self.sizer)
