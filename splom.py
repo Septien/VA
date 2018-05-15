@@ -28,6 +28,7 @@ class SPLOM(sc.ScatterPlot2D):
         self.data = []
         self.variablesName = []
         self.variablesCategory = []
+        self.numericVariables = 0
         self.divisions = 5
         self.databaseName = None
         self.numAxis = 0
@@ -40,7 +41,7 @@ class SPLOM(sc.ScatterPlot2D):
         #
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-0.1, 1.1, -0.1, 1.1, 1.0, 10.0)
+        glOrtho(-0.01, 1.01, -0.01, 1.01, 1.0, 10.0)
         #
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -91,6 +92,10 @@ class SPLOM(sc.ScatterPlot2D):
 
         # Store reference
         self.variablesCategory = category
+        # Compute the number of numerica variables
+        for c in self.variablesCategory:
+            if c == 0:
+                self.numericVariables += 1
 
         assert self.variablesCategory, "Category array not initilize"
 
@@ -125,49 +130,78 @@ class SPLOM(sc.ScatterPlot2D):
         
         self.SwapBuffers()
         
-
     def DrawSCPM(self):
         """Draws the matrix of plots"""
+        # The screen will be divided in cells, each one containing a scatterplot. All
+        # cells have the same width and height, which is 1/3 (a total of 9 windows on the screen).
+        numCells = 3.0
+        cellWidth = 1.0/numCells
+        cellHeight = 1.0/numCells
+        # For the numerical variables
+        h, k = 1, 1
         # Iterate over all axes
         for i in range(self.numAxis):
-            # If the variable type is not nummeric
+            # If the variable type is not numeric
             if self.variablesCategory[i] != 0:
                 continue
             x1 = [x[i] for x in self.data]
+            k = 1
             for j in range(self.numAxis):
-                # If the variable type is not nummeric
+                # If the variable type is not numeric
                 if self.variablesCategory[j] != 0:
                     continue
                 if i == j:
                     # if i == j, draw the name of the variable
                     glPushMatrix()
-                    glTranslatef(1.0 / (2.0 * self.numAxis), -1.0 / (2.0 * self.numAxis), 0.0)
-                    glTranslatef(j / self.numAxis, 1.0 - (i / self.numAxis), 0.0)
+                    glTranslatef(k * (cellWidth / 2.0), 1.0 - ( h * (cellHeight / 2.0)), 0.0)
                     self.DrawNames(i)
                     glPopMatrix()
+                    k += (numCells - 1)
                     continue
                 # Draw the graphs
                 x2 = [x[j] for x in self.data]
                 self.points = [x1, x2]
                 self.GetRanges()
                 glPushMatrix()
-                glTranslatef(0.125, 0.125, 0.0)
-                glTranslatef(j / self.numAxis, 1.0 - ((i + 1) / self.numAxis), 0.0)
-                glScalef(0.2, 0.2, 0.0)
-                glTranslatef(-0.5, -0.5, 0.0)
-                super(SPLOM, self).DrawGrid()
-                super(SPLOM, self).DrawPoints(0.03)
+                glTranslatef(-cellWidth / 2.0, -cellHeight / 2.0, 0.0)
+                glTranslatef(k * (cellWidth / 2.0), 1.0 - ( h * (cellHeight / 2.0)), 0.0)
+                glScalef(cellWidth, cellHeight, 0.0)
+                self.DrawGrid()
+                self.DrawPoints(0.01)
                 glPopMatrix()
+                
+                # Increas only if the variable is numerical
+                k += (numCells - 1)
+            h += (numCells - 1)
+
 
     def DrawNames(self, i):
         """Draw the names of the variable.
             i: The position of the name on the labels array """
+        def GetLabelWidth(label):
+            """Returns the total width of the length of 'label', using the
+            fonts from glut"""
+            assert type(label) is str, "Incorrect type"
+
+            length = 0
+            for c in label:
+                length += glutBitmapWidth(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+            assert type(length) is int
+            assert length >= 0
+
+            return length
         assert type(i) is int, "Incorrect type: " + str(type(i))
         assert 0 <= i <= len(self.variablesName)
+
+        glColor3f(0.0, 0.0, 0.0)
         label = self.variablesName[i]
+        length = GetLabelWidth(label)
+        length /= self.size.width
+        glTranslatef(-length/2.0, 0.0, 0.0)
         glRasterPos2f(0.0, 0.0)
         for c in label:
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
 
 #----------------------------------------------------------------------------------------------
 
@@ -189,7 +223,7 @@ class SPLOMWidget(scp.ScrolledPanel):
         self.splom.SetData(self.data)
         self.splom.SetLabels(self.labels)
         self.splom.SetCategory(self.category)
-        self.splom.SetMinSize((500, 400))
+        self.splom.SetMinSize((450, 350))
 
     def groupCtrls(self):
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
