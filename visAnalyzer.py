@@ -15,7 +15,7 @@ import pieplot as pp
 import gauge as gg
 import lineplot as lp
 import parallelcoord as pc
-#import splom as spm
+import splom as spm
 
 import random as r
 
@@ -65,11 +65,12 @@ class mainGUI(wx.Frame):
         self.registerMenuAction(selectGraph, -1, self.OnPCSelected, "Parallel Coordinates")
         self.registerMenuAction(selectGraph, -1, self.OnSPLOMSelected, "SPLOM")
         self.registerMenuAction(selectGraph, -1, self.OnLPSelected, "Line plot")
-        self.registerMenuAction(selectGraph, -1, self.OnGPSelected, "Gauge")
         self.registerMenuAction(selectGraph, -1, self.OnPPSelected, "Pie plot")
-        self.registerMenuAction(selectGraph, -1, self.OnOSCSelected, "Osciloscope")
         self.registerMenuAction(selectGraph, -1, self.OnHGSelected, "Histogram")
         self.registerMenuAction(selectGraph, -1, self.OnSCPSelected, "Scatterplot")
+        self.registerMenuAction(selectGraph, -1, self.OnGPSelected, "Gauge")
+        self.registerMenuAction(selectGraph, -1, self.OnOSCSelected, "Osciloscope")
+
         # Add to menu bar
         menubar.Append(selectGraph, "Graphs")
 
@@ -191,11 +192,10 @@ class mainGUI(wx.Frame):
         if not self.SelectedDB():
             return
         size = (500, 500)
-        self.splom = spm.SPLOMWidget(self, self.data, self.labels)
-        self.mainSizer.Add(self.splom, 0, wx.SHAPED | wx.ALIGN_CENTER | wx.ALL, 5)
+        self.splom = spm.SPLOMWidget(self, self.data, self.labels, self.category)
+        self.mainSizer.Add(self.splom, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
         # Force layout update
         self.fitLayout()
-
 
     def OnLPSelected(self, event):
         """ When the line plot is selected"""
@@ -204,7 +204,7 @@ class mainGUI(wx.Frame):
         axis = self.GetSelectedAxis(self.labels, title="Axes", text="Select an axis")
         if axis > -1:
             self.lp = lp.LinePlotWidget(self, self.data, self.labels, axis)
-            self.mainSizer.Add(self.lp, 0, wx.SHAPED | wx.ALIGN_CENTER | wx.ALL, 5)
+            self.mainSizer.Add(self.lp, 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 10)
             # Force layout update
             self.fitLayout()
 
@@ -220,7 +220,7 @@ class mainGUI(wx.Frame):
         axis = self.GetSelectedAxis(self.labels, title="Axes", text="Select an axis")
         if axis > -1:
             self.pp = pp.PPWidget(self.panel, self.data, self.labels, axis)
-            self.mainSizer.Add(self.pp, 0, wx.SHAPED | wx.ALIGN_CENTER | wx.ALL, 5)
+            self.mainSizer.Add(self.pp, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 10)
             # Force layout update
             self.fitLayout()
 
@@ -247,7 +247,13 @@ class mainGUI(wx.Frame):
         """ When the scatterplot is selected """
         if not self.SelectedDB():
             return
-        dlg = wx.MultiChoiceDialog(self, "Pick two axes", "Select the axes to display", self.labels)
+        # Let the user select only the numerical variables
+        choices = []
+        for i in range(len(self.labels)):
+            if self.category[i] == 0:
+                choices.append(self.labels[i])
+
+        dlg = wx.MultiChoiceDialog(self, "Pick two axes", "Select the axes to display", choices)
         options = 1
         while options != 2:
             if dlg.ShowModal() == wx.ID_OK:
@@ -256,16 +262,20 @@ class mainGUI(wx.Frame):
                     wx.MessageBox("Select only two axes", "")
                     continue
                 else:
-                    index1 = selections[0]
-                    index2 = selections[1]
-                    self.scp = sc2.ScatterplotWidget(self, self.data, self.labels, index1, index2)
+                    axis1 = choices[selections[0]]
+                    axis2 = choices[selections[1]]
+                    index1 = index2 = 0
+                    for i in range(len(self.labels)):
+                        if axis1 == self.labels[i]:
+                            index1 = i
+                        if axis2 == self.labels[i]:
+                            index2 = i
+                    self.scp = sc2.ScatterplotWidget(self, self.data, self.labels, self.category, index1, index2)
                     self.mainSizer.Add(self.scp, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
                     # Force layout update
-                    self.mainSizer.Layout()
-                    self.panel.Layout()
-                    self.Fit()
+                    self.fitLayout()
                     break
-            else:       # When cancel is pressed
+            else: # When cancel is pressed
                 break
 
 
