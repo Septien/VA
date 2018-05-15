@@ -33,6 +33,7 @@ class mainGUI(wx.Frame):
         super(mainGUI, self).__init__(parent, title=title)
 
         self.selectedDB = False
+        self.connection = None
         self.data = None
         self.labels = None
         self.category = None
@@ -96,14 +97,20 @@ class mainGUI(wx.Frame):
         else:
             # Let it propagate
             event.Skip()
+    #--------------------------------------------------------------------------------------------------------------
 
     def connect2DB(self, name, passw, db):
         """ Connect to the database specified by 'db', with the user credentials provided """
         # Get the connection object
-        self.connection = pymysql.connect(host='localhost', user=name, password=passw, db=db,
+        try:
+            self.connection = pymysql.connect(host='localhost', user=name, password=passw, db=db,
                             charset='utf8mb4', cursorclass=pymysql.cursors.SSCursor)
+        except:
+            wx.MessageBox("Information provided for the connection is incorrect, try again", "Incorrect information")
+            return False
+        return True
 
-    def loadData(self):
+    def loadDataFromDB(self):
         """ Get the name of the variables, its types, and the data from the database """
         def isNumeric(dataType):
             """ Returns true if the type of the datum is numeric """
@@ -163,11 +170,20 @@ class mainGUI(wx.Frame):
             self.category.clear()
 
         with dbD.GetDBDialog(self, "Connect to a database") as dlg:
-            if dlg.ShowModal() == wx.ID_OK:
-                name, passw, db = dlg.getUserData()
-                self.connect2DB(name, passw, db)
-                self.loadData()
-                self.selectedDB = True
+            # Get the data until a connection is establish successfully to the db, or the user cancel
+            while True:
+                if dlg.ShowModal() == wx.ID_OK:
+                    name, passw, db = dlg.getUserData()
+                    result = self.connect2DB(name, passw, db)
+                    # If the connection was succesful
+                    if result:
+                        break
+                else:
+                    return
+            self.loadDataFromDB()
+            self.selectedDB = True
+
+    #--------------------------------------------------------------------------------------------------------------
 
     def OnLoadCSVFile(self, event):
         """ Loads a csv file """
