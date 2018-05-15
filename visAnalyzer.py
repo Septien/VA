@@ -134,32 +134,35 @@ class mainGUI(wx.Frame):
             cursor.execute(sqlcmd)
             # Get the first table
             table = cursor.fetchone()
-            for name in table:
-                # Get the description of the table
-                sqlcmd = "DESCRIBE " + name
-                cursor.execute(sqlcmd)
-                descr = cursor.fetchall()
-                # Get the type and name of each column
-                for variable in descr:
-                    # The name of the variable
-                    self.labels.append(variable[0])
-                    # The type of the variable
-                    if isNumeric(variable[1]):
-                        self.category.append(0)
+            name = table[0]
+            # Get the description of the table
+            sqlcmd = "DESCRIBE " + name
+            cursor.execute(sqlcmd)
+            descr = cursor.fetchall()
+            
+            # Get the type and name of each column
+            for variable in descr:
+                # The name of the variable
+                self.labels.append(variable[0])
+                # The type of the variable
+                if isNumeric(variable[1]):
+                    self.category.append(0)
+                else:
+                    self.category.append(1)
+            
+            # Get the data
+            sqlcmd = "SELECT * FROM " + name
+            cursor.execute(sqlcmd)
+            datum = cursor.fetchall_unbuffered()
+            for data in datum:
+                nData = []
+                for d in data:
+                    if type(d) is str:
+                        nData.append(float(d))
                     else:
-                        self.category.append(1)
-                # Get the data
-                sqlcmd = "SELECT * FROM " + name
-                cursor.execute(sqlcmd)
-                datum = cursor.fetchall_unbuffered()
-                for data in datum:
-                    nData = []
-                    for d in data:
-                        if type(d) is str:
-                            nData.append(float(d))
-                        else:
-                            nData.append(d)
-                    self.data.append(nData.copy())
+                        nData.append(d)
+                self.data.append(nData.copy())
+
 
     def OnDBSelected(self, event):
         """ Displays the available mysql databases and loads the selected one """
@@ -223,6 +226,8 @@ class mainGUI(wx.Frame):
                         self.data.append(nRow)
             self.selectedDB = True
         dlg.Destroy()
+
+    #--------------------------------------------------------------------------------------------------------------
 
     def onStreamSelected(self, event):
         """ When a stream of data is selected """
