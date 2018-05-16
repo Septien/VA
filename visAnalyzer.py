@@ -173,7 +173,7 @@ class mainGUI(wx.Frame):
             self.category.clear()
 
         with dbD.GetDBDialog(self, "Connect to a database") as dlg:
-            # Get the data until a connection is establish successfully to the db, or the user cancel
+            # Get the data until a connection to the db is successfully established, or the user canceled
             while True:
                 if dlg.ShowModal() == wx.ID_OK:
                     name, passw, db = dlg.getUserData()
