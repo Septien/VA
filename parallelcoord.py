@@ -314,7 +314,7 @@ class PCWidget(wx.Panel):
         self.sizer = None
         self.axis = -1
         self.axisRange = []
-        self.size = (600, 500)
+        self.size = (500, 400)
 
         # Create the graph
         self.initPC()

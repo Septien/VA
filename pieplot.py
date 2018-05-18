@@ -221,7 +221,7 @@ class PPWidget(wx.Panel):
 
     def initPiePlot(self, axis):
         self.pp = PiePlot(self)
-        self.pp.SetMinSize((500, 500))
+        self.pp.SetMinSize((400, 400))
         self.pp.setData(self.data)
         self.pp.setLabels(self.labels)
         self.pp.setAxis(axis)

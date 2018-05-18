@@ -223,7 +223,7 @@ class SPLOMWidget(scp.ScrolledPanel):
         self.splom.SetData(self.data)
         self.splom.SetLabels(self.labels)
         self.splom.SetCategory(self.category)
-        self.splom.SetMinSize((450, 350))
+        self.splom.SetMinSize((500, 400))
 
     def groupCtrls(self):
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)

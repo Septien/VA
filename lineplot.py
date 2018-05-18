@@ -240,7 +240,7 @@ class LinePlot(oglC.OGLCanvas):
         # Draw the name of the variable
         glRasterPos2f(0.5, 1.05)
         for c in self.name:
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
     def setName(self, nName):
         """ Set the name of the variable """
@@ -284,7 +284,7 @@ class LinePlotWidget(wx.Panel):
         self.lp.setName(self.labels[self.axis])
         data = [d[self.axis] for d in self.data]
         self.lp.setData(data)
-        self.lp.SetMinSize((300, 300))
+        self.lp.SetMinSize((400, 400))
 
     def initComboBox(self):
         """ Initialize and fill the combobox with the name and number of the axis. """

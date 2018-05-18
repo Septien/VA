@@ -371,7 +371,7 @@ class HistogramWidget(wx.Panel):
         """ Initialize the class for the histogram """
         # Initialize the canvas for histogram
         self.histogram = HistogramPlot(self)
-        self.histogram.SetMinSize((300, 300))
+        self.histogram.SetMinSize((400, 400))
         datum = [ d[self.axis] for d in self.data ]
         self.histogram.setData(datum)
         self.histogram.setAxis(self.axisName)
