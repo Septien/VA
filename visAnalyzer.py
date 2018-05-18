@@ -20,8 +20,8 @@ import splom as spm
 # For loading the db
 import getdbDialog as dbD
 
-# For mysql
-import pymysql.cursors
+# Cursor
+import dataIterator as dI
 
 import random as r
 
@@ -33,7 +33,6 @@ class mainGUI(wx.Frame):
         super(mainGUI, self).__init__(parent, title=title)
 
         self.selectedDB = False
-        self.connection = None
         self.data = None
         self.labels = None
         self.category = None
@@ -99,91 +98,27 @@ class mainGUI(wx.Frame):
             event.Skip()
     #--------------------------------------------------------------------------------------------------------------
 
-    def connect2DB(self, name, passw, db):
-        """ Connect to the database specified by 'db', with the user credentials provided """
-        # Get the connection object
-        try:
-            self.connection = pymysql.connect(host='localhost', user=name, password=passw, db=db,
-                            charset='utf8mb4', cursorclass=pymysql.cursors.SSCursor)
-        except:
-            wx.MessageBox("Information provided for the connection is incorrect, try again", "Incorrect information")
-            return False
-        return True
-
-    def loadDataFromDB(self):
-        """ Get the name of the variables, its types, and the data from the database """
-        def isNumeric(dataType):
-            """ Returns true if the type of the datum is numeric """
-            types = ['float', 'real', 'double precision', 'int', 'integer', 'smallint', 'decimal', 'numeric',
-                    'dec', 'fixed']
-            numeric = False
-            for t in types:
-                if dataType == t:
-                    numeric = True
-            return numeric
-        #
-        if not self.connection:
-            return
-
-        self.labels = []
-        self.category = []
-        self.data = []
-        with self.connection.cursor() as cursor:
-            # Get the information of the tables
-            sqlcmd = "SHOW TABLES"
-            cursor.execute(sqlcmd)
-            # Get the first table
-            table = cursor.fetchone()
-            name = table[0]
-            # Get the description of the table
-            sqlcmd = "DESCRIBE " + name
-            cursor.execute(sqlcmd)
-            descr = cursor.fetchall()
-            
-            # Get the type and name of each column
-            for variable in descr:
-                # The name of the variable
-                self.labels.append(variable[0])
-                # The type of the variable
-                if isNumeric(variable[1]):
-                    self.category.append(0)
-                else:
-                    self.category.append(1)
-            
-            # Get the data
-            sqlcmd = "SELECT * FROM " + name
-            cursor.execute(sqlcmd)
-            datum = cursor.fetchall_unbuffered()
-            for data in datum:
-                nData = []
-                for d in data:
-                    if type(d) is str:
-                        nData.append(float(d))
-                    else:
-                        nData.append(d)
-                self.data.append(nData.copy())
-
-
     def OnDBSelected(self, event):
         """ Displays the available mysql databases and loads the selected one """
         if self.selectedDB:
-            # Delete previous values
-            self.data.clear()
+            self.data.close()
             self.labels.clear()
             self.category.clear()
 
         with dbD.GetDBDialog(self, "Connect to a database") as dlg:
+            # Indicate the iterator to load a db
+            self.data = dI.Data(0)
             # Get the data until a connection to the db is successfully established, or the user canceled
             while True:
                 if dlg.ShowModal() == wx.ID_OK:
                     name, passw, db = dlg.getUserData()
-                    result = self.connect2DB(name, passw, db)
+                    result = self.data.loadDB(host="localhost", user=name, passwd=passw, dbName=db)
                     # If the connection was succesful
                     if result:
                         break
                 else:
                     return
-            self.loadDataFromDB()
+            self.labels, self.category = self.data.getDBDescription()
             self.selectedDB = True
 
     #--------------------------------------------------------------------------------------------------------------
@@ -196,34 +131,11 @@ class mainGUI(wx.Frame):
         # Show dialog, if the "ok" button is pressed, open the file
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
-            self.data = []
+            self.data.close()
             self.labels = []
             self.category = []
-            LabelsandCategoryLoaded = 0
-            with open(path, "r") as dataFile:
-                for line in dataFile:
-                    row = line.split(",")
-                    # Load category
-                    if LabelsandCategoryLoaded == 0:
-                        self.labels = row.copy()
-                        LabelsandCategoryLoaded = 1
-                        continue
-                    if LabelsandCategoryLoaded == 1:
-                        # Copy as integer
-                        for r in row:
-                            self.category.append(int(r))
-                        LabelsandCategoryLoaded = 2
-                        continue
-                    incomplete = False
-                    nRow = []
-                    for r in row:
-                        if r != '?':
-                            nRow.append(float(r))
-                        else:
-                            incomplete = True
-                            break
-                    if not incomplete:
-                        self.data.append(nRow)
+            self.data.loadCSV(path)
+            self.labels, self.category = self.data.getDBDescription()
             self.selectedDB = True
         dlg.Destroy()
 
