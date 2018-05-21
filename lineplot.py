@@ -289,7 +289,7 @@ class LinePlotWidget(wx.Panel):
     def initComboBox(self):
         """ Initialize and fill the combobox with the name and number of the axis. """
         axes = []
-        for i in range(len(self.data[0])):
+        for i in range(self.data.dataLength()):
             axes.append(Axes(i, self.labels[i]))
 
         self.cb1 = wx.ComboBox(self, size=wx.DefaultSize, choices=[])

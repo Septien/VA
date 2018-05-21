@@ -121,7 +121,6 @@ class PiePlot(oglC.OGLCanvas):
 
 	def setData(self, data):
 		""" Sets the data """
-		assert type(data) is list, "Incorrect input type"
 		# Store a reference
 		self.data = data
 
@@ -135,14 +134,14 @@ class PiePlot(oglC.OGLCanvas):
 
 		assert self.labels, "Labels not set"
 		if self.data:
-			assert len(self.data[0]) == len(self.labels), "Incorrect number of labels"
+			assert self.data.dataLength() == len(self.labels), "Incorrect number of labels"
 
 	def setAxis(self, axis):
 		""" Set the number of the axis to analize """
 		assert type(axis) is int, "Incorrect input type: is " + str(type(axis)) + " must be integer."
 		assert axis > -1, "Axis must be greater than zero"
 		if self.data:
-			assert axis < len(self.data), "Axis must be less than: " + str(len(self.data))
+			assert axis < self.data.dataLength(), "Axis must be less than: " + str(self.data.dataLength())
 
 		self.axis = axis
 
@@ -229,7 +228,7 @@ class PPWidget(wx.Panel):
 
     def initCtrls(self):
         axes = []
-        for i in range(len(self.data[0])):
+        for i in range(self.data.dataLength()):
             axes.append(Axes(i, self.labels[i]))
 
         self.cb = wx.ComboBox(self, size=wx.DefaultSize, choices=[])

@@ -371,7 +371,7 @@ class ScatterplotWidget(wx.Panel):
     def initComboBox(self):
         """ Initialize and fill the combobox with the name and number of the axis. """
         axes = []
-        for i in range(len(self.data[0])):
+        for i in range(self.data.dataLength()):
             # Store only the numerical variables
             if self.category[i] == 0:
                 axes.append(Axes(i, self.labels[i]))
@@ -415,8 +415,10 @@ class ScatterplotWidget(wx.Panel):
         """ Update the data and the labels of the scatterplot """
         # Load the data for the x-axis
         xAxis = [ x[self.axis1] for x in self.data ]
+        self.data.rewind()
         # Load the data for the y axis
         yAxis = [ y[self.axis2] for y in self.data ]
+        self.data.rewind()
         axesData = [ xAxis, yAxis ]
         self.scp.SetData(axesData)
         self.scp.setAxesNames(self.labels[self.axis1], self.labels[self.axis2])

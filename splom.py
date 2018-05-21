@@ -51,38 +51,29 @@ class SPLOM(sc.ScatterPlot2D):
 
     def SetData(self, newData):
         """Loads the data to be displayed"""
-        def EqualLenght(inputArray):
-            """Verifies that all the elements in the input are of equal length"""
-            for i in range(1, len(inputArray)):
-                if len(inputArray[i-1]) != len(inputArray[i]):
-                    return False
-            return True
-        #
         assert newData, "Data cannot be empty"
-        assert EqualLenght(newData), "All rows must be the same length"
 
         self.data = newData
-        self.numAxis = len(newData[0])
+        self.numAxis = newData.dataLength()
 
         # Init scroll bar
         # if self.numAxis > 
 
         assert self.data, "Data is empty"
-        assert EqualLenght(self.data), "Data is not the same length"
         assert self.numAxis > 0, "Number of dimensions must greater than zero"
 
     def SetLabels(self, newVarNames):
         """Loads the names of each of the variables to be displayed."""
         assert newVarNames, "Variable name labels cannot be empty"
         if self.data:
-            assert len(newVarNames) == len(self.data[0]), "Unequal size: " + str(len(newVarNames)) + " " + str(len(self.data[0]))
+            assert len(newVarNames) == self.data.dataLength(), "Unequal size: " + str(len(newVarNames)) + " " + str(self.data.dataLength())
 
         self.variablesName.clear()
         self.variablesName = newVarNames
 
         assert self.variablesName, "Labels not loaded"
         if self.data:
-            assert len(self.variablesName) == len(self.data[0]), "Number of labels must be the same as the number of dimension"
+            assert len(self.variablesName) == self.data.dataLength(), "Number of labels must be the same as the number of dimension"
 
     def SetCategory(self, category):
         """ Loads the category of each of the variables. Assumes one-to-one correspondance, and
@@ -145,6 +136,7 @@ class SPLOM(sc.ScatterPlot2D):
             if self.variablesCategory[i] != 0:
                 continue
             x1 = [x[i] for x in self.data]
+            self.data.rewind()
             k = 1
             for j in range(self.numAxis):
                 # If the variable type is not numeric
@@ -160,6 +152,7 @@ class SPLOM(sc.ScatterPlot2D):
                     continue
                 # Draw the graphs
                 x2 = [x[j] for x in self.data]
+                self.data.rewind()
                 self.points = [x1, x2]
                 self.GetRanges()
                 glPushMatrix()
