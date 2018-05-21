@@ -20,6 +20,7 @@ class Data(object):
         self.File = None
         self.data = None
         self.name = None
+        self.length = 0
 
     def loadDB(self, host="", user="", passwd="", dbName=""):
         """
@@ -104,7 +105,14 @@ class Data(object):
             for r in row:
                 category.append(int(r))
         
+        self.length = len(labels)
+        assert len(labels) == len(category), "Incorrect number of labels and category"
+        assert len(category) == self.length, "Incorrect number of categories"
         return labels, category
+
+    def length(self):
+        """ Returns the number of axes in the database """
+        return self.length
 
     def __iter__(self):
         return self
