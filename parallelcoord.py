@@ -26,7 +26,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
     def __init__(self, parent):
         super(ParallelCoordinates, self).__init__(parent)
 
-        self.data = []
+        self.data = None
         self.dimensions = None
         self.labels = []
         self.axesRange = []
@@ -59,46 +59,14 @@ class ParallelCoordinates(oglC.OGLCanvas):
             return True
 
         assert newData, "Empty input"
-        assert type(newData) is list, "Incorrect input type"
-        assert len(newData) > 0, "Data must have length than zero"
-        assert EqualLength(newData), "All rows must be the same lenght"
-        if self.labels:
-            assert len(self.Labels) == len(newData[0]), "Labels must be the same length as the number of dimensions"
-
         # Hold a reference for the data
         self.data = newData
-        # Set number of dimensions
-        self.dimensions = len(self.data[0])
-        # Set the default axes order
-        for i in range(self.dimensions):
-            self.axesOrder.append(i)
-        self.ComputeRanges()
 
         assert self.data, "No data copied"
         assert EqualLength(self.data), "All rows must be the same lenght"
-        assert len(self.axesOrder) == self.dimensions, "The length of the array for the order of axes, must be the same to the number of dimensiones"
         if self.labels:
-            assert len(self.labels) == len(self.data[0]), "Labels must be the same length as the number of dimensions"
+            assert len(self.labels) == len(self.data.length()), "Labels must be the same length as the number of dimensions"
             assert self.dimensions == len(self.labels)
-
-    def ComputeRanges(self):
-        """Computes the range of each axis"""
-        assert self.data, "Data must be initialized"
-        assert self.dimensions != 0, "Dimensions must be initialized"
-
-        self.axesRange.clear()
-        for i in range(len(self.data[0])):
-            minV = maxV = self.data[0][i]
-            for j in range(len(self.data)):
-                if self.data[j][i] < minV:
-                    minV = self.data[j][i]
-                elif self.data[j][i] > maxV:
-                    maxV = self.data[j][i]
-            self.axesRange.append([minV, maxV])
-
-        assert len(self.axesRange) == len(self.data[0]), "Incorrect number of ranges " + str(len(self.axesRange)) + " " + str(len(self.data))
-        assert len(self.axesRange) == self.dimensions, "Incorrect number of ranges"
-
 
     def SetLabels(self, newLabels):
         """Sets the labels of the data"""
@@ -106,14 +74,49 @@ class ParallelCoordinates(oglC.OGLCanvas):
         assert newLabels, "Labels data can not be empty"
         assert len(newLabels) > 0, "Labels can not be empty"
         if self.data:
-            assert len(newLabels) == len(self.data[0]), "Number of labels must be the same as the number of axes"
+            assert len(newLabels) == len(self.data.length()), "Number of labels must be the same as the number of axes"
             assert len(newLabels) == self.dimensions, "Incorrect number of labels: " % self.dimensions % ", " % len(newLabels)
 
         # Hold a reference for the labels
         self.labels = newLabels
 
+        # Set number of dimensions
+        self.dimensions = len(self.labels)
+        # Set the default axes order
+        for i in range(self.dimensions):
+            self.axesOrder.append(i)
+        self.ComputeRanges()
+
         assert self.labels, "Labels array empty"
-        assert len(self.labels) == len(self.data[0]), "Different number of dimensions"
+        assert len(self.labels) == len(self.data.length()), "Different number of dimensions"
+        assert len(self.axesOrder) == self.dimensions, "The length of the array for the order of axes, must be the same to the number of dimensiones"
+
+    def ComputeRanges(self):
+        """Computes the range of each axis"""
+        assert self.data, "Data must be initialized"
+        assert self.dimensions != 0, "Dimensions must be initialized"
+
+        self.axesRange.clear()
+        # Get the number of axes
+        lenght = self.data.length()
+        d = next(self.data)
+        # Initialize the ranges
+        for i in range(length):
+            minV = maxV = d[i]
+            self.axesRange.append([minV, maxV])
+            # Get the ranges
+        for d in self.data:
+            for i in range(length):
+                # The minimum
+                if d[i] <= self.axesRange[i][0]:
+                    self.axesRange[i][0] = d[i]
+                # The maximum
+                if d[i] >= self.axesRange[i][1]:
+                    self.axesRange[i][1] = d[i]
+        # Return to first data
+        self.data.rewind()
+        assert len(self.axesRange) == len(self.data.length()), "Incorrect number of ranges " + str(len(self.axesRange)) + " " + str(self.data.length())
+        assert len(self.axesRange) == self.dimensions, "Incorrect number of ranges"
 
     def changeAxes(self, axis1, axis2):
         """ Change the position of the axis 1 to the position of the axis 2, and viceversa """
@@ -228,7 +231,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         #
         assert self.data, "Data must be initialized"
         assert self.dimensions > 0, "Dimensions must be greater than zero"
-        assert len(self.data[0]) == self.dimensions, "Dimensions in data must be the same as in the variable"
+        assert len(self.data.length()) == self.dimensions, "Dimensions in data must be the same as in the variable"
         assert len(self.axesRange) > 0, "Range must be initialized"
 
         spacing = 1.0 / (self.dimensions - 1.0)
@@ -248,7 +251,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
                     glVertex3f(i * spacing, coordNorm, 0.0)
                     i += 1
                 glEnd()
-
+        self.data.rewind()
 
     def DrawLabels(self):
         """Print the labels on screen"""
@@ -305,16 +308,24 @@ class Axes:
 
 class PCWidget(wx.Panel):
     """ For managing the widgets for the pc """
-    def __init__(self, parent, data, labels):
+    def __init__(self, parent):
         super(PCWidget, self).__init__(parent)
 
         # Hold a reference for the data and labels
-        self.data = data
-        self.labels = labels
+        self.data = None
+        self.labels = None
         self.sizer = None
         self.axis = -1
         self.axisRange = []
         self.size = (500, 400)
+
+        self.pc = ParallelCoordinates(self)
+        self.pc.SetMinSize(self.size)
+
+    def create(self, labels, data):
+        """ Create the database """
+        self.data = data
+        self.labels = labels
 
         # Create the graph
         self.initPC()
@@ -323,10 +334,9 @@ class PCWidget(wx.Panel):
 
     def initPC(self):
         """ Initialize the ||-coord """
-        self.pc = ParallelCoordinates(self)
         self.pc.SetData(self.data)
         self.pc.SetLabels(self.labels)
-        self.pc.SetMinSize(self.size)
+        
 
     def initComboBox(self):
         """ Fill the combo box with the axes data """
