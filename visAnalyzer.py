@@ -100,10 +100,8 @@ class mainGUI(wx.Frame):
 
     def OnDBSelected(self, event):
         """ Displays the available mysql databases and loads the selected one """
-        if self.selectedDB:
+        if self.data:
             self.data.close()
-            self.labels.clear()
-            self.category.clear()
 
         with dbD.GetDBDialog(self, "Connect to a database") as dlg:
             # Indicate the iterator to load a db
@@ -131,9 +129,11 @@ class mainGUI(wx.Frame):
         # Show dialog, if the "ok" button is pressed, open the file
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
-            self.data.close()
+            if self.data:
+                self.data.close()
             self.labels = []
             self.category = []
+            self.data = dI.Data(1)
             self.data.loadCSV(path)
             self.labels, self.category = self.data.getDBDescription()
             self.selectedDB = True
@@ -150,15 +150,6 @@ class mainGUI(wx.Frame):
         self.mainSizer.Layout()
         self.panel.Layout()
         self.Fit()
-
-    def getSelectionableAxes(self):
-        """ Returns a list of all the axes suitable for the histogram """
-        selectionable = []
-        for i in range(len(self.category)):
-            # 0 -> Numerical variables
-            if self.category[i] == 0:
-                selectionable.append(self.labels[i])
-        return selectionable
     
     def SelectedDB(self):
         """ Check if a database or csv file is selected. If not prompts the user. """
@@ -234,6 +225,15 @@ class mainGUI(wx.Frame):
     def OnOSCSelected(self, event):
         """ When the osciloscope is selected """
         pass
+
+    def getSelectionableAxes(self):
+        """ Returns a list of all the axes suitable for the histogram """
+        selectionable = []
+        for i in range(len(self.category)):
+            # 0 -> Numerical variables
+            if self.category[i] == 0:
+                selectionable.append(self.labels[i])
+        return selectionable
 
     def OnHGSelected(self, event):
         """ When the histogram is selected """
