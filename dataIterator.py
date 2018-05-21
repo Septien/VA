@@ -110,7 +110,7 @@ class Data(object):
         assert len(category) == self.length, "Incorrect number of categories"
         return labels, category
 
-    def length(self):
+    def dataLength(self):
         """ Returns the number of axes in the database """
         return self.length
 
@@ -140,8 +140,9 @@ class Data(object):
 
         elif self.sourceFlag == 1:
             data = []
-            notNoisy = True
-            while notNoisy:
+            noisy = False
+            while True:
+                noisy = False
                 line = self.File.readline()
                 if line == "":
                     raise StopIteration()
@@ -153,9 +154,11 @@ class Data(object):
                     else:
                         # Incomplete data, dismiss row
                         data.clear()
-                        continue
-                break
-
+                        noisy = True
+                        break
+                # Read next row
+                if not noisy:
+                    break
         return data
 
     def rewind(self):
