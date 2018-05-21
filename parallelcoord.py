@@ -51,31 +51,21 @@ class ParallelCoordinates(oglC.OGLCanvas):
 
     def SetData(self, newData):
         """Sets the data to be displayed and calculates the range"""
-        def EqualLength(matrix):
-            """Verifies that all rows of the matrix have the same length"""
-            for i in range(1, len(matrix)):
-                if len(matrix[i-1]) != len(matrix[i]):
-                    return False
-            return True
 
         assert newData, "Empty input"
         # Hold a reference for the data
         self.data = newData
 
         assert self.data, "No data copied"
-        assert EqualLength(self.data), "All rows must be the same lenght"
         if self.labels:
-            assert len(self.labels) == len(self.data.length()), "Labels must be the same length as the number of dimensions"
-            assert self.dimensions == len(self.labels)
+            assert len(self.labels) == self.data.dataLength(), "Labels must be the same length as the number of dimensions"
 
     def SetLabels(self, newLabels):
         """Sets the labels of the data"""
-
         assert newLabels, "Labels data can not be empty"
         assert len(newLabels) > 0, "Labels can not be empty"
         if self.data:
-            assert len(newLabels) == len(self.data.length()), "Number of labels must be the same as the number of axes"
-            assert len(newLabels) == self.dimensions, "Incorrect number of labels: " % self.dimensions % ", " % len(newLabels)
+            assert len(newLabels) == self.data.dataLength(), "Number of labels must be the same as the number of axes"
 
         # Hold a reference for the labels
         self.labels = newLabels
@@ -88,7 +78,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         self.ComputeRanges()
 
         assert self.labels, "Labels array empty"
-        assert len(self.labels) == len(self.data.length()), "Different number of dimensions"
+        assert len(self.labels) == self.data.dataLength(), "Different number of dimensions"
         assert len(self.axesOrder) == self.dimensions, "The length of the array for the order of axes, must be the same to the number of dimensiones"
 
     def ComputeRanges(self):
@@ -98,13 +88,14 @@ class ParallelCoordinates(oglC.OGLCanvas):
 
         self.axesRange.clear()
         # Get the number of axes
-        lenght = self.data.length()
+        length = self.data.dataLength()
         d = next(self.data)
         # Initialize the ranges
         for i in range(length):
             minV = maxV = d[i]
             self.axesRange.append([minV, maxV])
-            # Get the ranges
+        # Get the ranges
+        j = 0
         for d in self.data:
             for i in range(length):
                 # The minimum
@@ -113,9 +104,10 @@ class ParallelCoordinates(oglC.OGLCanvas):
                 # The maximum
                 if d[i] >= self.axesRange[i][1]:
                     self.axesRange[i][1] = d[i]
+            j += 1
         # Return to first data
         self.data.rewind()
-        assert len(self.axesRange) == len(self.data.length()), "Incorrect number of ranges " + str(len(self.axesRange)) + " " + str(self.data.length())
+        assert len(self.axesRange) == self.data.dataLength(), "Incorrect number of ranges " + str(len(self.axesRange)) + " " + str(self.data.dataLength())
         assert len(self.axesRange) == self.dimensions, "Incorrect number of ranges"
 
     def changeAxes(self, axis1, axis2):
@@ -231,7 +223,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         #
         assert self.data, "Data must be initialized"
         assert self.dimensions > 0, "Dimensions must be greater than zero"
-        assert len(self.data.length()) == self.dimensions, "Dimensions in data must be the same as in the variable"
+        assert self.data.dataLength() == self.dimensions, "Dimensions in data must be the same as in the variable"
         assert len(self.axesRange) > 0, "Range must be initialized"
 
         spacing = 1.0 / (self.dimensions - 1.0)
@@ -239,7 +231,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         for row in self.data:
             i = 0
             drawLine = True
-            # Check if line is within interval, and a filter must be applied
+            # Check if point is within interval, and a filter must be applied
             if self.filterAxis > -1:        # If a filter must be applied
                 if not (self.filterRange[0] <= row[self.filterAxis] <= self.filterRange[1]): # If the variable is out of range
                     drawLine = False
@@ -322,7 +314,7 @@ class PCWidget(wx.Panel):
         self.pc = ParallelCoordinates(self)
         self.pc.SetMinSize(self.size)
 
-    def create(self, labels, data):
+    def create(self, data, labels):
         """ Create the database """
         self.data = data
         self.labels = labels
@@ -341,7 +333,7 @@ class PCWidget(wx.Panel):
     def initComboBox(self):
         """ Fill the combo box with the axes data """
         axes = []
-        for i in range(len(self.data[0])):
+        for i in range(self.data.dataLength()):
             axes.append(Axes(i, self.labels[i]))
 
         l = []
