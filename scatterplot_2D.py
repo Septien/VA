@@ -346,9 +346,21 @@ class Axes:
 
 class ScatterplotWidget(wx.Panel):
     """ Widget for the scatterplot widget and its controls """
-    def __init__(self, parent, data, labels, category, axis1, axis2):
+    def __init__(self, parent):
         super(ScatterplotWidget, self).__init__(parent)
 
+        self.data = None
+        self.labels = None
+        self.category = None
+        self.sizer = None
+        self.axis1 = -1
+        self.axis2 = -1
+
+        self.scp = ScatterPlot2D(self)
+        self.scp.SetMinSize((400, 400))
+
+    def create(self, data, labels, category, axis1, axis2):
+        """ Initialize the graph with the data """
         # Hold a reference for the data and labels
         self.data = data
         self.labels = labels
@@ -364,9 +376,7 @@ class ScatterplotWidget(wx.Panel):
 
     def initScp(self):
         """ Initialize the canvas for the scp """
-        self.scp = ScatterPlot2D(self)
         self.updateAxes()
-        self.scp.SetMinSize((400, 400))
 
     def initComboBox(self):
         """ Initialize and fill the combobox with the name and number of the axis. """

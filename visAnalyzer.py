@@ -37,6 +37,10 @@ class mainGUI(wx.Frame):
         self.labels = None
         self.category = None
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
+        # For the histogram and pieplot
+        self.sizer1 = wx.BoxSizer(wx.HORIZONTAL)
+        # For the scatterplot (and another)
+        self.sizer2 = wx.BoxSizer(wx.HORIZONTAL)
         
         #https://stackoverflow.com/questions/30797443/add-a-vertical-scrollbar-to-a-wxframe-accross-multiple-wxpanels
         # Create a scrolled panel
@@ -44,9 +48,40 @@ class mainGUI(wx.Frame):
         self.panel.SetupScrolling()
         self.panel.ShowScrollbars(horz=wx.SHOW_SB_DEFAULT, vert=wx.SHOW_SB_ALWAYS)
         self.panel.SetBackgroundColour((255, 255, 255))
+        self.panel.SetScrollRate(20, 20)
+
+        self.initGraphs()
         self.panel.SetSizer(self.mainSizer)
 
         self.initMenus()
+
+    def initGraphs(self):
+        """ Initialize the graphs to reserve area on client """
+        self.pc = pc.PCWidget(self.panel)
+        self.splom = spm.SPLOMWidget(self.panel)
+        self.lp = lp.LinePlotWidget(self.panel)
+        self.pp = pp.PPWidget(self.panel)
+        self.hist = hp.HistogramWidget(self.panel)
+        self.scp = sc2.ScatterplotWidget(self.panel)
+
+        self.mainSizer.Add(self.pc, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
+        self.mainSizer.Add(self.splom, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
+        self.mainSizer.Add(self.lp, 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 10)
+        self.sizer1.Add(self.hist, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 10)
+        self.sizer1.Add(self.pp, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
+        self.sizer2.Add(self.scp, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
+        self.mainSizer.Add(self.sizer1, 1, wx.ALIGN_CENTER)
+        self.mainSizer.Add(self.sizer2, 1, wx.ALIGN_CENTER)
+
+        # Hide the graphs
+        self.mainSizer.Show(self.pc, False)
+        self.mainSizer.Show(self.splom, False)
+        self.mainSizer.Show(self.lp, False)
+        self.sizer1.Show(self.hist, False)
+        self.sizer1.Show(self.pp, False)
+        self.sizer2.Show(self.scp, False)
+        self.mainSizer.Show(self.sizer1, False)
+        self.mainSizer.Show(self.sizer1, False)
 
     def initMenus(self):
         """ Initialize the menus for the app """
@@ -147,9 +182,12 @@ class mainGUI(wx.Frame):
 
     def fitLayout(self):
         """ Fit the layout of the window when a graph is added or deleted """
+        w1,h1 = self.mainSizer.GetSize()
+        w,h = self.mainSizer.GetMinSize()
+        self.SetVirtualSize((w1, h))
         self.mainSizer.Layout()
         self.panel.Layout()
-        self.Fit()
+        self.FitInside()
     
     def SelectedDB(self):
         """ Check if a database or csv file is selected. If not prompts the user. """
@@ -179,9 +217,12 @@ class mainGUI(wx.Frame):
         """ When the ||-coord is selected """
         if not self.SelectedDB():
             return
+        if self.mainSizer.IsShown(self.pc):
+            return
+
         # Create pc widget
-        self.pc = pc.PCWidget(self.panel, self.data, self.labels)
-        self.mainSizer.Add(self.pc, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
+        self.pc.create(self.data, self.labels)
+        self.mainSizer.Show(self.pc, True)
         # Force layout update
         self.fitLayout()
 
@@ -189,9 +230,11 @@ class mainGUI(wx.Frame):
         """ When the SPLOM is selected """
         if not self.SelectedDB():
             return
-        size = (500, 500)
-        self.splom = spm.SPLOMWidget(self, self.data, self.labels, self.category)
-        self.mainSizer.Add(self.splom, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
+        if self.mainSizer.IsShown(self.splom):
+            return
+
+        self.splom.create(self.data, self.labels, self.category)
+        self.mainSizer.Show(self.splom, True)
         # Force layout update
         self.fitLayout()
 
@@ -199,10 +242,13 @@ class mainGUI(wx.Frame):
         """ When the line plot is selected"""
         if not self.SelectedDB():
             return
+        if self.mainSizer.IsShown(self.lp):
+            return
+
         axis = self.GetSelectedAxis(self.labels, title="Axes", text="Select an axis")
         if axis > -1:
-            self.lp = lp.LinePlotWidget(self, self.data, self.labels, axis)
-            self.mainSizer.Add(self.lp, 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 10)
+            self.lp.create(self.data, self.labels, axis)
+            self.mainSizer.Show(self.lp, True)
             # Force layout update
             self.fitLayout()
 
@@ -214,11 +260,14 @@ class mainGUI(wx.Frame):
         """ When the pieplot is selected """
         if not self.SelectedDB():
             return
+
         # Request the axis to draw
         axis = self.GetSelectedAxis(self.labels, title="Axes", text="Select an axis")
         if axis > -1:
-            self.pp = pp.PPWidget(self.panel, self.data, self.labels, axis)
-            self.mainSizer.Add(self.pp, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 10)
+            if not self.mainSizer.IsShown(self.sizer1):
+                self.mainSizer.Show(self.sizer1, True)
+            self.pp.create(self.data, self.labels, axis)
+            self.sizer1.Show(self.pp, True)
             # Force layout update
             self.fitLayout()
 
@@ -240,13 +289,16 @@ class mainGUI(wx.Frame):
         # Verify that a database is selected
         if not self.SelectedDB():
             return
+
         # Get the selectionable axes
         selectionable = self.getSelectionableAxes()
         axis = self.GetSelectedAxis(selectionable, title="Axes suitable for histogram", text="Select an axis")
         if axis > -1:
+            if not self.mainSizer.IsShown(self.sizer1):
+                self.mainSizer.Show(self.sizer1, True, recursive=False)
             # Set it to the histogram
-            self.hist = hp.HistogramWidget(self.panel, self.data, axis, self.labels[axis])
-            self.mainSizer.Add(self.hist, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
+            self.hist.create(self.data, axis, self.labels[axis])
+            self.sizer1.Show(self.hist, True)
             # Force layout update
             self.fitLayout()
 
@@ -254,6 +306,10 @@ class mainGUI(wx.Frame):
         """ When the scatterplot is selected """
         if not self.SelectedDB():
             return
+        #if self.mainSizer.IsShown(self.sizer2):
+        if self.sizer2.IsShown(self.scp):
+            return
+
         # Let the user select only the numerical variables
         choices = []
         for i in range(len(self.labels)):
@@ -277,8 +333,10 @@ class mainGUI(wx.Frame):
                             index1 = i
                         if axis2 == self.labels[i]:
                             index2 = i
-                    self.scp = sc2.ScatterplotWidget(self, self.data, self.labels, self.category, index1, index2)
-                    self.mainSizer.Add(self.scp, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
+                    if not self.mainSizer.IsShown(self.sizer2):
+                        self.mainSizer.Show(self.sizer2, True)
+                    self.scp.create(self.data, self.labels, self.category, index1, index2)
+                    self.sizer2.Show(self.scp, True)
                     # Force layout update
                     self.fitLayout()
                     break

@@ -154,6 +154,7 @@ class PiePlot(oglC.OGLCanvas):
 		self.frequencies.clear()
 		# Get the data
 		datum = [d[self.axis] for d in self.data]
+		self.data.rewind()
 		# Compute absolute frequencies
 		for d in datum:
 			self.frequencies[d] = self.frequencies.get(d, 0) + 1
@@ -209,9 +210,17 @@ class PPWidget(wx.Panel):
     """
         Widget containing all the controls necessary for interacting with the pieplot.
     """
-    def __init__(self, parent, data, labels, axis):
+    def __init__(self, parent):
         super(PPWidget, self).__init__(parent)
 
+        self.data = None
+        self.labels = None
+
+        self.pp = PiePlot(self)
+        self.pp.SetMinSize((400, 400))
+
+    def create(self, data, labels, axis):
+        """ Create the graph and pass the data """
         self.data = data
         self.labels = labels
         self.initPiePlot(axis)
@@ -219,8 +228,6 @@ class PPWidget(wx.Panel):
         self.groupCtrls()
 
     def initPiePlot(self, axis):
-        self.pp = PiePlot(self)
-        self.pp.SetMinSize((400, 400))
         self.pp.setData(self.data)
         self.pp.setLabels(self.labels)
         self.pp.setAxis(axis)

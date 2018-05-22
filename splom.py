@@ -200,9 +200,18 @@ class SPLOM(sc.ScatterPlot2D):
 
 class SPLOMWidget(scp.ScrolledPanel):
     """ Widget for the scatterplot matrix """
-    def __init__(self, parent, data, labels, category):
+    def __init__(self, parent):
         super(SPLOMWidget, self).__init__(parent, -1, style=wx.SIMPLE_BORDER, size=(500, 400))
 
+        self.data = None
+        self.labels = None
+        self.category = None
+
+        self.splom = SPLOM(self)
+        self.splom.SetMinSize((500, 400))
+
+    def create(self, data, labels, category):
+        """ Create the graph """
         self.data = data
         self.labels = labels
         self.category = category
@@ -211,12 +220,10 @@ class SPLOMWidget(scp.ScrolledPanel):
         self.SetupScrolling()
 
     def initSPLOM(self):
-        """ Initialize the SPLOM """
-        self.splom = SPLOM(self)
+        """ Initialize the SPLOM """        
         self.splom.SetData(self.data)
         self.splom.SetLabels(self.labels)
         self.splom.SetCategory(self.category)
-        self.splom.SetMinSize((500, 400))
 
     def groupCtrls(self):
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)

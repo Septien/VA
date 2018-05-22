@@ -355,9 +355,18 @@ class HistogramWidget(wx.Panel):
     """
     The panel containing the histogram plot and all of its controls
     """
-    def __init__(self, parent, data, axis, axisName):
+    def __init__(self, parent):
         super(HistogramWidget, self).__init__(parent)
 
+        self.data = None
+        self.axis = -1
+        self.axisName = None
+
+        self.histogram = HistogramPlot(self)
+        self.histogram.SetMinSize((400, 400))
+
+    def create(self, data, axis, axisName):
+        """ Pass the data to the graph and intialize it """
         self.data = data
         self.axis = axis
         self.axisName = axisName
@@ -370,8 +379,6 @@ class HistogramWidget(wx.Panel):
     def initHistogram(self):
         """ Initialize the class for the histogram """
         # Initialize the canvas for histogram
-        self.histogram = HistogramPlot(self)
-        self.histogram.SetMinSize((400, 400))
         datum = [ d[self.axis] for d in self.data ]
         self.histogram.setData(datum)
         self.histogram.setAxis(self.axisName)

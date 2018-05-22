@@ -267,8 +267,18 @@ class LinePlotWidget(wx.Panel):
             -labels: Name of the axes.
             -axis: Axis to analyze
     """
-    def __init__(self, parent, data, labels, axis):
+    def __init__(self, parent):
         super(LinePlotWidget, self).__init__(parent)
+        # Hold the reference
+        self.data = None
+        self.labels = None
+        self.axis = None
+
+        self.lp = LinePlot(self)
+        self.lp.SetMinSize((400, 400))
+
+    def create(self, data, labels, axis):
+        """ Pass the data and initialize """
         # Hold the reference
         self.data = data
         self.labels = labels
@@ -277,14 +287,13 @@ class LinePlotWidget(wx.Panel):
         self.initLP()
         self.initCtrls()
         self.bindEvents()
-        
+
     def initLP(self):
         """ Initialize the lineplot """
-        self.lp = LinePlot(self)
         self.lp.setName(self.labels[self.axis])
         data = [d[self.axis] for d in self.data]
+        self.data.rewind()
         self.lp.setData(data)
-        self.lp.SetMinSize((400, 400))
 
     def initComboBox(self):
         """ Initialize and fill the combobox with the name and number of the axis. """
@@ -319,6 +328,7 @@ class LinePlotWidget(wx.Panel):
         selection = self.cb1.GetClientData(self.cb1.GetSelection())
         self.axis = selection.axisNumber
         data = [d[self.axis] for d in self.data]
+        self.data.rewind()
         self.lp.setData(data)
         self.lp.setName(self.labels[self.axis])
         self.lp.reDraw()
