@@ -31,6 +31,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         -divisions: The number of divisions to show on the graph.
         -axis1Name: The name of the variable for the x-axis (horizontal).
         -axis2Name: The name of the variable for the y-axis (vertical).
+        -r: Pearson or correlation coefficient
     """
     def __init__(self, parent):
         super(ScatterPlot2D, self).__init__(parent)
@@ -41,6 +42,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         self.divisions = 10
         self.axis1Name = ""
         self.axis2Name = ""
+        self.r = 0.0
 
         self.InitCirclePoints()
         self.initGrid()
@@ -100,6 +102,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         self.points.clear()
         self.points = newData
         self.GetRanges()
+        self.computeCorrCoef()
 
         assert self.points, "Copy not made"
         assert EqualLenght(self.points), "All rows must be the same length"
@@ -144,6 +147,29 @@ class ScatterPlot2D(oglC.OGLCanvas):
         assert minX < maxX, "Incorrect x min and max " + str(minX) + " " + str(maxX)
         assert minY < maxY, "Incorrect y min and max " + + str(minY) + " " + str(maxy)
         assert self.range, "Not initialized range array"
+
+    def computeCorrCoef(self):
+        """ Computes the correlation coeficient of the data, also known as 
+            Pearson coeficient. """
+        sumX = 0.0
+        sumY = 0.0
+        sumXY = 0.0
+        sumX2 = 0.0
+        sumY2 = 0.0
+        N = len(self.points[0])
+        # Compute sumations
+        for i in range(N):
+            sumX += self.points[0][i]
+            sumY += self.points[1][i]
+            sumXY += self.points[0][i] * self.points[1][i]
+            sumX2 += self.points[0][i] ** 2
+            sumY2 += self.points[1][i] ** 2
+
+        numerator = sumXY - ((sumX * sumY) / N)
+        firstDen = sumX2 - ((sumX ** 2) / N)
+        secondDen = sumY2 - ((sumY ** 2) / N)
+        denominator = m.sqrt(firstDen * secondDen)
+        self.r = numerator / denominator
 
     def SetDivisionNumber(self, nDiv):
         """Stablishes the number of divions on the grid.
@@ -320,6 +346,11 @@ class ScatterPlot2D(oglC.OGLCanvas):
             glRasterPos2f(1.05, start - i * fontHeight)
             glutBitmapCharacter(font, ord(c))
             i += 1
+        # Draw the Pearson coefficient
+        coef = "r = {:.2f}".format(self.r)
+        glRasterPos2f(0.9, 1.05)
+        for c in coef:
+            glutBitmapCharacter(font, ord(c))
 
     def SetNumDivisions(self, nDivisions):
         """Stablishes the number of divisions on the grid"""
