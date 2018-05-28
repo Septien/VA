@@ -46,6 +46,7 @@ class mainGUI(wx.Frame):
         # Create a scrolled panel
         self.panel = scp.ScrolledPanel(self, -1, style=wx.SIMPLE_BORDER, size=(400, 200))
         self.panel.SetupScrolling()
+        self.panel.SetAutoLayout(1)
         self.panel.ShowScrollbars(horz=wx.SHOW_SB_DEFAULT, vert=wx.SHOW_SB_ALWAYS)
         self.panel.SetBackgroundColour((255, 255, 255))
         self.panel.SetScrollRate(20, 20)
@@ -68,10 +69,10 @@ class mainGUI(wx.Frame):
         self.mainSizer.Add(self.splom, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
         self.mainSizer.Add(self.lp, 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 10)
         self.sizer1.Add(self.hist, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 10)
-        self.sizer1.Add(self.pp, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
+        self.sizer1.Add(self.pp, 0, wx.LEFT | wx.EXPAND | wx.ALL, 5)
         self.sizer2.Add(self.scp, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
-        self.mainSizer.Add(self.sizer1, 1, wx.ALIGN_CENTER)
-        self.mainSizer.Add(self.sizer2, 1, wx.ALIGN_CENTER)
+        self.mainSizer.Add(self.sizer1, 0, wx.ALIGN_CENTER)
+        self.mainSizer.Add(self.sizer2, 0, wx.ALIGN_CENTER)
 
         # Hide the graphs
         self.mainSizer.Show(self.pc, False)
@@ -177,7 +178,7 @@ class mainGUI(wx.Frame):
     #--------------------------------------------------------------------------------------------------------------
 
     def onStreamSelected(self, event):
-        """ When a stream of data is selected """
+        """ Recieve a data stream """
         pass
 
     def fitLayout(self):
@@ -187,7 +188,9 @@ class mainGUI(wx.Frame):
         self.SetVirtualSize((w1, h))
         self.mainSizer.Layout()
         self.panel.Layout()
-        self.FitInside()
+        # https://stackoverflow.com/questions/5912761/wxpython-scrolled-panel-not-updating-scroll-bars
+        # The 'FitInside' function should be called from the panel, not the frame.
+        self.panel.FitInside()
     
     def SelectedDB(self):
         """ Check if a database or csv file is selected. If not prompts the user. """
@@ -342,6 +345,11 @@ class mainGUI(wx.Frame):
                     break
             else: # When cancel is pressed
                 break
+
+    def __del__(self):
+        """ Destructor """
+        if self.data:
+            self.data.close()
 
 
 #---------------------------------------------------------------------------------------------
