@@ -89,8 +89,12 @@ class GaugePlot(oglC.OGLCanvas):
     def SetValue(self, nValue):
         """Sets the value of the data"""
         assert type(nValue) is int, "Incorret input format"
-        assert self.range[0] <= nValue <= self.range[1], "Variable out of range"
-
+        
+        if nValue <= self.range[0]:
+            # If the value of incomming data is less than the current lower limit, update it by 20
+            self.range[0] = nValue + 20
+        if nValue >= self.range[1]:
+            self.range[1] = nValue + 20
         self.data = nValue
         
         # Get the angle of the arrow
