@@ -37,6 +37,7 @@ class GaugePlot(oglC.OGLCanvas):
         super(GaugePlot, self).__init__(parent)
         # The value of the data to be displayed
         self.data = None
+        self.varName = None
         # Range of the data
         self.range = []
         self.marksSpacer = None
@@ -53,7 +54,7 @@ class GaugePlot(oglC.OGLCanvas):
         #
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-1.1, 1.1, -1.1, 1.1, 1.0, 10.0)
+        glOrtho(-1.2, 1.2, -1.2, 1.2, 1.0, 10.0)
         #
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -101,14 +102,29 @@ class GaugePlot(oglC.OGLCanvas):
         assert self.minAngle <= self.theta <= self.maxAngle, "Angle out of range"
         assert self.range[0] <= self.data <= self.range[1] , "Data out of range"
 
+    def SetVariableName(self, value):
+        """ Set the name of the variable """
+        self.varName = value
+
     def UpdateAngle(self):
         """Calculate the angle of rotation corresponding to the input value."""
-        # No initial invariants
+        def lerp(a, b, t):
+            """For interpolating between the range [a, b], according to the formula:
+            value = (1 - t) * a + t * b, for t in [0, 1]"""
+            assert 0.0 <= t <= 1.0
+            value = t * a + (1 - t) * b
+
+            assert a <= value <= b, "Out of range"
+            return value
+
         if not self.data:
             return
 
         self.oldTheta = self.theta
-        self.theta = (m.fabs(self.maxAngle - self.minAngle) / self.data) - self.maxAngle
+        # Normalize data
+        t = self.data / (self.range[1] - self.range[0])
+        self.theta = lerp(self.minAngle, self.maxAngle, t)
+        # self.theta = (m.fabs(self.maxAngle - self.minAngle) / self.data) - self.maxAngle
 
         assert self.minAngle <= self.theta <= self.maxAngle, "Angle out of range"
 
@@ -152,6 +168,9 @@ class GaugePlot(oglC.OGLCanvas):
         glRotatef(self.theta, 0.0, 0.0, 1.0)
         self.DrawArrow()
         glPopMatrix()
+        
+        self.drawLabels()
+
         self.SwapBuffers()
 
     def DrawArrow(self):
@@ -219,3 +238,52 @@ class GaugePlot(oglC.OGLCanvas):
             y = m.sqrt(1 - x * x)
             glVertex3f(x, -y, 0.0)
         glEnd()
+
+    def drawLabels(self):
+        """ Draw the value of each mark """
+        def GetLabelWidth(label):
+            """Returns the total width of the length of 'label', using the
+            fonts from glut"""
+            assert type(label) is str, "Incorrect type"
+
+            length = 0
+            for c in label:
+                length += glutBitmapWidth(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+            assert type(length) is int
+            assert length >= 0
+
+            return length
+        #
+        def lerp(a, b, t):
+            """For interpolating between the range [a, b], according to the formula:
+            value = (1 - t) * a + t * b, for t in [0, 1]"""
+            assert 0.0 <= t <= 1.0
+            value = (1 - t) * a + t * b
+
+            assert a <= value <= b, "Out of range"
+            return value
+        #
+        numMarks = 20
+        theta = -130.6
+        incTheta = -14.4
+        a = self.range[0]
+        r = 1.1
+        offset = 0.05
+        glColor3f(0.0, 0.0, 0.0)
+        for i in range(numMarks+1):
+            v = lerp(self.range[0], self.range[1], i / numMarks)
+            vLabel = '{:.1f}'.format(v)
+            x = r * m.cos(m.radians(theta))
+            y = r * m.sin(m.radians(theta))
+            glRasterPos(x - offset, y)
+            for c in vLabel:
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
+            theta += incTheta
+        # Draw the name of the variable
+        length = GetLabelWidth(self.varName)
+        if self.size:
+            length /= self.size.width
+        glRasterPos(-0.1 - length/2, -0.9)
+        for c in self.varName:
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
