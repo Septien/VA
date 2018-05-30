@@ -8,18 +8,19 @@ import wx.lib.scrolledpanel as scp
 import oglCanvas as oglC
 
 # Plots
-import scatterplot_2D as sc2
-import histogramplot as hp
-import osciloscopeplot as op
-import pieplot as pp
-import gauge as gg
-import lineplot as lp
 import parallelcoord as pc
 import splom as spm
+import lineplot as lp
+import pieplot as pp
+import histogramplot as hp
+import scatterplot_2D as sc2
+import gauge as gg
+import osciloscopeplot as op
 
 # For loading the db
 import getdbDialog as dbD
-
+import getStreamDialog as stD
+import dataStreaming as dS
 # Cursor
 import dataIterator as dI
 
@@ -33,9 +34,11 @@ class mainGUI(wx.Frame):
         super(mainGUI, self).__init__(parent, title=title)
 
         self.selectedDB = False
+        self.streamSelected = False
         self.data = None
         self.labels = None
         self.category = None
+        self.timer = None
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
         # For the histogram and pieplot
         self.sizer1 = wx.BoxSizer(wx.HORIZONTAL)
@@ -128,6 +131,8 @@ class mainGUI(wx.Frame):
     def OnFile(self, event):
         """ For the file menu events """
         if event.Id == wx.ID_EXIT:
+            if self.data:
+                self.data.close()
             self.Close()
         else:
             # Let it propagate
@@ -179,7 +184,30 @@ class mainGUI(wx.Frame):
 
     def onStreamSelected(self, event):
         """ Recieve a data stream """
-        pass
+        # Connect
+        dlg = stD.GetStreamDialog(self, title="Recieve stream")
+        dlg.Show()
+        self.labels = []
+        self.category = []
+        if self.data:
+            self.data.close()
+        self.data = dI.Data(2)
+        self.data.connectToStream(('', 8080), 0)
+        self.labels, self.category = self.data.getDBDescription()
+        self.selectedDB = True
+        self.streamSelected = True
+        # Set timer for constant checking of new incoming values on the stream
+        self.timer = wx.Timer(self, -1)
+        self.Bind(wx.EVT_TIMER, self.OnTimer)
+        self.timer.Start(1000)  # Check each second
+
+    def OnTimer(self, event):
+        """  """
+        # Send an event for drawing
+        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+
+
+    #--------------------------------------------------------------------------------------------------------------
 
     def fitLayout(self):
         """ Fit the layout of the window when a graph is added or deleted """
@@ -231,6 +259,8 @@ class mainGUI(wx.Frame):
 
     def OnSPLOMSelected(self, event):
         """ When the SPLOM is selected """
+        if self.streamSelected:
+            return
         if not self.SelectedDB():
             return
         if self.mainSizer.IsShown(self.splom):
@@ -243,6 +273,8 @@ class mainGUI(wx.Frame):
 
     def OnLPSelected(self, event):
         """ When the line plot is selected"""
+        if self.streamSelected:
+            return
         if not self.SelectedDB():
             return
         if self.mainSizer.IsShown(self.lp):
@@ -350,7 +382,6 @@ class mainGUI(wx.Frame):
         """ Destructor """
         if self.data:
             self.data.close()
-
 
 #---------------------------------------------------------------------------------------------
 
