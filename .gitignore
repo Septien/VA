@@ -4,3 +4,6 @@ gui.py
 data/
 Clustering/
 pymodules/
+testDataIterator.py
+streamtest.py
+test.py
