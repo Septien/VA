@@ -78,7 +78,10 @@ class Osciloscope(oglC.OGLCanvas):
         glVertex3f(0.99, y, 0)
         for i in range(1, len(self.data)):
             y = (self.data[i] - self.Range[0]) / r
-            glVertex3f(0.99 - (0.1 * i), y, 0)
+            x = 0.99 - (0.1 * i)
+            if x < -0.03:
+                continue
+            glVertex3f(x, y, 0)
         glEnd()
 
     def SetData(self, nData):
@@ -149,3 +152,26 @@ class Osciloscope(oglC.OGLCanvas):
             for c in xLabel:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
 
+#------------------------------------------------------------------------------------------------------------------
+
+class OsciloscopeWidget(wx.Panel):
+    """ Handles the widget of the osciloscope """
+    def __init__(self, parent):
+        super(OsciloscopeWidget, self).__init__(parent)
+
+        self.osc = Osciloscope(self)
+        self.osc.SetMinSize((400, 400))
+
+    def create(self, varName):
+        self.osc.SetVariableName(varName)
+        self.osc.SetRange([0, 1])
+        self.initCtrls()
+
+    def initCtrls(self):
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        sizer.Add(self.osc, 0, wx.ALIGN_CENTER | wx.SHAPED | wx.ALL, 5)
+        self.SetSizer(sizer)
+
+    def Next(self, value):
+        """ Inserts the next value of the stream """
+        self.osc.SetData(value)
