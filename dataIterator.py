@@ -32,6 +32,7 @@ class Data(object):
         self.workQueue = None
         self.workQLock = None
         self.numVar = None
+        self.connectionClosed = False
         self.variables = None
         self.thread = None
 
@@ -217,10 +218,12 @@ class Data(object):
             while i < 10:
                 if self.exitQLock.acquire(blocking=False):
                     # Check if there are some errors:
-                    if not self.exitQ.empty():
+                    if not self.exitQ.empty() and not self.connectionClosed:
+                        r = self.exitQ.get()
                         style = wx.OK | wx.CENTER | wx.ICON_INFORMATION
                         result = wx.MessageBox("Connection with client closed", "Connection closed", style)
                         self.exitQLock.release()
+                        self.connectionClosed = True
                         raise StopIteration()
                 self.exitQLock.release()
                 if not self.workQLock.acquire(blocking=False):
