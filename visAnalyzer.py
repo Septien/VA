@@ -67,6 +67,7 @@ class mainGUI(wx.Frame):
         self.pp = pp.PPWidget(self.panel)
         self.hist = hp.HistogramWidget(self.panel)
         self.scp = sc2.ScatterplotWidget(self.panel)
+        self.gg = gg.GaugeWidget(self.panel)
 
         self.mainSizer.Add(self.pc, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
         self.mainSizer.Add(self.splom, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
@@ -76,6 +77,7 @@ class mainGUI(wx.Frame):
         self.sizer2.Add(self.scp, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
         self.mainSizer.Add(self.sizer1, 0, wx.ALIGN_CENTER)
         self.mainSizer.Add(self.sizer2, 0, wx.ALIGN_CENTER)
+        self.mainSizer.Add(self.gg, 0, wx.ALIGN_LEFT)
 
         # Hide the graphs
         self.mainSizer.Show(self.pc, False)
@@ -86,6 +88,7 @@ class mainGUI(wx.Frame):
         self.sizer2.Show(self.scp, False)
         self.mainSizer.Show(self.sizer1, False)
         self.mainSizer.Show(self.sizer1, False)
+        self.mainSizer.Show(self.gg, False)
 
     def initMenus(self):
         """ Initialize the menus for the app """
@@ -202,9 +205,9 @@ class mainGUI(wx.Frame):
         self.timer.Start(1000)  # Check each second
 
     def OnTimer(self, event):
-        """  """
-        # Send an event for drawing
-        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+        """ Check if there is new data each second """
+        if self.mainSizer.IsShown(self.gg):
+            self.gg.GetNext()
 
 
     #--------------------------------------------------------------------------------------------------------------
@@ -289,7 +292,17 @@ class mainGUI(wx.Frame):
 
     def OnGPSelected(self, event):
         """ When the Gauge is selected """
-        pass
+        if not self.streamSelected:
+            return
+        if not self.mainSizer.IsShown(self.gg):
+            self.mainSizer.Show(self.gg, True)
+        label = ""
+        if len(self.labels) > 1:
+            label = self.labels[0]
+        else:
+            labels = self.labels
+        self.gg.create(self.data, label)
+        self.fitLayout()
 
     def OnPPSelected(self, event):
         """ When the pieplot is selected """
