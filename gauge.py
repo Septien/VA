@@ -286,6 +286,8 @@ class GaugePlot(oglC.OGLCanvas):
         for c in self.varName:
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
+#------------------------------------------------------------------------------------------------------------------
+
 class GaugeWidget(wx.Panel):
     """ Widget for the osciloscope """
     def __init__(self, parent):
@@ -296,17 +298,10 @@ class GaugeWidget(wx.Panel):
         self.gauge = GaugePlot(self)
         self.gauge.SetMinSize((400, 400))
 
-    def create(self, data, varName):
-        self.data = data
+    def create(self, varName):
+        # self.data = data
         self.gauge.SetVariableName(varName)
-        # Try to get a value
-        try:
-            value = next(self.data)
-        except StopIteration:
-            self.gauge.SetRange([0, 1])
-        else:
-            self.gauge.SetRange([value[0] - 1, value[0] + 1])
-            self.gauge.SetValue(value[0])
+        self.gauge.SetRange([0, 1])
         self.initCtrls()
 
     def initCtrls(self):
@@ -315,11 +310,6 @@ class GaugeWidget(wx.Panel):
         sizer.Add(self.gauge, 0, wx.ALIGN_LEFT | wx.SHAPED | wx.ALL, 5)
         self.SetSizer(sizer)
 
-    def GetNext(self):
+    def Next(self, value):
         """ Try to get a new value and update the graph """
-        try:
-            value = next(self.data)
-        except StopIteration:
-            return
-        else:
-            self.gauge.SetValue(value[0])
+        self.gauge.SetValue(value)
