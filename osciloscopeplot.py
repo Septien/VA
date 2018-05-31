@@ -61,12 +61,12 @@ class Osciloscope(oglC.OGLCanvas):
         """Draw the mean"""
         glColor3f(0, 0, 1, 1)
         r = (self.Range[1] - self.Range[0])
-        y = self.data[0] / r
+        y = (self.data[0] - self.Range[0]) / r
         glBegin(GL_LINE_STRIP)
         # Begin drawing the last value
         glVertex3f(0.5, y, 0)
         for i in range(1, len(self.data)):
-            y = self.data[i] / r
+            y = (self.data[i] - self.Range[0]) / r
             glVertex3f(0.5 - (0.1 * i), y, 0)
         glEnd()
 
@@ -76,9 +76,9 @@ class Osciloscope(oglC.OGLCanvas):
         The purpose is to have a data history
         """
         if nData <= self.Range[0]:
-            self.Range[0] = nData + 20
+            self.Range[0] = nData - 1
         if nData <= self.Range[1]:
-            self.Range[1] = nData + 20
+            self.Range[1] = nData + 1
         # Insert at front most recent value
         self.data.insert(0, nData)
         # Send event for redrawing (update)
