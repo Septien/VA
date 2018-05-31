@@ -308,11 +308,7 @@ class mainGUI(wx.Frame):
             self.mainSizer.Show(self.gg, True)
         else:
             return
-        label = ""
-        if len(self.labels) > 1:
-            label = self.labels[0]
-        else:
-            labels = self.labels
+        label = label = self.labels[0]
         self.gg.create(label)
         self.fitLayout()
 
@@ -339,11 +335,7 @@ class mainGUI(wx.Frame):
             self.mainSizer.Show(self.osc)
         else:
             return
-        label = ""
-        if len(self.labels) > 1:
-            label = self.labels[0]
-        else:
-            labels = self.labels
+        label = self.labels[0]
         self.osc.create(label)
         self.fitLayout()
 
