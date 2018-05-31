@@ -68,6 +68,7 @@ class mainGUI(wx.Frame):
         self.hist = hp.HistogramWidget(self.panel)
         self.scp = sc2.ScatterplotWidget(self.panel)
         self.gg = gg.GaugeWidget(self.panel)
+        self.osc = op.OsciloscopeWidget(self.panel)
 
         self.mainSizer.Add(self.pc, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
         self.mainSizer.Add(self.splom, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
@@ -78,6 +79,7 @@ class mainGUI(wx.Frame):
         self.mainSizer.Add(self.sizer1, 0, wx.ALIGN_CENTER)
         self.mainSizer.Add(self.sizer2, 0, wx.ALIGN_CENTER)
         self.mainSizer.Add(self.gg, 0, wx.ALIGN_LEFT)
+        self.mainSizer.Add(self.osc, 0, wx.ALIGN_LEFT)
 
         # Hide the graphs
         self.mainSizer.Show(self.pc, False)
@@ -89,6 +91,7 @@ class mainGUI(wx.Frame):
         self.mainSizer.Show(self.sizer1, False)
         self.mainSizer.Show(self.sizer1, False)
         self.mainSizer.Show(self.gg, False)
+        self.mainSizer.Show(self.osc, False)
 
     def initMenus(self):
         """ Initialize the menus for the app """
@@ -206,8 +209,15 @@ class mainGUI(wx.Frame):
 
     def OnTimer(self, event):
         """ Check if there is new data each second """
+        if self.mainSizer.IsShown(self.gg) or self.mainSizer.IsShown(self.osc):
+            try:
+                d = next(self.data)
+            except:
+                return
         if self.mainSizer.IsShown(self.gg):
-            self.gg.GetNext()
+            self.gg.Next(d[0])
+        if self.mainSizer.IsShown(self.osc):
+            self.osc.Next(d[0])
 
 
     #--------------------------------------------------------------------------------------------------------------
@@ -296,12 +306,14 @@ class mainGUI(wx.Frame):
             return
         if not self.mainSizer.IsShown(self.gg):
             self.mainSizer.Show(self.gg, True)
+        else:
+            return
         label = ""
         if len(self.labels) > 1:
             label = self.labels[0]
         else:
             labels = self.labels
-        self.gg.create(self.data, label)
+        self.gg.create(label)
         self.fitLayout()
 
     def OnPPSelected(self, event):
@@ -321,7 +333,19 @@ class mainGUI(wx.Frame):
 
     def OnOSCSelected(self, event):
         """ When the osciloscope is selected """
-        pass
+        if not self.streamSelected:
+            return
+        if not self.mainSizer.IsShown(self.osc):
+            self.mainSizer.Show(self.osc)
+        else:
+            return
+        label = ""
+        if len(self.labels) > 1:
+            label = self.labels[0]
+        else:
+            labels = self.labels
+        self.osc.create(label)
+        self.fitLayout()
 
     def getSelectionableAxes(self):
         """ Returns a list of all the axes suitable for the histogram """
