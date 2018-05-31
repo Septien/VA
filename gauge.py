@@ -70,11 +70,8 @@ class GaugePlot(oglC.OGLCanvas):
         assert type(nRange) is list, "Invalid input type"
         assert len(nRange) == 2, "Invalid number of elements"
         assert nRange[0] < nRange[1], "Invalid range"
-        if self.data:
-            assert nRange[0] <= self.data <= nRange[1] , "Current variable out of range"
 
         self.range = nRange.copy()
-        
         # Get the angle of the arrow
         self.UpdateAngle()
 
@@ -88,13 +85,11 @@ class GaugePlot(oglC.OGLCanvas):
 
     def SetValue(self, nValue):
         """Sets the value of the data"""
-        assert type(nValue) is int, "Incorret input format"
-        
         if nValue <= self.range[0]:
-            # If the value of incomming data is less than the current lower limit, update it by 20
-            self.range[0] = nValue + 20
+            # If the value of incomming data is less than the current lower limit, update it by 5
+            self.range[0] = nValue - 1
         if nValue >= self.range[1]:
-            self.range[1] = nValue + 20
+            self.range[1] = nValue + 1
         self.data = nValue
         
         # Get the angle of the arrow
@@ -126,7 +121,7 @@ class GaugePlot(oglC.OGLCanvas):
 
         self.oldTheta = self.theta
         # Normalize data
-        t = self.data / (self.range[1] - self.range[0])
+        t = (self.data - self.range[0]) / (self.range[1] - self.range[0])
         self.theta = lerp(self.minAngle, self.maxAngle, t)
         # self.theta = (m.fabs(self.maxAngle - self.minAngle) / self.data) - self.maxAngle
 
@@ -271,7 +266,6 @@ class GaugePlot(oglC.OGLCanvas):
         numMarks = 20
         theta = -130.6
         incTheta = -14.4
-        a = self.range[0]
         r = 1.1
         offset = 0.05
         glColor3f(0.0, 0.0, 0.0)
@@ -291,3 +285,41 @@ class GaugePlot(oglC.OGLCanvas):
         glRasterPos(-0.1 - length/2, -0.9)
         for c in self.varName:
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+class GaugeWidget(wx.Panel):
+    """ Widget for the osciloscope """
+    def __init__(self, parent):
+        super(GaugeWidget, self).__init__(parent)
+        self.data = None
+        self.varName = None
+
+        self.gauge = GaugePlot(self)
+        self.gauge.SetMinSize((400, 400))
+
+    def create(self, data, varName):
+        self.data = data
+        self.gauge.SetVariableName(varName)
+        # Try to get a value
+        try:
+            value = next(self.data)
+        except StopIteration:
+            self.gauge.SetRange([0, 1])
+        else:
+            self.gauge.SetRange([value[0] - 1, value[0] + 1])
+            self.gauge.SetValue(value[0])
+        self.initCtrls()
+
+    def initCtrls(self):
+        """ Initialize the controls """
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        sizer.Add(self.gauge, 0, wx.ALIGN_LEFT | wx.SHAPED | wx.ALL, 5)
+        self.SetSizer(sizer)
+
+    def GetNext(self):
+        """ Try to get a new value and update the graph """
+        try:
+            value = next(self.data)
+        except StopIteration:
+            return
+        else:
+            self.gauge.SetValue(value[0])
