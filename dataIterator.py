@@ -222,18 +222,19 @@ class Data(object):
                         result = wx.MessageBox("Connection with client closed", "Connection closed", style)
                         self.exitQLock.release()
                         raise StopIteration()
-                if not workQLock.acquire(blocking=False):
+                self.exitQLock.release()
+                if not self.workQLock.acquire(blocking=False):
                     i += 1
                     continue
-                if workQueue.empty():
+                if self.workQueue.empty():
                     i += 1
-                    workQLock.release()
+                    self.workQLock.release()
                     continue
                 else:
-                    data = workQueue.get()
-                    workQLock.release()
+                    data = self.workQueue.get()
+                    self.workQLock.release()
                     break
-                workQLock.release()
+                # self.workQLock.release()
             if data == []:
                 raise StopIteration()
 
@@ -283,7 +284,7 @@ class Data(object):
             self.dbCursor.close()
             self.dbConnection.close()
         if self.stream and self.thread:
-            self.exitQLock.acquire()
+            self.exitQLock.acquire(blocking=False)
             self.exitQ.put(1)
             self.exitQLock.release()
             # Wait to thread to finish
