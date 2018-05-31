@@ -181,7 +181,6 @@ class StreamingThread(threading.Thread):
     def run(self):
         """ To be able to run the thread """
         # Number of recieved rows
-        numRecvData = 0
         while True:
             self.exitQL.acquire()
             if not self.exitQ.empty():
