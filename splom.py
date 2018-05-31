@@ -100,8 +100,8 @@ class SPLOM(sc.ScatterPlot2D):
         assert type(self.databaseName) is str, "Incorrect database name format: " + str(type(self.databaseName))
 
     def GetNumAxes(self):
-        """Returns the number of axes on the points"""
-        return self.points
+        """Returns the number of axes"""
+        return self.numAxis
 
     def SetDisplace(self, x = 0.0, y = 0.0):
         """Set the displacement in the x and y axis of the figure"""
@@ -125,7 +125,7 @@ class SPLOM(sc.ScatterPlot2D):
         """Draws the matrix of plots"""
         # The screen will be divided in cells, each one containing a scatterplot. All
         # cells have the same width and height, which is 1/3 (a total of 9 windows on the screen).
-        numCells = 3.0
+        numCells = self.numericVariables
         cellWidth = 1.0/numCells
         cellHeight = 1.0/numCells
         # For the numerical variables
