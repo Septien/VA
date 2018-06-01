@@ -31,7 +31,7 @@ class Osciloscope(oglC.OGLCanvas):
         #
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-0.05, 1.01, -0.05, 1.05, 1.0, 10.0)
+        glOrtho(-0.1, 1.01, -0.05, 1.05, 1.0, 10.0)
         #
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -148,7 +148,7 @@ class Osciloscope(oglC.OGLCanvas):
             length = GetLabelWidth(xLabel)
             if self.size:
                 length /= self.size.width
-            glRasterPos2f(-0.04, i * divWidth)
+            glRasterPos2f(-0.09, i * divWidth)
             for c in xLabel:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
 
