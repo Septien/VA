@@ -49,7 +49,7 @@ class GaugePlot(oglC.OGLCanvas):
         self.maxAngle = 144.0
         
     def InitGL(self):
-        glClearColor(0.9, 0.9, 0.9, 1)
+        glClearColor(1.0, 1.0, 1.0, 1)
         glClear(GL_COLOR_BUFFER_BIT)
         #
         glMatrixMode(GL_PROJECTION)
@@ -291,7 +291,7 @@ class GaugePlot(oglC.OGLCanvas):
 class GaugeWidget(wx.Panel):
     """ Widget for the osciloscope """
     def __init__(self, parent):
-        super(GaugeWidget, self).__init__(parent)
+        super(GaugeWidget, self).__init__(parent, style=wx.RAISED_BORDER)
         self.data = None
         self.varName = None
 

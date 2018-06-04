@@ -36,7 +36,7 @@ class SPLOM(sc.ScatterPlot2D):
         self.yDisplacement = 0.0
 
     def InitGL(self):
-        glClearColor(0.9, 0.9, 0.9, 1)
+        glClearColor(1.0, 1.0, 1.0, 1)
         glClear(GL_COLOR_BUFFER_BIT)
         #
         glMatrixMode(GL_PROJECTION)
@@ -201,7 +201,7 @@ class SPLOM(sc.ScatterPlot2D):
 class SPLOMWidget(scp.ScrolledPanel):
     """ Widget for the scatterplot matrix """
     def __init__(self, parent):
-        super(SPLOMWidget, self).__init__(parent, -1, style=wx.SIMPLE_BORDER, size=(500, 400))
+        super(SPLOMWidget, self).__init__(parent, -1, style=wx.RAISED_BORDER, size=(500, 400))
 
         self.data = None
         self.labels = None

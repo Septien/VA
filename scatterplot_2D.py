@@ -73,7 +73,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
     def InitGL(self):
         """ Initialize the OpenGL context """
-        glClearColor(0.9, 0.9, 0.9, 1)
+        glClearColor(1.0, 1.0, 1.0, 1)
         glClear(GL_COLOR_BUFFER_BIT)
         #
         glMatrixMode(GL_PROJECTION)
@@ -378,7 +378,7 @@ class Axes:
 class ScatterplotWidget(wx.Panel):
     """ Widget for the scatterplot widget and its controls """
     def __init__(self, parent):
-        super(ScatterplotWidget, self).__init__(parent)
+        super(ScatterplotWidget, self).__init__(parent, style=wx.RAISED_BORDER)
 
         self.data = None
         self.labels = None

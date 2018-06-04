@@ -65,7 +65,7 @@ class LinePlot(oglC.OGLCanvas):
         self.face = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [1.0, 1.0, 0.0]]
     
     def InitGL(self):
-        glClearColor(0.9, 0.9, 0.9, 1)
+        glClearColor(1.0, 1.0, 1.0, 1)
         glClear(GL_COLOR_BUFFER_BIT)
         #
         glMatrixMode(GL_PROJECTION)
@@ -268,7 +268,7 @@ class LinePlotWidget(wx.Panel):
             -axis: Axis to analyze
     """
     def __init__(self, parent):
-        super(LinePlotWidget, self).__init__(parent)
+        super(LinePlotWidget, self).__init__(parent, style=wx.RAISED_BORDER)
         # Hold the reference
         self.data = None
         self.labels = None

@@ -35,7 +35,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         self.filterRange = []
 
     def InitGL(self):
-        glClearColor(0.9, 0.9, 0.9, 1)
+        glClearColor(1.0, 1.0, 1.0, 1)
         glClear(GL_COLOR_BUFFER_BIT)
         #
         glMatrixMode(GL_PROJECTION)
@@ -301,7 +301,7 @@ class Axes:
 class PCWidget(wx.Panel):
     """ For managing the widgets for the pc """
     def __init__(self, parent):
-        super(PCWidget, self).__init__(parent)
+        super(PCWidget, self).__init__(parent, style=wx.RAISED_BORDER)
 
         # Hold a reference for the data and labels
         self.data = None

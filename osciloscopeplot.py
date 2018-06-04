@@ -26,7 +26,7 @@ class Osciloscope(oglC.OGLCanvas):
         self.numDivisions = 10
 
     def InitGL(self):
-        glClearColor(0.9, 0.9, 0.9, 1)
+        glClearColor(1.0, 1.0, 1.0, 1)
         glClear(GL_COLOR_BUFFER_BIT)
         #
         glMatrixMode(GL_PROJECTION)
@@ -157,7 +157,7 @@ class Osciloscope(oglC.OGLCanvas):
 class OsciloscopeWidget(wx.Panel):
     """ Handles the widget of the osciloscope """
     def __init__(self, parent):
-        super(OsciloscopeWidget, self).__init__(parent)
+        super(OsciloscopeWidget, self).__init__(parent, style=wx.RAISED_BORDER)
 
         self.osc = Osciloscope(self)
         self.osc.SetMinSize((400, 400))

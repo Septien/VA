@@ -44,7 +44,7 @@ class HistogramPlot(oglC.OGLCanvas):
         self.numDivisions = 10
 
     def InitGL(self):
-        glClearColor(0.9, 0.9, 0.9, 1)
+        glClearColor(1.0, 1.0, 1.0, 1)
         glClear(GL_COLOR_BUFFER_BIT)
         #
         glMatrixMode(GL_PROJECTION)
@@ -285,6 +285,7 @@ class HistogramPlot(oglC.OGLCanvas):
         glPushAttrib(GL_ENABLE_BIT)
         glLineStipple(1, 0xAAAA)
         glEnable(GL_LINE_STIPPLE)
+        glColor3f(0.0, 0.0, 0.0)
         glBegin(GL_LINES)
         for i in range(self.numDivisions + 1):
             x = i * start
@@ -344,7 +345,10 @@ class HistogramPlot(oglC.OGLCanvas):
             for c in yLabel:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
 
-        glRasterPos2f(1.08, 0.0)
+        # Draw the name of the variable
+        length = GetLabelWidth(self.axis)
+        length /= self.size.width
+        glRasterPos2f(0.5 - length, 1.05)
         for c in self.axis:
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
@@ -356,7 +360,7 @@ class HistogramWidget(wx.Panel):
     The panel containing the histogram plot and all of its controls
     """
     def __init__(self, parent):
-        super(HistogramWidget, self).__init__(parent)
+        super(HistogramWidget, self).__init__(parent, style=wx.RAISED_BORDER)
 
         self.data = None
         self.axis = -1
@@ -380,6 +384,7 @@ class HistogramWidget(wx.Panel):
         """ Initialize the class for the histogram """
         # Initialize the canvas for histogram
         datum = [ d[self.axis] for d in self.data ]
+        self.data.rewind()
         self.histogram.setData(datum)
         self.histogram.setAxis(self.axisName)
         # Compute the defaul number of bins
