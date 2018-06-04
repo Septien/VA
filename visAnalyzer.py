@@ -151,6 +151,7 @@ class mainGUI(wx.Frame):
         """ Displays the available mysql databases and loads the selected one """
         if self.data:
             self.data.close()
+            self.hidePlots()
 
         with dbD.GetDBDialog(self, "Connect to a database") as dlg:
             # Indicate the iterator to load a db
@@ -180,6 +181,7 @@ class mainGUI(wx.Frame):
             path = dlg.GetPath()
             if self.data:
                 self.data.close()
+                self.hidePlots()
             self.labels = []
             self.category = []
             self.data = dI.Data(1)
@@ -200,6 +202,7 @@ class mainGUI(wx.Frame):
         self.description = []
         if self.data:
             self.data.close()
+            self.hidePlots()
         self.data = dI.Data(2)
         self.data.connectToStream(('', 8080), 0)
         self.labels, self.category, self.description = self.data.getDBDescription()
@@ -224,6 +227,46 @@ class mainGUI(wx.Frame):
 
 
     #--------------------------------------------------------------------------------------------------------------
+
+    def hidePlots(self):
+        """ Hide the existing plots when loading a new database """
+        if self.mainSizer.IsShown(self.pc):
+            self.mainSizer.Show(self.pc, False)
+            self.pc.close()
+        
+        if self.mainSizer.IsShown(self.splom):
+            self.mainSizer.Show(self.splom, False)
+            self.splom.close()
+        
+        if self.mainSizer.IsShown(self.lp):
+            self.mainSizer.Show(self.lp, False)
+            self.lp.close()
+        
+        if self.mainSizer.IsShown(self.gg):
+            self.mainSizer.Show(self.gg, False)
+            self.gg.close()
+        
+        if self.mainSizer.IsShown(self.osc):
+            self.mainSizer.Show(self.osc, False)
+            self.osc.close()
+        
+        if self.sizer1.IsShown(self.hist):
+            self.sizer1.Show(self.hist, False)
+            self.hist.close()
+        
+        if self.sizer1.IsShown(self.pp):
+            self.sizer1.Show(self.pp, False)
+            self.pp.close()
+        
+        if self.mainSizer.IsShown(self.sizer1):
+            self.mainSizer.Show(self.sizer1, False)
+
+        if self.sizer2.IsShown(self.scp):
+            self.sizer2.Show(self.scp, False)
+            self.sizer2.close()
+
+        if self.mainSizer.IsShown(self.sizer2):
+            self.mainSizer.Show(self.sizer2, False)
 
     def fitLayout(self):
         """ Fit the layout of the window when a graph is added or deleted """
@@ -321,6 +364,8 @@ class mainGUI(wx.Frame):
         if not self.SelectedDB():
             return
 
+        if self.sizer1.IsShown(self.pp):
+            self.pp.close()
         # Request the axis to draw
         axis = self.GetSelectedAxis(self.labels, title="Axes", text="Select an axis")
         if axis > -1:
@@ -364,6 +409,8 @@ class mainGUI(wx.Frame):
         if axis > -1:
             if not self.mainSizer.IsShown(self.sizer1):
                 self.mainSizer.Show(self.sizer1, True, recursive=False)
+            if self.sizer1.IsShown(self.hist):
+                self.hist.close()
             # Set it to the histogram
             self.hist.create(self.data, axis, self.labels[axis])
             self.sizer1.Show(self.hist, True)
