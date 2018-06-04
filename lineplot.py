@@ -101,7 +101,8 @@ class LinePlot(oglC.OGLCanvas):
         glColor(0.0, 0.0, 0.0, 1.0)
         start = 1.0 / self.gridSize
         glPushAttrib(GL_ENABLE_BIT)
-        glLineStipple(1, 0xAAAA)
+        glLineStipple(1, 0xCCCC)
+        glLineWidth(0.5)
         glEnable(GL_LINE_STIPPLE)
         glBegin(GL_LINES)
         for i in range(self.gridSize + 1):
@@ -231,9 +232,19 @@ class LinePlot(oglC.OGLCanvas):
             yLabel = str(self.minFreq + i * self.gridSize)
             length = GetLabelWidth(yLabel)
             length /= self.size.width
-            glRasterPos2f(-0.13, yoffset + (i * divWidth) - (length / 2.0))
+            glRasterPos2f(-0.05, yoffset + (i * divWidth) - (length / 2.0))
             for c in yLabel:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
+
+        label = 'Number of elements'
+        length = len(label)
+        fontHeight = glutBitmapHeight(GLUT_BITMAP_HELVETICA_18) / self.size.height
+        start = 0.5 + ((fontHeight * length) / 2.0)
+        i = 0
+        for c in label:
+            glRasterPos2f(-0.13, start - i * fontHeight)
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+            i += 1
 
         if self.name == "":
             return
@@ -273,16 +284,18 @@ class LinePlotWidget(wx.Panel):
         self.data = None
         self.labels = None
         self.axis = None
+        self.category = None
 
         self.lp = LinePlot(self)
         self.lp.SetMinSize((400, 400))
 
-    def create(self, data, labels, axis):
+    def create(self, data, labels, axis, category):
         """ Pass the data and initialize """
         # Hold the reference
         self.data = data
         self.labels = labels
         self.axis = axis
+        self.category = category
 
         self.initLP()
         self.initCtrls()
@@ -299,7 +312,8 @@ class LinePlotWidget(wx.Panel):
         """ Initialize and fill the combobox with the name and number of the axis. """
         axes = []
         for i in range(self.data.dataLength()):
-            axes.append(Axes(i, self.labels[i]))
+            if self.category[i] == 0:
+                axes.append(Axes(i, self.labels[i]))
 
         self.cb1 = wx.ComboBox(self, size=wx.DefaultSize, choices=[])
         for axis in axes:
