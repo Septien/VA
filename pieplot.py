@@ -36,6 +36,9 @@ class PiePlot(oglC.OGLCanvas):
         self.labels = []
         # Colors for the sectors
         self.colors = []
+        self.category = 0
+        self.name = []
+        self.value = []
 
     def InitGL(self):
         glClearColor(1.0, 1.0, 1.0, 1)
@@ -43,7 +46,7 @@ class PiePlot(oglC.OGLCanvas):
         #
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-0.1, 1.1, -0.1, 1.1, 1.0, 10.0)
+        glOrtho(-0.1, 1.3, -0.1, 1.1, 1.0, 10.0)
         #
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -74,10 +77,18 @@ class PiePlot(oglC.OGLCanvas):
             arcAngle = 360.0 * freq[1]
             glColor3f(0.0, 0.0, 0.0)
             labelAngle = (arcAngle / 2.0) + startAngle
-            radious = 1.105
+            radious = 1.2
             glPushMatrix()
             glTranslatef(-0.1, 0.0, 0.0)
-            self.drawLabels(labelAngle, str(freq[0]), radious)
+            label = str(freq[0])
+            if self.category == 1:  # A categorical
+                k = 0
+                for val in self.value:
+                    if freq[0] == val:
+                        label = self.name[k]
+                        break
+                    k += 1
+            self.drawLabels(labelAngle, label, radious, freq[1])
             glPopMatrix()
             glColor3fv(self.colors[i])
             self.DrawFilledArc(0, 0, 1, startAngle, arcAngle)
@@ -149,6 +160,15 @@ class PiePlot(oglC.OGLCanvas):
 
         self.axis = axis
 
+    def setCategory(self, cat):
+        """ Set the category of each variable """
+        self.category = cat
+
+    def setDescription(self, value, descr):
+        """ Set the description of each variable """
+        self.name = descr
+        self.value = value
+
     def computeFrequencies(self, draw):
         """ Compute the relative frequencies of the data """
         if not (self.data and self.labels):
@@ -177,7 +197,7 @@ class PiePlot(oglC.OGLCanvas):
         if draw:
             wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
-    def drawLabels(self, angle, label, radious):
+    def drawLabels(self, angle, label, radious, freq):
         """ Draw the labels of the pieplot.
         		-angle: Angle at which the label is to be drawn.
         		-label: label to draw.
@@ -202,7 +222,13 @@ class PiePlot(oglC.OGLCanvas):
         y = radious * m.sin(m.radians(angle))
         glRasterPos2f(x, y)
         for c in label:
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+        height = glutBitmapHeight(GLUT_BITMAP_HELVETICA_18)
+        height /= self.size.height
+        label = '{:.2f}%'.format(100*freq)
+        glRasterPos2f(x, y - (2 * height))
+        for c in label:
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
         # Draw the name of the variable
         label = self.labels[self.axis]
@@ -231,14 +257,18 @@ class PPWidget(wx.Panel):
 
         self.data = None
         self.labels = None
+        self.category = None
+        self.description = None
 
         self.pp = PiePlot(self)
         self.pp.SetMinSize((400, 400))
 
-    def create(self, data, labels, axis):
+    def create(self, data, labels, axis, category, description):
         """ Create the graph and pass the data """
         self.data = data
         self.labels = labels
+        self.category = category
+        self.description = description
         self.initPiePlot(axis)
         self.initCtrls()
         self.groupCtrls()
@@ -246,6 +276,18 @@ class PPWidget(wx.Panel):
     def initPiePlot(self, axis):
         self.pp.setData(self.data)
         self.pp.setLabels(self.labels)
+        self.pp.setCategory(self.category[axis])
+        values = []
+        names = []
+
+        for row in self.description:
+            if row[axis] == '':
+                break
+            value, name = row[axis].split('=')
+            values.append(int(value))
+            names.append(name)
+
+        self.pp.setDescription(values, names)
         self.pp.setAxis(axis)
         self.pp.computeFrequencies(False)
 
@@ -279,5 +321,18 @@ class PPWidget(wx.Panel):
     def OnCBChange(self, event):
         """ Handle the events for the combo box """
         cbSelection = self.cb.GetClientData(self.cb.GetSelection())
-        self.pp.setAxis(cbSelection.axisNumber)
+        axis = cbSelection.axisNumber
+        self.pp.setAxis(axis)
+        self.pp.setCategory(self.category[axis])
+        values = []
+        names = []
+
+        for row in self.description:
+            if row[axis] == '':
+                break
+            value, name = row[axis].split('=')
+            values.append(int(value))
+            names.append(name)
+
+        self.pp.setDescription(values, names)
         self.pp.computeFrequencies(True)
