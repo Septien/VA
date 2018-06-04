@@ -299,7 +299,10 @@ class GaugeWidget(wx.Panel):
         self.gauge.SetMinSize((400, 400))
 
     def create(self, varName):
-        # self.data = data
+        if not self.gauge:
+            self.gauge = GaugePlot(self)
+            self.gauge.SetMinSize((400, 400))
+
         self.gauge.SetVariableName(varName)
         self.gauge.SetRange([0, 1])
         self.initCtrls()
@@ -313,3 +316,8 @@ class GaugeWidget(wx.Panel):
     def Next(self, value):
         """ Try to get a new value and update the graph """
         self.gauge.SetValue(value)
+
+    def close(self):
+        """ Close all controls """
+        self.DestroyChildren()
+        self.gauge = None

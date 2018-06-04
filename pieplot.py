@@ -265,6 +265,10 @@ class PPWidget(wx.Panel):
 
     def create(self, data, labels, axis, category, description):
         """ Create the graph and pass the data """
+        if not self.pp:
+            self.pp = PiePlot(self)
+            self.pp.SetMinSize((400, 400))
+
         self.data = data
         self.labels = labels
         self.category = category
@@ -336,3 +340,8 @@ class PPWidget(wx.Panel):
 
         self.pp.setDescription(values, names)
         self.pp.computeFrequencies(True)
+
+    def close(self):
+        """ Close all the controls """
+        self.DestroyChildren()
+        self.pp = None

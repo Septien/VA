@@ -80,6 +80,7 @@ class Osciloscope(oglC.OGLCanvas):
             y = (self.data[i] - self.Range[0]) / r
             x = 0.99 - (0.1 * i)
             if x < -0.03:
+                self.data.pop(i)
                 continue
             glVertex3f(x, y, 0)
         glEnd()
@@ -163,6 +164,10 @@ class OsciloscopeWidget(wx.Panel):
         self.osc.SetMinSize((400, 400))
 
     def create(self, varName):
+        if not self.osc:
+            self.osc = Osciloscope(self)
+            self.osc.SetMinSize((400, 400))
+
         self.osc.SetVariableName(varName)
         self.osc.SetRange([0, 1])
         self.initCtrls()
@@ -175,3 +180,8 @@ class OsciloscopeWidget(wx.Panel):
     def Next(self, value):
         """ Inserts the next value of the stream """
         self.osc.SetData(value)
+
+    def close(self):
+        """ Close all controls """
+        self.DestroyChildren()
+        self.osc = None

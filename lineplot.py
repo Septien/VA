@@ -291,6 +291,10 @@ class LinePlotWidget(wx.Panel):
 
     def create(self, data, labels, axis, category):
         """ Pass the data and initialize """
+        if not self.lp:
+            self.lp = LinePlot(self)
+            self.lp.SetMinSize((400, 400))
+
         # Hold the reference
         self.data = data
         self.labels = labels
@@ -346,3 +350,8 @@ class LinePlotWidget(wx.Panel):
         self.lp.setData(data)
         self.lp.setName(self.labels[self.axis])
         self.lp.reDraw()
+
+    def close(self):
+        """ Close all the controls """
+        self.DestroyChildren()
+        self.lp = None

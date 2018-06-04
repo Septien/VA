@@ -318,6 +318,10 @@ class PCWidget(wx.Panel):
         """ Create the database """
         self.data = data
         self.labels = labels
+        # If it was already deleted
+        if not self.pc:
+            self.pc = ParallelCoordinates(self)
+            self.pc.SetMinSize(self.size)
 
         # Create the graph
         self.initPC()
@@ -485,3 +489,9 @@ class PCWidget(wx.Panel):
         self.tbxRange.SetValue("")
         self.tbxUpper.SetValue("")
         self.tbxLower.SetValue("")
+
+    def close(self):
+        """ Close all controles """
+        self.pc.close()
+        self.DestroyChildren()
+        self.pc = None

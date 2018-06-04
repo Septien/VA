@@ -254,7 +254,6 @@ class HistogramPlot(oglC.OGLCanvas):
         for i in range(self.numBins):
             self.frequencies.append(0)
 
-
     def computeClassesInterval(self):
         """
         Computes the interval for each class
@@ -370,7 +369,11 @@ class HistogramWidget(wx.Panel):
         self.histogram.SetMinSize((400, 400))
 
     def create(self, data, axis, axisName):
-        """ Pass the data to the graph and intialize it """
+        """ Pass the data to the graph and intialize it. Type: if categorical or numerical """
+        if not self.histogram:
+            self.histogram = HistogramPlot(self)
+            self.histogram.SetMinSize((400, 400))
+
         self.data = data
         self.axis = axis
         self.axisName = axisName
@@ -482,3 +485,8 @@ class HistogramWidget(wx.Panel):
         self.histogram.SetNumBins(bins)
         self.histogram.computeClassesInterval()
         self.histogram.computeFrequencies(True)
+
+    def close(self):
+        """ Close all controls """
+        self.DestroyChildren()
+        self.histogram = None

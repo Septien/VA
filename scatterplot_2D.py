@@ -392,6 +392,10 @@ class ScatterplotWidget(wx.Panel):
 
     def create(self, data, labels, category, axis1, axis2):
         """ Initialize the graph with the data """
+        if not self.scp:
+            self.scp = ScatterPlot2D(self)
+            self.scp.SetMinSize((400, 400))
+
         # Hold a reference for the data and labels
         self.data = data
         self.labels = labels
@@ -482,3 +486,8 @@ class ScatterplotWidget(wx.Panel):
         self.axis2 = axis
         self.updateAxes()
         self.scp.reDraw()
+
+    def close(self):
+        """ Close all controls """
+        self.DestroyChildren()
+        self.scp = None

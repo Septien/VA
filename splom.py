@@ -212,6 +212,10 @@ class SPLOMWidget(scp.ScrolledPanel):
 
     def create(self, data, labels, category):
         """ Create the graph """
+        if not self.splom:
+            self.splom = SPLOM(self)
+            self.splom.SetMinSize((500, 400))
+
         self.data = data
         self.labels = labels
         self.category = category
@@ -229,3 +233,8 @@ class SPLOMWidget(scp.ScrolledPanel):
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer.Add(self.splom, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.ALL, 5)
         self.SetSizer(self.sizer)
+
+    def close(self):
+        """ Close all controls """
+        self.DestroyChildren()
+        self.splom = None
