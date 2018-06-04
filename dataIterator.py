@@ -23,6 +23,7 @@ class Data(object):
         self.dbCursor = None
         self.dbConnection = None
         self.File = None
+        self.descrFile = None
         self.data = None
         self.name = None
         # For the streaming
@@ -69,6 +70,9 @@ class Data(object):
         self.name = filename
         # Open
         self.File = open(self.name, 'r')
+        # Get the description file
+        descrfilename = self.name.split('.csv')[0] + '_descr.csv'
+        self.descrFile = open(descrfilename, 'r')
 
     def connectToStream(self, address, ctype):
         """ 
@@ -115,6 +119,8 @@ class Data(object):
         #
         labels = []
         category = []
+        description = []
+        units = []
 
         # If the source is a database
         if self.sourceFlag == 0:
@@ -140,15 +146,29 @@ class Data(object):
 
         # If the source is a csv.
         elif self.sourceFlag == 1:
-            # Get the variables name of the csv
-            line = self.File.readline()
+            # Get the variables name from the description file
+            line = self.descrFile.readline()
             row = line.split(',')
             labels = row.copy()
             # Get the types
-            line = self.File.readline()
+            line = self.descrFile.readline()
             row = line.split(',')
             for r in row:
                 category.append(int(r))
+            # Get the units of each numeric variable
+            line = self.descrFile.readline()
+            row = line.split(',')
+            for i in range(len(row)):
+                if category[i] == 0:
+                    units.append(row[i])
+                    row[i] = ''
+                else:
+                    units.append('')
+            description.append(row)
+            # Get the description of each of the values for the categorical variabless
+            for row in self.descrFile:
+                r = row.split(',')
+                description.append(r)
         
         # If the source is a stream
         elif self.sourceFlag == 2:
@@ -160,7 +180,7 @@ class Data(object):
         self.length = len(labels)
         assert len(labels) == len(category), "Incorrect number of labels and category"
         assert len(category) == self.length, "Incorrect number of categories"
-        return labels, category
+        return labels, category, description, units
 
     def dataLength(self):
         """ Returns the number of axes in the database """
@@ -255,9 +275,6 @@ class Data(object):
         if self.sourceFlag == 1:
             self.File.close()
             self.File = open(self.name, 'r')
-            # Read the first two lines
-            line = self.File.readline()
-            line = self.File.readline()
 
         if self.sourceFlag == 2:
             # Stream in use, no possible to rewind
