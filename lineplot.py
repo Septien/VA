@@ -55,6 +55,7 @@ class LinePlot(oglC.OGLCanvas):
         self.axis = 0
         self.gridSize = 10
         self.name = ""
+        self.unit = ""
 
         self.initGrid()
 
@@ -185,6 +186,10 @@ class LinePlot(oglC.OGLCanvas):
 
         assert len(self.range) == 2, "Incorrect len of range"
 
+    def setUnit(self, unit):
+        """ Set the unit of the axis """
+        self.unit = unit
+
     def setGridSize(self, ngridSize):
         """ Set the size of the grid """
         assert type(ngridSize) is int, "Incorrect type"
@@ -249,8 +254,9 @@ class LinePlot(oglC.OGLCanvas):
         if self.name == "":
             return
         # Draw the name of the variable
+        label = self.name + ' (' + self.unit + ')'
         glRasterPos2f(0.5, 1.05)
-        for c in self.name:
+        for c in label:
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
     def setName(self, nName):
@@ -285,11 +291,12 @@ class LinePlotWidget(wx.Panel):
         self.labels = None
         self.axis = None
         self.category = None
+        self.units = None
 
         self.lp = LinePlot(self)
         self.lp.SetMinSize((400, 400))
 
-    def create(self, data, labels, axis, category):
+    def create(self, data, labels, axis, category, units):
         """ Pass the data and initialize """
         if not self.lp:
             self.lp = LinePlot(self)
@@ -300,6 +307,7 @@ class LinePlotWidget(wx.Panel):
         self.labels = labels
         self.axis = axis
         self.category = category
+        self.units = units
 
         self.initLP()
         self.initCtrls()
@@ -311,6 +319,7 @@ class LinePlotWidget(wx.Panel):
         data = [d[self.axis] for d in self.data]
         self.data.rewind()
         self.lp.setData(data)
+        self.lp.setUnit(self.units[self.axis])
 
     def initComboBox(self):
         """ Initialize and fill the combobox with the name and number of the axis. """
@@ -349,6 +358,7 @@ class LinePlotWidget(wx.Panel):
         self.data.rewind()
         self.lp.setData(data)
         self.lp.setName(self.labels[self.axis])
+        self.lp.setUnit(self.units[self.axis])
         self.lp.reDraw()
 
     def close(self):

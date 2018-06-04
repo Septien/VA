@@ -43,6 +43,8 @@ class ScatterPlot2D(oglC.OGLCanvas):
         self.axis1Name = ""
         self.axis2Name = ""
         self.r = 0.0
+        self.unit1 = ""
+        self.unit2 = ""
 
         self.InitCirclePoints()
         self.initGrid()
@@ -78,7 +80,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         #
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-0.2, 1.1, -0.1, 1.1, 1.0, 10.0)
+        glOrtho(-0.2, 1.15, -0.1, 1.1, 1.0, 10.0)
         #
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -116,6 +118,11 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
         self.axis1Name = axis1Name
         self.axis2Name = axis2Name
+
+    def setUnits(self, unit1, unit2):
+        """ Sets the units of each variable """
+        self.unit1 = unit1
+        self.unit2 = unit2
 
     def GetRanges(self):
         """Calculate the ranges of each dimension"""
@@ -329,11 +336,12 @@ class ScatterPlot2D(oglC.OGLCanvas):
                 glutBitmapCharacter(font, ord(c))
 
         # Draw the name of the axis
-        width = GetLabelWidth(self.axis1Name)
+        label = self.axis1Name + ' (' + self.unit1 + ')'
+        width = GetLabelWidth(label)
         width /= self.size.width
         # For the first axis
-        glRasterPos2f(0.5, 1.05)
-        for c in self.axis1Name:
+        glRasterPos2f(0.5 - width / 2.0, 1.05)
+        for c in label:
             glutBitmapCharacter(font, ord(c))
         # For the second axis
         length = len(self.axis2Name)
@@ -346,6 +354,10 @@ class ScatterPlot2D(oglC.OGLCanvas):
             glRasterPos2f(1.05, start - i * fontHeight)
             glutBitmapCharacter(font, ord(c))
             i += 1
+        label = '(' + self.unit2 + ')'
+        glRasterPos2f(1.0, start - i * fontHeight)
+        for c in label:
+            glutBitmapCharacter(font, ord(c))
         # Draw the Pearson coefficient
         coef = "r = {:.2f}".format(self.r)
         glRasterPos2f(0.9, 1.05)
@@ -386,11 +398,12 @@ class ScatterplotWidget(wx.Panel):
         self.sizer = None
         self.axis1 = -1
         self.axis2 = -1
+        self.units = None
 
         self.scp = ScatterPlot2D(self)
         self.scp.SetMinSize((400, 400))
 
-    def create(self, data, labels, category, axis1, axis2):
+    def create(self, data, labels, category, axis1, axis2, units):
         """ Initialize the graph with the data """
         if not self.scp:
             self.scp = ScatterPlot2D(self)
@@ -403,6 +416,7 @@ class ScatterplotWidget(wx.Panel):
         self.sizer = None
         self.axis1 = axis1
         self.axis2 = axis2
+        self.units = units
 
         # Init controls and canvas
         self.initScp()
@@ -467,6 +481,7 @@ class ScatterplotWidget(wx.Panel):
         axesData = [ xAxis, yAxis ]
         self.scp.SetData(axesData)
         self.scp.setAxesNames(self.labels[self.axis1], self.labels[self.axis2])
+        self.scp.setUnits(self.units[self.axis1], self.units[self.axis2])
 
     def onAxis1Changed(self, event):
         """ When another axis is selected. Get the selected

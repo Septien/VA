@@ -40,6 +40,7 @@ class mainGUI(wx.Frame):
         self.labels = None
         self.category = None
         self.description = None
+        self.units = None
         self.timer = None
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
         # For the histogram and pieplot
@@ -186,7 +187,7 @@ class mainGUI(wx.Frame):
             self.category = []
             self.data = dI.Data(1)
             self.data.loadCSV(path)
-            self.labels, self.category, self.description = self.data.getDBDescription()
+            self.labels, self.category, self.description, self.units = self.data.getDBDescription()
             self.selectedDB = True
         dlg.Destroy()
 
@@ -342,7 +343,7 @@ class mainGUI(wx.Frame):
         selectionable = self.getSelectionableAxes()
         axis = self.GetSelectedAxis(selectionable, title="Axes", text="Select an axis")
         if axis > -1:
-            self.lp.create(self.data, self.labels, axis, self.category)
+            self.lp.create(self.data, self.labels, axis, self.category, self.units)
             self.mainSizer.Show(self.lp, True)
             # Force layout update
             self.fitLayout()
@@ -371,7 +372,7 @@ class mainGUI(wx.Frame):
         if axis > -1:
             if not self.mainSizer.IsShown(self.sizer1):
                 self.mainSizer.Show(self.sizer1, True)
-            self.pp.create(self.data, self.labels, axis, self.category, self.description)
+            self.pp.create(self.data, self.labels, axis, self.category, self.description, self.units)
             self.sizer1.Show(self.pp, True)
             # Force layout update
             self.fitLayout()
@@ -412,7 +413,7 @@ class mainGUI(wx.Frame):
             if self.sizer1.IsShown(self.hist):
                 self.hist.close()
             # Set it to the histogram
-            self.hist.create(self.data, axis, self.labels[axis])
+            self.hist.create(self.data, axis, self.labels[axis], self.units)
             self.sizer1.Show(self.hist, True)
             # Force layout update
             self.fitLayout()
@@ -450,7 +451,7 @@ class mainGUI(wx.Frame):
                             index2 = i
                     if not self.mainSizer.IsShown(self.sizer2):
                         self.mainSizer.Show(self.sizer2, True)
-                    self.scp.create(self.data, self.labels, self.category, index1, index2)
+                    self.scp.create(self.data, self.labels, self.category, index1, index2, self.units)
                     self.sizer2.Show(self.scp, True)
                     # Force layout update
                     self.fitLayout()

@@ -42,6 +42,7 @@ class HistogramPlot(oglC.OGLCanvas):
         self.axis = ""
         self.data = []
         self.numDivisions = 10
+        self.unit = ""
 
     def InitGL(self):
         glClearColor(1.0, 1.0, 1.0, 1)
@@ -192,6 +193,10 @@ class HistogramPlot(oglC.OGLCanvas):
         """
         self.range = [self.data[0], self.data[-1]]
         assert len(self.range) == 2, "Incorrect lenght of range array"
+
+    def setUnits(self, unit):
+        """ Sets the units of the variable """
+        self.unit = unit
 
     def SetNumBins(self, numB):
         """ Sets the number of bins for the histogram """
@@ -345,10 +350,11 @@ class HistogramPlot(oglC.OGLCanvas):
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
 
         # Draw the name of the variable
-        length = GetLabelWidth(self.axis)
+        label = self.axis + ' (' + self.unit + ')'
+        length = GetLabelWidth(label)
         length /= self.size.width
         glRasterPos2f(0.5 - length, 1.05)
-        for c in self.axis:
+        for c in label:
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
 
@@ -364,11 +370,12 @@ class HistogramWidget(wx.Panel):
         self.data = None
         self.axis = -1
         self.axisName = None
+        self.units = None
 
         self.histogram = HistogramPlot(self)
         self.histogram.SetMinSize((400, 400))
 
-    def create(self, data, axis, axisName):
+    def create(self, data, axis, axisName, units):
         """ Pass the data to the graph and intialize it. Type: if categorical or numerical """
         if not self.histogram:
             self.histogram = HistogramPlot(self)
@@ -376,6 +383,7 @@ class HistogramWidget(wx.Panel):
 
         self.data = data
         self.axis = axis
+        self.units = units
         self.axisName = axisName
         self.initHistogram()
         self.initCtrls()
@@ -394,6 +402,7 @@ class HistogramWidget(wx.Panel):
         self.histogram.computeBins()
         self.histogram.computeClassesInterval()
         self.histogram.computeFrequencies(False)
+        self.histogram.setUnits(self.units[self.axis])
 
     def initCtrls(self):
         """

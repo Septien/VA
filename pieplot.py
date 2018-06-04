@@ -39,6 +39,7 @@ class PiePlot(oglC.OGLCanvas):
         self.category = 0
         self.name = []
         self.value = []
+        self.unit = ''
 
     def InitGL(self):
         glClearColor(1.0, 1.0, 1.0, 1)
@@ -46,7 +47,7 @@ class PiePlot(oglC.OGLCanvas):
         #
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-0.1, 1.3, -0.1, 1.1, 1.0, 10.0)
+        glOrtho(-0.1, 1.35, -0.1, 1.35, 1.0, 10.0)
         #
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -169,6 +170,10 @@ class PiePlot(oglC.OGLCanvas):
         self.name = descr
         self.value = value
 
+    def setUnit(self, unit):
+        """ Set the unit of the axis """
+        self.unit = unit
+
     def computeFrequencies(self, draw):
         """ Compute the relative frequencies of the data """
         if not (self.data and self.labels):
@@ -231,10 +236,13 @@ class PiePlot(oglC.OGLCanvas):
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
         # Draw the name of the variable
-        label = self.labels[self.axis]
+        if self.unit != '':
+            label = self.labels[self.axis] + ' (' + self.unit + ')'
+        else:
+            label = self.labels[self.axis]
         length = GetLabelWidth(label)
         length /= self.size.width
-        glRasterPos2f(-length, 1.25)
+        glRasterPos2f(-length, 1.3)
         for c in label:
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
@@ -259,11 +267,12 @@ class PPWidget(wx.Panel):
         self.labels = None
         self.category = None
         self.description = None
+        self.units = None
 
         self.pp = PiePlot(self)
         self.pp.SetMinSize((400, 400))
 
-    def create(self, data, labels, axis, category, description):
+    def create(self, data, labels, axis, category, description, units):
         """ Create the graph and pass the data """
         if not self.pp:
             self.pp = PiePlot(self)
@@ -273,6 +282,7 @@ class PPWidget(wx.Panel):
         self.labels = labels
         self.category = category
         self.description = description
+        self.units = units
         self.initPiePlot(axis)
         self.initCtrls()
         self.groupCtrls()
@@ -281,6 +291,7 @@ class PPWidget(wx.Panel):
         self.pp.setData(self.data)
         self.pp.setLabels(self.labels)
         self.pp.setCategory(self.category[axis])
+        self.pp.setUnit(self.units[axis])
         values = []
         names = []
 
@@ -328,6 +339,7 @@ class PPWidget(wx.Panel):
         axis = cbSelection.axisNumber
         self.pp.setAxis(axis)
         self.pp.setCategory(self.category[axis])
+        self.pp.setUnit(self.units[axis])
         values = []
         names = []
 
