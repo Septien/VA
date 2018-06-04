@@ -5,6 +5,7 @@ be called from here.
 import wx
 import wx.lib.newevent
 import wx.lib.scrolledpanel as scp
+import wx.lib.inspection
 import oglCanvas as oglC
 
 # Plots
@@ -38,6 +39,7 @@ class mainGUI(wx.Frame):
         self.data = None
         self.labels = None
         self.category = None
+        self.description = None
         self.timer = None
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
         # For the histogram and pieplot
@@ -163,7 +165,7 @@ class mainGUI(wx.Frame):
                         break
                 else:
                     return
-            self.labels, self.category = self.data.getDBDescription()
+            self.labels, self.category, self.description = self.data.getDBDescription()
             self.selectedDB = True
 
     #--------------------------------------------------------------------------------------------------------------
@@ -182,7 +184,7 @@ class mainGUI(wx.Frame):
             self.category = []
             self.data = dI.Data(1)
             self.data.loadCSV(path)
-            self.labels, self.category = self.data.getDBDescription()
+            self.labels, self.category, self.description = self.data.getDBDescription()
             self.selectedDB = True
         dlg.Destroy()
 
@@ -195,11 +197,12 @@ class mainGUI(wx.Frame):
         dlg.Show()
         self.labels = []
         self.category = []
+        self.description = []
         if self.data:
             self.data.close()
         self.data = dI.Data(2)
         self.data.connectToStream(('', 8080), 0)
-        self.labels, self.category = self.data.getDBDescription()
+        self.labels, self.category, self.description = self.data.getDBDescription()
         self.selectedDB = True
         self.streamSelected = True
         # Set timer for constant checking of new incoming values on the stream
@@ -293,9 +296,10 @@ class mainGUI(wx.Frame):
         if self.mainSizer.IsShown(self.lp):
             return
 
-        axis = self.GetSelectedAxis(self.labels, title="Axes", text="Select an axis")
+        selectionable = self.getSelectionableAxes()
+        axis = self.GetSelectedAxis(selectionable, title="Axes", text="Select an axis")
         if axis > -1:
-            self.lp.create(self.data, self.labels, axis)
+            self.lp.create(self.data, self.labels, axis, self.category)
             self.mainSizer.Show(self.lp, True)
             # Force layout update
             self.fitLayout()
@@ -322,7 +326,7 @@ class mainGUI(wx.Frame):
         if axis > -1:
             if not self.mainSizer.IsShown(self.sizer1):
                 self.mainSizer.Show(self.sizer1, True)
-            self.pp.create(self.data, self.labels, axis)
+            self.pp.create(self.data, self.labels, axis, self.category, self.description)
             self.sizer1.Show(self.pp, True)
             # Force layout update
             self.fitLayout()
