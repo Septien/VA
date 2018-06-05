@@ -276,7 +276,7 @@ class HistogramPlot(oglC.OGLCanvas):
 
     def getMaxBins(self):
         """ Return the maximum number of bins """
-        return len(self.data)
+        return self.numBins + 10
 
     def setAxis(self, axis):
         """ Set the axis name to analize """
@@ -332,7 +332,11 @@ class HistogramPlot(oglC.OGLCanvas):
             xLabel = '{:.1f}'.format(x)
             length = GetLabelWidth(xLabel)
             length /= self.size.width
-            glRasterPos2f(i * self.rectWidth - length / 2.0, -0.08)
+            if i % 2 == 0:
+                y = -0.04
+            else:
+                y = -0.08
+            glRasterPos2f(i * self.rectWidth - length / 2.0, y)
             for c in xLabel:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
         glPopMatrix()
