@@ -56,6 +56,8 @@ class LinePlot(oglC.OGLCanvas):
         self.gridSize = 10
         self.name = ""
         self.unit = ""
+        self.classWidth = 0.1
+        self.numClass = 0
 
         self.initGrid()
 
@@ -83,21 +85,15 @@ class LinePlot(oglC.OGLCanvas):
         glClear(GL_COLOR_BUFFER_BIT)
 
         self.DrawGrid()
+        glPushMatrix()
+        glScalef(1.0 / (self.numClass * self.classWidth), 1, 0)
         self.DrawPoints()
+        glPopMatrix()
         self.drawLabels()
 
         self.SwapBuffers()
 
     def DrawGrid(self):
-        # Face
-        glPolygonMode(GL_FRONT, GL_FILL)
-        glColor(1.0, 1.0, 1.0, 1.0)
-        glBegin(GL_TRIANGLE_STRIP)
-        glVertex3fv(self.face[0])
-        glVertex3fv(self.face[1])
-        glVertex3fv(self.face[2])
-        glVertex3fv(self.face[3])
-        glEnd()
         # Grid
         glColor(0.0, 0.0, 0.0, 1.0)
         start = 1.0 / self.gridSize
@@ -140,10 +136,13 @@ class LinePlot(oglC.OGLCanvas):
         glLineWidth(2)
         glBegin(GL_LINE_STRIP)
         # Iterate over all elements of the dictionary
+        i = 0
+        self.classWidth = 0.1
         for d in self.sortedData:
-            x = Map(d[0], self.range)
+            # x = Map(d[0], self.range)
             y = d[1]
-            glVertex3f(x, y, 0.0)
+            glVertex3f(i * self.classWidth, y, 0.0)
+            i += 1
         glEnd()
 
     def setData(self, ndata):
@@ -172,6 +171,7 @@ class LinePlot(oglC.OGLCanvas):
             self.data[d] /= self.maxFreq
 
         self.setRange(data)
+        self.numClass = len(self.data)
         # Get the ordered sequence of values
         self.sortedData = sorted(self.data.items(), key=operator.itemgetter(0))
 
