@@ -149,6 +149,29 @@ class Data(object):
                 # Type
                 category.append(isNumeric(variable[1]))
 
+            # Get the description of the variables, from the descr table
+            sqlcmd = "SELECT * FROM descr"
+            self.dbCursor.execute(sqlcmd)
+            table = self.dbCursor.fetchall_unbuffered()
+            # Get the units of the numerical variables
+            line = next(table)
+            i = 0
+            row = []
+            for r in line:
+                if category[i] == 0:
+                    units.append(r)
+                    row.append('')
+                else:
+                    units.append('')
+                    row.append(r)
+                i += 1
+            description.append(row)
+            for line in table:
+                row = []
+                for r in line:
+                    row.append(r)
+                description.append(row.copy())
+
         # If the source is a csv.
         elif self.sourceFlag == 1:
             # Get the variables name from the description file

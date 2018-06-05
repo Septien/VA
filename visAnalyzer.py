@@ -170,7 +170,7 @@ class mainGUI(wx.Frame):
                     return
 
             wx.MessageBox("Database loaded with success", "Database loaded")
-            self.labels, self.category, self.description = self.data.getDBDescription()
+            self.labels, self.category, self.description, self.units = self.data.getDBDescription()
             self.selectedDB = True
 
     #--------------------------------------------------------------------------------------------------------------
