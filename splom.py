@@ -14,7 +14,9 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
-class SPLOM(sc.ScatterPlot2D):
+import oglCanvas as oglC
+
+class SPLOM(oglC.OGLCanvas):
     """
     The implementation of the SPLOM graph. This class inherites from the scatterplor 2d class.
     It contains the following attributes:
@@ -120,52 +122,48 @@ class SPLOM(sc.ScatterPlot2D):
         glPopMatrix()
         
         self.SwapBuffers()
-        
+
+    def DrawGrid(self):
+        # Grid
+        start = 1.0 / self.divisions
+        glColor3f(0.0, 0.0, 0.0)
+        glPushAttrib(GL_ENABLE_BIT)
+        glLineStipple(1, 0xAAAA)
+        glEnable(GL_LINE_STIPPLE)
+        glPolygonMode(GL_FRONT, GL_LINE)
+        glBegin(GL_LINES)
+        for i in range(self.divisions + 1):
+            x = i * start
+            glVertex3f(x, 0.0, 0.1)
+            glVertex3f(x, 1.0, 0.1)
+            glVertex3f(0.0, x, 0.1)
+            glVertex3f(1.0, x, 0.1)
+        glEnd()
+        glPopAttrib()
+
+    def DrawCircle(self):
+        """
+        Draw a circle based on the points previously calculated. Uses a triangle fan.
+        """
+        #glBegin(GL_LINE_LOOP)
+        glBegin(GL_TRIANGLE_FAN)
+        for i in range(len(self.circle)):
+            glVertex3f(self.circle[i][0], self.circle[i][1], 0.0)
+        glEnd()
+
+    def DrawPoint(self, cx, cy, r):
+        """
+        Draw a point centered at (cx, cy) with radious r.
+        It is based on the function draw circle.
+        """
+        glPushMatrix()
+        glTranslatef(cx, cy, 0.0)
+        glScalef(r, r, 0.0)
+        self.DrawCircle()
+        glPopMatrix()
+
     def DrawSCPM(self):
         """Draws the matrix of plots"""
-        # The screen will be divided in cells, each one containing a scatterplot. All
-        # cells have the same width and height, which is 1/3 (a total of 9 windows on the screen).
-        numCells = self.numericVariables
-        cellWidth = 1.0/numCells
-        cellHeight = 1.0/numCells
-        # For the numerical variables
-        h, k = 1, 1
-        # Iterate over all axes
-        for i in range(self.numAxis):
-            # If the variable type is not numeric
-            if self.variablesCategory[i] != 0:
-                continue
-            x1 = [x[i] for x in self.data]
-            self.data.rewind()
-            k = 1
-            for j in range(self.numAxis):
-                # If the variable type is not numeric
-                if self.variablesCategory[j] != 0:
-                    continue
-                if i == j:
-                    # if i == j, draw the name of the variable
-                    glPushMatrix()
-                    glTranslatef(k * (cellWidth / 2.0), 1.0 - ( h * (cellHeight / 2.0)), 0.0)
-                    self.DrawNames(i)
-                    glPopMatrix()
-                    k += (numCells - 1)
-                    continue
-                # Draw the graphs
-                x2 = [x[j] for x in self.data]
-                self.data.rewind()
-                self.points = [x1, x2]
-                self.GetRanges()
-                glPushMatrix()
-                glTranslatef(-cellWidth / 2.0, -cellHeight / 2.0, 0.0)
-                glTranslatef(k * (cellWidth / 2.0), 1.0 - ( h * (cellHeight / 2.0)), 0.0)
-                glScalef(cellWidth, cellHeight, 0.0)
-                self.DrawGrid()
-                self.DrawPoints(0.01)
-                glPopMatrix()
-                
-                # Increas only if the variable is numerical
-                k += (numCells - 1)
-            h += (numCells - 1)
 
 
     def DrawNames(self, i):
