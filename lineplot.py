@@ -58,6 +58,7 @@ class LinePlot(oglC.OGLCanvas):
         self.unit = ""
         self.classWidth = 0.1
         self.numClass = 0
+        self.length = 0
 
         self.initGrid()
 
@@ -84,30 +85,39 @@ class LinePlot(oglC.OGLCanvas):
     def OnDraw(self):
         glClear(GL_COLOR_BUFFER_BIT)
 
-        self.DrawGrid()
         glPushMatrix()
         glScalef(1.0 / (self.numClass * self.classWidth), 1, 0)
+        self.DrawGrid()
         self.DrawPoints()
-        glPopMatrix()
         self.drawLabels()
+        glPopMatrix()
+        self.drawYLabels()
 
         self.SwapBuffers()
 
     def DrawGrid(self):
+        # Face
+        # glPolygonMode(GL_FRONT, GL_FILL)
+        # glColor(1.0, 1.0, 1.0, 1.0)
+        # glBegin(GL_TRIANGLE_STRIP)
+        # glVertex3fv(self.face[0])
+        # glVertex3fv(self.face[1])
+        # glVertex3fv(self.face[2])
+        # glVertex3fv(self.face[3])
+        # glEnd()
         # Grid
         glColor(0.0, 0.0, 0.0, 1.0)
-        start = 1.0 / self.gridSize
         glPushAttrib(GL_ENABLE_BIT)
         glLineStipple(1, 0xCCCC)
         glLineWidth(0.5)
         glEnable(GL_LINE_STIPPLE)
         glBegin(GL_LINES)
-        for i in range(self.gridSize + 1):
-            x = i * start
+        for i in range(self.numClass):
+            x = i * self.classWidth
             glVertex3f(x, 0.0, 0.1)
             glVertex3f(x, 1.0, 0.1)
             glVertex3f(0.0, x, 0.1)
-            glVertex3f(1.0, x, 0.1)
+            glVertex3f(self.length - 0.1, x, 0.1)
         glEnd()
         glPopAttrib()
 
@@ -170,8 +180,9 @@ class LinePlot(oglC.OGLCanvas):
         for d in self.data:
             self.data[d] /= self.maxFreq
 
-        self.setRange(data)
         self.numClass = len(self.data)
+        self.length = self.classWidth * self.numClass
+        self.setRange(data)
         # Get the ordered sequence of values
         self.sortedData = sorted(self.data.items(), key=operator.itemgetter(0))
 
@@ -219,14 +230,36 @@ class LinePlot(oglC.OGLCanvas):
             label = str(d[0])
             length = GetLabelWidth(label)
             length /= self.size.width
-            if i % 2 == 0:
-                y = -0.07
-            else:
-                y = -0.13
-            glRasterPos2f(i * divWidth - length / 2.0, y)
+            glRasterPos2f(i * self.classWidth - length / 2.0, -0.07)
             i += 1
             for c in label:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
+
+        if self.name == "":
+            return
+        # Draw the name of the variable
+        label = self.name + ' (' + self.unit + ')'
+        length = GetLabelWidth(label)
+        length /= self.size.width
+        glRasterPos2f((self.length / 2) - length, 1.05)
+        for c in label:
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+    def drawYLabels(self):
+        """ Draws the labels of the y axis """
+        def GetLabelWidth(label):
+            """Returns the total width of the length of 'label', using the
+            fonts from glut"""
+            assert type(label) is str, "Incorrect type"
+
+            length = 0
+            for c in label:
+                length += glutBitmapWidth(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+            assert type(length) is int
+            assert length >= 0
+
+            return length
 
         # For the y axis
         divWidth = 1.0 / self.gridSize
@@ -250,14 +283,6 @@ class LinePlot(oglC.OGLCanvas):
             glRasterPos2f(-0.13, start - i * fontHeight)
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
             i += 1
-
-        if self.name == "":
-            return
-        # Draw the name of the variable
-        label = self.name + ' (' + self.unit + ')'
-        glRasterPos2f(0.5, 1.05)
-        for c in label:
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
     def setName(self, nName):
         """ Set the name of the variable """
