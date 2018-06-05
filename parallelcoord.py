@@ -492,6 +492,5 @@ class PCWidget(wx.Panel):
 
     def close(self):
         """ Close all controles """
-        self.pc.close()
         self.DestroyChildren()
         self.pc = None

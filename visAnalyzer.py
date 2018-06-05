@@ -165,8 +165,11 @@ class mainGUI(wx.Frame):
                     # If the connection was succesful
                     if result:
                         break
+                    wx.MessageBox("Verify your access data, could not connect to database", "Incorrect data")
                 else:
                     return
+
+            wx.MessageBox("Database loaded with success", "Database loaded")
             self.labels, self.category, self.description = self.data.getDBDescription()
             self.selectedDB = True
 
@@ -186,7 +189,12 @@ class mainGUI(wx.Frame):
             self.labels = []
             self.category = []
             self.data = dI.Data(1)
-            self.data.loadCSV(path)
+            r = self.data.loadCSV(path)
+            if not r:   # File not loaded
+                wx.MessageBox("Unable to find description file", "No description file found")
+                return
+            else:
+                wx.MessageBox("File loaded with success", "File loaded")
             self.labels, self.category, self.description, self.units = self.data.getDBDescription()
             self.selectedDB = True
         dlg.Destroy()
