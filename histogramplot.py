@@ -50,7 +50,7 @@ class HistogramPlot(oglC.OGLCanvas):
         #
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-0.2, 1.3, -0.1, 1.1, 1.0, 10.0)
+        glOrtho(-0.3, 1.3, -0.1, 1.1, 1.0, 10.0)
         #
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -356,6 +356,19 @@ class HistogramPlot(oglC.OGLCanvas):
         glRasterPos2f(0.5 - length, 1.05)
         for c in label:
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+        # Draw the y-axis label
+        label = 'Frequencies'
+        length = len(label)
+        fontHeight = glutBitmapHeight(GLUT_BITMAP_HELVETICA_18)
+        fontHeight /= self.size.height
+        i = 0
+        start = 1.0#0.5 + ((fontHeight * length) / 2.0)
+        for c in label:
+            glRasterPos2f(-0.25, start - i * fontHeight)
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+            i += 1
+        
 
 
 #------------------------------------------------------------------------------------------------------------------
