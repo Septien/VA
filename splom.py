@@ -8,6 +8,9 @@ corresponds to one dimension, and each cell displays two dimensions.
 import wx
 import wx.lib.scrolledpanel as scp
 
+import numpy as np
+import math as m
+
 import scatterplot_2D as sc
 
 from OpenGL.GL import *
@@ -30,12 +33,14 @@ class SPLOM(oglC.OGLCanvas):
         self.data = []
         self.variablesName = []
         self.variablesCategory = []
+        self.ranges = []
         self.numericVariables = 0
         self.divisions = 5
         self.databaseName = None
         self.numAxis = 0
         self.xDisplacement = 0.0
         self.yDisplacement = 0.0
+        self.InitCirclePoints()
 
     def InitGL(self):
         glClearColor(1.0, 1.0, 1.0, 1)
@@ -51,18 +56,57 @@ class SPLOM(oglC.OGLCanvas):
         glShadeModel(GL_SMOOTH)
         glutInit(sys.argv)
 
+    def InitCirclePoints(self):
+        """
+        Constructs an array containing the points for a circle centered at the origin
+        and with radious 1.
+        """
+        self.circle = []
+
+        x = 0.0
+        y = 0.0
+        # Upper half
+        for x in np.arange(1.0, -1.0, -0.01):
+            y = m.sqrt(1 - x * x)
+            self.circle.append((x, y))
+        # Lower half
+        for x in np.arange(-1.0, 1.0, 0.01):
+            y = - m.sqrt(1 - x * x)
+            self.circle.append((x, y))
+
     def SetData(self, newData):
         """Loads the data to be displayed"""
         assert newData, "Data cannot be empty"
 
         self.data = newData
         self.numAxis = newData.dataLength()
-
-        # Init scroll bar
-        # if self.numAxis > 
+        # Compute the ranges of each variable
+        self.getRanges()
 
         assert self.data, "Data is empty"
         assert self.numAxis > 0, "Number of dimensions must greater than zero"
+
+    def getRanges(self):
+        """ Get the ranges of each variable """
+        self.ranges.clear()
+        d = next(self.data)
+        # Initialize the ranges
+        for i in range(self.numAxis):
+            minV = maxV = d[i]
+            self.ranges.append([minV, maxV])
+        # Get the ranges
+        j = 0
+        for d in self.data:
+            for i in range(self.numAxis):
+                # The minimum
+                if d[i] <= self.ranges[i][0]:
+                    self.ranges[i][0] = d[i]
+                # The maximum
+                if d[i] >= self.ranges[i][1]:
+                    self.ranges[i][1] = d[i]
+            j += 1
+        # Return to first data
+        self.data.rewind()
 
     def SetLabels(self, newVarNames):
         """Loads the names of each of the variables to be displayed."""
@@ -130,7 +174,6 @@ class SPLOM(oglC.OGLCanvas):
         glPushAttrib(GL_ENABLE_BIT)
         glLineStipple(1, 0xAAAA)
         glEnable(GL_LINE_STIPPLE)
-        glPolygonMode(GL_FRONT, GL_LINE)
         glBegin(GL_LINES)
         for i in range(self.divisions + 1):
             x = i * start
@@ -164,7 +207,68 @@ class SPLOM(oglC.OGLCanvas):
 
     def DrawSCPM(self):
         """Draws the matrix of plots"""
+        def Map(value, Range):
+            """Map the value in range [range[0], range[1]] to the range [0, 1]"""
+            # Formula for mapping [A, B] -> [a, b]:
+            #
+            #   (val - A) * (b - a) / (B - A) + a
+            assert type(value) is (float or int), str(type(value))
+            assert len(Range) > 0
+            unitRange = [0.0, 1.0]
 
+            norm = ((value - Range[0]) * (unitRange[1] - unitRange[0]) / (Range[1] - Range[0])) + unitRange[0]
+            assert unitRange[0] <= norm <= unitRange[1], "Out of range: " + str(norm) + " " + str(Range) + " " + str(value)
+            return norm
+
+        numCells = self.numericVariables
+        cellWidth = 1.0/numCells
+        cellHeight = 1.0/numCells
+        # Draw the grids and names
+        k, h = 0, 0
+        for i in range(self.numAxis):
+            if self.variablesCategory[i] != 0:
+                continue
+            k = 1
+            for j in range(self.numAxis):
+                if self.variablesCategory[j] != 0:
+                    continue
+                if i == j:
+                    # if i == j, draw the name of the variable
+                    glPushMatrix()
+                    glTranslatef(k * (cellWidth / 2.0), 1.0 - ( h * (cellHeight / 2.0)), 0.0)
+                    self.DrawNames(i)
+                    glPopMatrix()
+                    k += (numCells - 1)
+                    continue
+                glPushMatrix()
+                glTranslatef(-cellWidth / 2.0, -cellHeight / 2.0, 0.0)
+                glTranslatef(k * (cellWidth / 2.0), 1.0 - ( h * (cellHeight / 2.0)), 0.0)
+                glScalef(cellWidth, cellHeight, 0.0)
+                self.DrawGrid()
+                glPopMatrix()
+
+                # Increas only if the variable is numerical
+                k += (numCells - 1)
+            h += (numCells - 1)
+        glColor3f(0.0, 0.0, 1.0)
+        for data in self.data:
+            for i in range(len(data)):
+                if self.variablesCategory[i] != 0:
+                    continue
+                for j in range(i + 1, len(data)):
+                    if self.variablesCategory[j] != 0:
+                        continue
+                    glPushMatrix()
+                    # glTranslatef(-cellWidth / 2.0, -cellHeight / 2.0, 0.0)
+                    # glTranslatef(k * (cellWidth / 2.0), 1.0 - ( h * (cellHeight / 2.0)), 0.0)
+                    glScalef(cellWidth, cellHeight, 0.0)
+                    # Normalize x
+                    x = Map(data[i], self.ranges[i])
+                    # Normalize y
+                    y = Map(data[j], self.ranges[j])
+                    self.DrawPoint(x, y, 0.01)
+                    glPopMatrix()
+        self.data.rewind()
 
     def DrawNames(self, i):
         """Draw the names of the variable.
