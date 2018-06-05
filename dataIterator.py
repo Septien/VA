@@ -72,7 +72,12 @@ class Data(object):
         self.File = open(self.name, 'r')
         # Get the description file
         descrfilename = self.name.split('.csv')[0] + '_descr.csv'
-        self.descrFile = open(descrfilename, 'r')
+        try:
+            self.descrFile = open(descrfilename, 'r')
+        except:
+            return False
+        else:
+            return True
 
     def connectToStream(self, address, ctype):
         """ 
