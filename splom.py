@@ -90,24 +90,6 @@ class SPLOM(sc.ScatterPlot2D):
 
         assert self.variablesCategory, "Category array not initilize"
 
-    def LoadDatabaseName(self, dbName):
-        """Load the name of the database to be displayed"""
-        assert type(dbName) is str, "Incorrect name format: " + str(type(dbName))
-
-        self.databaseName = dbName
-
-        assert self.databaseName, "Name of database not initialized"
-        assert type(self.databaseName) is str, "Incorrect database name format: " + str(type(self.databaseName))
-
-    def GetNumAxes(self):
-        """Returns the number of axes"""
-        return self.numAxis
-
-    def SetDisplace(self, x = 0.0, y = 0.0):
-        """Set the displacement in the x and y axis of the figure"""
-        self.xDisplacement = x
-        self.yDisplacement = y
-
     def OnDraw(self):
         """Draw"""
         glClear(GL_COLOR_BUFFER_BIT)
