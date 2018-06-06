@@ -238,7 +238,7 @@ class HistogramPlot(oglC.OGLCanvas):
             thirdQ = self.data[up - 1] + ( 3 * ( self.data[up] - self.data[up - 1]) / 4.0 )
         # Compute IQR
         IQR = thirdQ - firstQ
-        numB = int(2 * IQR * m.pow(n, -1/3))
+        numB = int(2 * IQR * m.pow(n, -1/3)) + 1
         self.SetNumBins(numB)
 
         assert self.numBins > 0, "Bins not set"
@@ -276,7 +276,7 @@ class HistogramPlot(oglC.OGLCanvas):
 
     def getMaxBins(self):
         """ Return the maximum number of bins """
-        return self.numBins + 10
+        return 50
 
     def setAxis(self, axis):
         """ Set the axis name to analize """
@@ -354,7 +354,7 @@ class HistogramPlot(oglC.OGLCanvas):
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
 
         # Draw the name of the variable
-        label = self.axis + ' (' + self.unit + ')'
+        label = self.axis
         length = GetLabelWidth(label)
         length /= self.size.width
         glRasterPos2f(0.5 - length, 1.05)
@@ -373,6 +373,10 @@ class HistogramPlot(oglC.OGLCanvas):
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
             i += 1
         
+        label = self.unit
+        glRasterPos2f(1.06, 0.0)
+        for c in label:
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
 
 #------------------------------------------------------------------------------------------------------------------
