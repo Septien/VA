@@ -6,7 +6,6 @@ corresponds to one dimension, and each cell displays two dimensions.
 """
 
 import wx
-import wx.lib.scrolledpanel as scp
 
 import scatterplot_2D as sc
 
@@ -55,9 +54,6 @@ class SPLOM(sc.ScatterPlot2D):
 
         self.data = newData
         self.numAxis = newData.dataLength()
-
-        # Init scroll bar
-        # if self.numAxis > 
 
         assert self.data, "Data is empty"
         assert self.numAxis > 0, "Number of dimensions must greater than zero"
@@ -113,17 +109,21 @@ class SPLOM(sc.ScatterPlot2D):
         glClear(GL_COLOR_BUFFER_BIT)
         if not self.data:
             return
-        
-        glPushMatrix()
+        # Change the viewport size in function of the number of numerical variables
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
         numCells = self.numericVariables
         cellWidth = 1.0/numCells
         cellHeight = 1.0/numCells
-        glScalef(((self.numericVariables - 3) * cellWidth), ((self.numericVariables - 3) * cellHeight), 0.0)
+        h = (numCells / 2.0) * (numCells - 1) * cellWidth
+        k = (numCells / 2.0) * (numCells - 1) * cellHeight
+        glOrtho(-0.01, h, -k / 2.0, 1.01, 1.0, 10.0)
+
+        glMatrixMode(GL_MODELVIEW)
         self.DrawSCPM()
-        glPopMatrix()
-        
+
         self.SwapBuffers()
-        
+
     def DrawSCPM(self):
         """Draws the matrix of plots"""
         # The screen will be divided in cells, each one containing a scatterplot. All
@@ -165,11 +165,9 @@ class SPLOM(sc.ScatterPlot2D):
                 self.DrawGrid()
                 self.DrawPoints(0.01)
                 glPopMatrix()
-                
                 # Increas only if the variable is numerical
                 k += (numCells - 1)
             h += (numCells - 1)
-
 
     def DrawNames(self, i):
         """Draw the names of the variable.
@@ -201,10 +199,10 @@ class SPLOM(sc.ScatterPlot2D):
 
 #----------------------------------------------------------------------------------------------
 
-class SPLOMWidget(scp.ScrolledPanel):
+class SPLOMWidget(wx.Panel):
     """ Widget for the scatterplot matrix """
     def __init__(self, parent):
-        super(SPLOMWidget, self).__init__(parent, -1, style=wx.RAISED_BORDER, size=(500, 400))
+        super(SPLOMWidget, self).__init__(parent, -1, style=wx.RAISED_BORDER)
 
         self.data = None
         self.labels = None
@@ -224,7 +222,6 @@ class SPLOMWidget(scp.ScrolledPanel):
         self.category = category
         self.initSPLOM()
         self.groupCtrls()
-        self.SetupScrolling()
 
     def initSPLOM(self):
         """ Initialize the SPLOM """        
