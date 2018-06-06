@@ -115,7 +115,10 @@ class SPLOM(sc.ScatterPlot2D):
             return
         
         glPushMatrix()
-        glTranslatef(self.xDisplacement, self.yDisplacement, 0.0)
+        numCells = self.numericVariables
+        cellWidth = 1.0/numCells
+        cellHeight = 1.0/numCells
+        glScalef(((self.numericVariables - 3) * cellWidth), ((self.numericVariables - 3) * cellHeight), 0.0)
         self.DrawSCPM()
         glPopMatrix()
         
