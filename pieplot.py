@@ -222,9 +222,14 @@ class PiePlot(oglC.OGLCanvas):
             return length
 
         # Draw the value variables
-        lenght = GetLabelWidth(label)
+        length = GetLabelWidth(label)
         x = radious * m.cos(m.radians(angle))
         y = radious * m.sin(m.radians(angle))
+        print(label, angle, x, y)
+        if 90 <= angle <= 200:
+            y += 0.2
+        if y >= 1.3:
+            y = 1.2
         glRasterPos2f(x, y)
         for c in label:
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
