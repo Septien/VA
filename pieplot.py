@@ -47,7 +47,7 @@ class PiePlot(oglC.OGLCanvas):
         #
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-0.1, 1.35, -0.1, 1.35, 1.0, 10.0)
+        glOrtho(-0.1, 1.35, -0.1, 1.4, 1.0, 10.0)
         #
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
