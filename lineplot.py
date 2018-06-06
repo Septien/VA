@@ -85,8 +85,12 @@ class LinePlot(oglC.OGLCanvas):
     def OnDraw(self):
         glClear(GL_COLOR_BUFFER_BIT)
 
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(-0.2, self.length, -0.2, 1.1, 1.0, 10.0)
+        # glScalef(1.0 / (self.numClass * self.classWidth), 1, 0)
+        glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
-        glScalef(1.0 / (self.numClass * self.classWidth), 1, 0)
         self.DrawGrid()
         self.DrawPoints()
         self.drawLabels()
@@ -96,15 +100,6 @@ class LinePlot(oglC.OGLCanvas):
         self.SwapBuffers()
 
     def DrawGrid(self):
-        # Face
-        # glPolygonMode(GL_FRONT, GL_FILL)
-        # glColor(1.0, 1.0, 1.0, 1.0)
-        # glBegin(GL_TRIANGLE_STRIP)
-        # glVertex3fv(self.face[0])
-        # glVertex3fv(self.face[1])
-        # glVertex3fv(self.face[2])
-        # glVertex3fv(self.face[3])
-        # glEnd()
         # Grid
         glColor(0.0, 0.0, 0.0, 1.0)
         glPushAttrib(GL_ENABLE_BIT)
