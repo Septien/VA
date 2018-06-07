@@ -43,9 +43,7 @@ class mainGUI(wx.Frame):
         self.units = None
         self.timer = None
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
-        # For the scatterplot and pieplot
-        self.sizer1 = wx.BoxSizer(wx.HORIZONTAL)
-        
+
         #https://stackoverflow.com/questions/30797443/add-a-vertical-scrollbar-to-a-wxframe-accross-multiple-wxpanels
         # Create a scrolled panel
         self.panel = scp.ScrolledPanel(self, -1, style=wx.SIMPLE_BORDER, size=(400, 200))
@@ -75,9 +73,8 @@ class mainGUI(wx.Frame):
         self.mainSizer.Add(self.splom, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
         self.mainSizer.Add(self.lp, 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 10)
         self.mainSizer.Add(self.hist, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 10)
-        self.sizer1.Add(self.pp, 0, wx.LEFT | wx.EXPAND | wx.ALL, 5)
-        self.sizer1.Add(self.scp, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
-        self.mainSizer.Add(self.sizer1, 0, wx.ALIGN_CENTER)
+        self.mainSizer.Add(self.pp, 0, wx.LEFT | wx.EXPAND | wx.ALL, 5)
+        self.mainSizer.Add(self.scp, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
         self.mainSizer.Add(self.gg, 0, wx.ALIGN_LEFT)
         self.mainSizer.Add(self.osc, 0, wx.ALIGN_LEFT)
 
@@ -86,9 +83,8 @@ class mainGUI(wx.Frame):
         self.mainSizer.Show(self.splom, False)
         self.mainSizer.Show(self.lp, False)
         self.mainSizer.Show(self.hist, False)
-        self.sizer1.Show(self.pp, False)
-        self.sizer1.Show(self.scp, False)
-        self.mainSizer.Show(self.sizer1, False)
+        self.mainSizer.Show(self.pp, False)
+        self.mainSizer.Show(self.scp, False)
         self.mainSizer.Show(self.gg, False)
         self.mainSizer.Show(self.osc, False)
 
@@ -210,7 +206,7 @@ class mainGUI(wx.Frame):
             self.hidePlots()
         self.data = dI.Data(2)
         self.data.connectToStream(('', 8080), 0)
-        self.labels, self.category, self.description = self.data.getDBDescription()
+        self.labels, self.category, self.description, self.units = self.data.getDBDescription()
         self.selectedDB = True
         self.streamSelected = True
         # Set timer for constant checking of new incoming values on the stream
@@ -223,7 +219,9 @@ class mainGUI(wx.Frame):
         if self.mainSizer.IsShown(self.gg) or self.mainSizer.IsShown(self.osc):
             try:
                 d = next(self.data)
-            except:
+            except StopIteration:
+                return
+            except TypeError:
                 return
         if self.mainSizer.IsShown(self.gg):
             self.gg.Next(d[0])
@@ -259,15 +257,12 @@ class mainGUI(wx.Frame):
             self.mainSizer.Show(self.hist, False)
             self.hist.close()
         
-        if self.sizer1.IsShown(self.pp):
-            self.sizer1.Show(self.pp, False)
+        if self.mainSizer.IsShown(self.pp):
+            self.mainSizer.Show(self.pp, False)
             self.pp.close()
         
-        if self.mainSizer.IsShown(self.sizer1):
-            self.mainSizer.Show(self.sizer1, False)
-
-        if self.sizer1.IsShown(self.scp):
-            self.sizer1.Show(self.scp, False)
+        if self.mainSizer.IsShown(self.scp):
+            self.mainSizer.Show(self.scp, False)
             self.scp.close()
 
     def fitLayout(self):
@@ -366,15 +361,13 @@ class mainGUI(wx.Frame):
         if not self.SelectedDB():
             return
 
-        if self.sizer1.IsShown(self.pp):
+        if self.mainSizer.IsShown(self.pp):
             self.pp.close()
         # Request the axis to draw
         axis = self.GetSelectedAxis(self.labels, title="Axes", text="Select an axis")
         if axis > -1:
-            if not self.mainSizer.IsShown(self.sizer1):
-                self.mainSizer.Show(self.sizer1, True)
             self.pp.create(self.data, self.labels, axis, self.category, self.description, self.units)
-            self.sizer1.Show(self.pp, True)
+            self.mainSizer.Show(self.pp, True)
             # Force layout update
             self.fitLayout()
 
@@ -423,9 +416,7 @@ class mainGUI(wx.Frame):
         """ When the scatterplot is selected """
         if not self.SelectedDB():
             return
-        if self.sizer1.IsShown(self.scp):
-            return
-
+        
         # Let the user select only the numerical variables
         choices = []
         for i in range(len(self.labels)):
@@ -449,10 +440,8 @@ class mainGUI(wx.Frame):
                             index1 = i
                         if axis2 == self.labels[i]:
                             index2 = i
-                    if not self.mainSizer.IsShown(self.sizer1):
-                        self.mainSizer.Show(self.sizer1, True)
                     self.scp.create(self.data, self.labels, self.category, index1, index2, self.units)
-                    self.sizer1.Show(self.scp, True)
+                    self.mainSizer.Show(self.scp, True)
                     # Force layout update
                     self.fitLayout()
                     break
@@ -461,8 +450,7 @@ class mainGUI(wx.Frame):
 
     def __del__(self):
         """ Destructor """
-        if self.data:
-            self.data.close()
+        return
 
 #---------------------------------------------------------------------------------------------
 
