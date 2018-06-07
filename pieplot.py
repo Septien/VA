@@ -30,6 +30,7 @@ class PiePlot(oglC.OGLCanvas):
         super(PiePlot, self).__init__(parent)
         # Relative frequency
         self.frequencies = {}
+        self.relFrequencies = []
         self.data = None
         self.axis = -1
         # Labels corresponding to the ith frequency
@@ -40,6 +41,8 @@ class PiePlot(oglC.OGLCanvas):
         self.name = []
         self.value = []
         self.unit = ''
+        self.nonDrawn = []
+        self.N = 0
 
     def InitGL(self):
         glClearColor(1.0, 1.0, 1.0, 1)
@@ -67,15 +70,26 @@ class PiePlot(oglC.OGLCanvas):
         """
         # Get the frequencies ordered
         import operator
-        sortedFrequencies = sorted(self.frequencies.items(), key=operator.itemgetter(1))
-        r.seed()
+        maxClass = 10
+        total = 0
+        frequencies = []
+        sortedFrequencies = sorted(self.frequencies.items(), key=operator.itemgetter(1), reverse=True)
+        n = len(sortedFrequencies)
+        if n > 10:
+            for i in range(maxClass):
+                frequencies.append(sortedFrequencies[i])
+                total += sortedFrequencies[i][1]
+        else:
+            total = self.N
+            frequencies = sortedFrequencies
+        frequencies.reverse()
         glPushMatrix()
         glTranslatef(0.5, 0.5, 0.0)
         glScalef(0.45, 0.45, 0.0)
         startAngle = 0.0
         i = 0
-        for freq in sortedFrequencies:
-            arcAngle = 360.0 * freq[1]
+        for freq in frequencies:
+            arcAngle = 360.0 * (freq[1] / total)
             glColor3f(0.0, 0.0, 0.0)
             labelAngle = (arcAngle / 2.0) + startAngle
             radious = 1.2
@@ -174,10 +188,14 @@ class PiePlot(oglC.OGLCanvas):
         """ Set the unit of the axis """
         self.unit = unit
 
+    def getNonDrawnClasses(self):
+        """ Return the data of the clases not drawn on the graph """
+        return self.nonDrawn
+
     def computeFrequencies(self, draw):
         """ Compute the relative frequencies of the data """
         if not (self.data and self.labels):
-        	return
+            return
 
         # Clear any previous values
         self.frequencies.clear()
@@ -186,21 +204,35 @@ class PiePlot(oglC.OGLCanvas):
         self.data.rewind()
         # Compute absolute frequencies
         for d in datum:
-        	self.frequencies[d] = self.frequencies.get(d, 0) + 1
+            self.frequencies[d] = self.frequencies.get(d, 0) + 1
         # Get the total number of elements
-        N = len(datum)
-
+        self.N = len(datum)
         # Compute relative frequencies
-        for f in self.frequencies:
-            self.frequencies[f] /= N
+        self.relFrequencies = self.frequencies.copy()
+        for f in self.relFrequencies:
+            self.relFrequencies[f] /= self.N
 
         # Compute colors
-        for i in range(N):
+        for i in range(self.N):
             self.colors.append([r.random(), r.random(), r.random()])
-		
+
+        import operator
+        sortedFrequencies = sorted(self.frequencies.items(), key=operator.itemgetter(1), reverse=True)
+        n = len(sortedFrequencies)
+        maxClass = 10
+        self.nonDrawn = []
+        if n > 10:
+            for i in range(maxClass, n):
+                self.nonDrawn.append(sortedFrequencies[i])
+        else:
+            total = self.N
+            frequencies = sortedFrequencies
+
         # Set drawing event if required
         if draw:
             wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+
+        return self.nonDrawn
 
     def drawLabels(self, angle, label, radious, freq):
         """ Draw the labels of the pieplot.
@@ -225,7 +257,6 @@ class PiePlot(oglC.OGLCanvas):
         length = GetLabelWidth(label)
         x = radious * m.cos(m.radians(angle))
         y = radious * m.sin(m.radians(angle))
-        print(label, angle, x, y)
         if 90 <= angle <= 200:
             y += 0.2
         if y >= 1.3:
@@ -235,7 +266,7 @@ class PiePlot(oglC.OGLCanvas):
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
         height = glutBitmapHeight(GLUT_BITMAP_HELVETICA_18)
         height /= self.size.height
-        label = '{:.2f}%'.format(100*freq)
+        label = '{:d}'.format(freq)
         glRasterPos2f(x, y - (2 * height))
         for c in label:
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
@@ -247,7 +278,7 @@ class PiePlot(oglC.OGLCanvas):
             label = self.labels[self.axis]
         length = GetLabelWidth(label)
         length /= self.size.width
-        glRasterPos2f(-length, 1.3)
+        glRasterPos2f(-length, 1.35)
         for c in label:
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
@@ -273,6 +304,9 @@ class PPWidget(wx.Panel):
         self.category = None
         self.description = None
         self.units = None
+        self.nonDrawn = None
+        self.axis = -1
+        self.lvData = None
 
         self.pp = PiePlot(self)
         self.pp.SetMinSize((400, 400))
@@ -288,8 +322,9 @@ class PPWidget(wx.Panel):
         self.category = category
         self.description = description
         self.units = units
-        self.initPiePlot(axis)
+        self.axis = axis
         self.initCtrls()
+        self.initPiePlot(axis)
         self.groupCtrls()
 
     def initPiePlot(self, axis):
@@ -309,7 +344,21 @@ class PPWidget(wx.Panel):
 
         self.pp.setDescription(values, names)
         self.pp.setAxis(axis)
-        self.pp.computeFrequencies(False)
+        self.nonDrawn = self.pp.computeFrequencies(False)
+        if self.nonDrawn:
+            self.initListView()
+
+    def initListView(self):
+        """ Initialize the list view for displaying the missing data """
+        self.lvData.InsertColumn(0, self.labels[self.axis])
+        self.lvData.InsertColumn(1, "Number of elements")
+        self.lvData.SetColumnWidth(0, wx.LIST_AUTOSIZE_USEHEADER)
+        self.lvData.SetColumnWidth(1, wx.LIST_AUTOSIZE_USEHEADER)
+        i = 0
+        for data in self.nonDrawn:
+            pos = self.lvData.InsertItem(i, str(data[0]))
+            self.lvData.SetItem(pos, 1, str(data[1]))
+            i += 1
 
     def initCtrls(self):
         axes = []
@@ -317,6 +366,7 @@ class PPWidget(wx.Panel):
             axes.append(Axes(i, self.labels[i]))
 
         self.cb = wx.ComboBox(self, size=wx.DefaultSize, choices=[])
+        self.lvData = wx.ListCtrl(self, -1, style=wx.LC_REPORT)
 
         # Fill the cb
         for axis in axes:
@@ -328,35 +378,49 @@ class PPWidget(wx.Panel):
     def groupCtrls(self):
         label = wx.StaticText(self, -1, "Change axis:")
 
-        sizer1 = wx.BoxSizer(wx.VERTICAL)
-        sizer1.Add(label, 0, wx.ALIGN_CENTER_HORIZONTAL)
-        sizer1.Add(self.cb, 0, wx.ALIGN_CENTER_HORIZONTAL)
+        self.sizer1 = wx.BoxSizer(wx.VERTICAL)
+        self.sizer1.Add(label, 0, wx.ALIGN_CENTER_HORIZONTAL)
+        self.sizer1.Add(self.cb, 0, wx.ALIGN_CENTER_HORIZONTAL)
+        self.sizer1.Add(self.lvData, wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_CENTER_HORIZONTAL | wx.EXPAND | wx.ALL, 5)
+        if self.nonDrawn:
+            self.sizer1.Show(self.lvData, True)
+        else:
+            self.sizer1.Show(self.lvData, False)
 
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer.Add(self.pp, 0,  wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_CENTER_HORIZONTAL | wx.SHAPED | wx.ALL, 5)
-        self.sizer.Add(sizer1, 0, wx.ALIGN_LEFT)
+        self.sizer.Add(self.sizer1, 0, wx.ALIGN_LEFT)
 
         self.SetSizer(self.sizer)
 
     def OnCBChange(self, event):
         """ Handle the events for the combo box """
         cbSelection = self.cb.GetClientData(self.cb.GetSelection())
-        axis = cbSelection.axisNumber
-        self.pp.setAxis(axis)
-        self.pp.setCategory(self.category[axis])
-        self.pp.setUnit(self.units[axis])
+        self.axis = cbSelection.axisNumber
+        self.pp.setAxis(self.axis)
+        self.pp.setCategory(self.category[self.axis])
+        self.pp.setUnit(self.units[self.axis])
         values = []
         names = []
 
         for row in self.description:
-            if row[axis] == '':
+            if row[self.axis] == '':
                 break
-            value, name = row[axis].split('=')
+            value, name = row[self.axis].split('=')
             values.append(int(value))
             names.append(name)
 
         self.pp.setDescription(values, names)
-        self.pp.computeFrequencies(True)
+        self.nonDrawn = self.pp.computeFrequencies(True)
+        if self.nonDrawn:
+            # https://stackoverflow.com/questions/46818112/how-to-delete-items-on-wx-listctrl-from-another-frame
+            self.lvData.DeleteAllItems()
+            self.lvData.DeleteAllColumns()
+            self.initListView()
+            self.sizer1.Show(self.lvData, True)
+        else:
+            self.sizer1.Show(self.lvData, False)
+
 
     def close(self):
         """ Close all the controls """
