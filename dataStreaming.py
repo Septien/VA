@@ -152,10 +152,8 @@ class Streaming:
     def close(self):
         """ Close all pertinent sockets """
         if self.clientSock:
-            self.clientSock.shutdown(0)
             self.clientSock.close()
         if self.servSock:
-            self.servSock.shutdown(0)
             self.servSock.close()
 
 class StreamingThread(threading.Thread):
@@ -185,7 +183,6 @@ class StreamingThread(threading.Thread):
             self.exitQL.acquire()
             if not self.exitQ.empty():
                 r = self.exitQ.get()
-                self.exitQ.put(1)
                 # If q is not empty, finish thread
                 self.exitQL.release()
                 break
@@ -200,14 +197,14 @@ class StreamingThread(threading.Thread):
                 self.exitQL.acquire()
                 self.exitQ.put(runE)
                 self.exitQL.release()
-                break
+                return
             except TypeError as tE:
                 self.exitQL.acquire()
                 # self.exitQ.put(tE)
                 if not self.exitQ.empty():
                     # If main thread ask to finish, end thread
                     self.exitQL.release()
-                    break
+                    return
                 self.exitQL.release()
                 # Keep listening
                 continue
