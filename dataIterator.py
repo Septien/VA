@@ -263,6 +263,8 @@ class Data(object):
         elif self.sourceFlag == 2:
             data = []
             i = 0
+            if self.connectionClosed:
+                raise TypeError("Connection closed")
             while i < 10:
                 if self.exitQLock.acquire(blocking=False):
                     # Check if there are some errors:
@@ -285,6 +287,8 @@ class Data(object):
                     data = self.workQueue.get()
                     self.workQLock.release()
                     break
+                if self.connectionClosed:
+                    raise StopIteration()
                 # self.workQLock.release()
             if data == []:
                 raise StopIteration()
