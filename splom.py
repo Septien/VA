@@ -191,13 +191,13 @@ class SPLOMWidget(wx.Panel):
         self.category = None
 
         self.splom = SPLOM(self)
-        self.splom.SetMinSize((500, 400))
+        self.splom.SetMinSize((500, 500))
 
     def create(self, data, labels, category):
         """ Create the graph """
         if not self.splom:
             self.splom = SPLOM(self)
-            self.splom.SetMinSize((500, 400))
+            self.splom.SetMinSize((500, 500))
 
         self.data = data
         self.labels = labels
@@ -213,7 +213,7 @@ class SPLOMWidget(wx.Panel):
 
     def groupCtrls(self):
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.sizer.Add(self.splom, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.ALL, 5)
+        self.sizer.Add(self.splom, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
         self.SetSizer(self.sizer)
 
     def close(self):

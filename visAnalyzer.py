@@ -69,12 +69,12 @@ class mainGUI(wx.Frame):
         self.gg = gg.GaugeWidget(self.panel)
         self.osc = op.OsciloscopeWidget(self.panel)
 
-        self.mainSizer.Add(self.pc, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
-        self.mainSizer.Add(self.splom, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
-        self.mainSizer.Add(self.lp, 0, wx.EXPAND | wx.ALIGN_CENTER | wx.ALL, 10)
-        self.mainSizer.Add(self.hist, 0, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 10)
-        self.mainSizer.Add(self.pp, 0, wx.LEFT | wx.EXPAND | wx.ALL, 5)
-        self.mainSizer.Add(self.scp, 0, wx.LEFT | wx.SHAPED | wx.ALL, 5)
+        self.mainSizer.Add(self.pc, 0, wx.ALIGN_CENTER | wx.EXPAND)
+        self.mainSizer.Add(self.splom, 0, wx.ALIGN_CENTER | wx.SHAPED)
+        self.mainSizer.Add(self.lp, 0, wx.EXPAND | wx.ALIGN_CENTER)
+        self.mainSizer.Add(self.hist, 0, wx.ALIGN_CENTER | wx.EXPAND)
+        self.mainSizer.Add(self.pp, 0, wx.ALIGN_CENTER | wx.EXPAND)
+        self.mainSizer.Add(self.scp, 0, wx.ALIGN_CENTER | wx.SHAPED)
         self.mainSizer.Add(self.gg, 0, wx.ALIGN_LEFT)
         self.mainSizer.Add(self.osc, 0, wx.ALIGN_LEFT)
 
