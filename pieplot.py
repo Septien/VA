@@ -103,7 +103,7 @@ class PiePlot(oglC.OGLCanvas):
                         label = self.name[k]
                         break
                     k += 1
-            self.drawLabels(labelAngle, label, radious, freq[1])
+            self.drawLabels(labelAngle, label, radious, freq[1] / self.N)
             glPopMatrix()
             glColor3fv(self.colors[i])
             self.DrawFilledArc(0, 0, 1, startAngle, arcAngle)
@@ -222,7 +222,7 @@ class PiePlot(oglC.OGLCanvas):
         maxClass = 10
         self.nonDrawn = []
         if n > 10:
-            for i in range(maxClass, n):
+            for i in range(n):
                 self.nonDrawn.append(sortedFrequencies[i])
         else:
             total = self.N
@@ -232,7 +232,7 @@ class PiePlot(oglC.OGLCanvas):
         if draw:
             wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
-        return self.nonDrawn
+        return self.nonDrawn, self.N, self.colors[:10]  # The first 10 colors
 
     def drawLabels(self, angle, label, radious, freq):
         """ Draw the labels of the pieplot.
@@ -266,7 +266,7 @@ class PiePlot(oglC.OGLCanvas):
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
         height = glutBitmapHeight(GLUT_BITMAP_HELVETICA_18)
         height /= self.size.height
-        label = '{:d}'.format(freq)
+        label = '{:.1f}%'.format(freq*100)
         glRasterPos2f(x, y - (2 * height))
         for c in label:
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
@@ -307,6 +307,8 @@ class PPWidget(wx.Panel):
         self.nonDrawn = None
         self.axis = -1
         self.lvData = None
+        self.colors = []
+        self.N = 0
 
         self.pp = PiePlot(self)
         self.pp.SetMinSize((400, 400))
@@ -344,7 +346,7 @@ class PPWidget(wx.Panel):
 
         self.pp.setDescription(values, names)
         self.pp.setAxis(axis)
-        self.nonDrawn = self.pp.computeFrequencies(False)
+        self.nonDrawn, self.N, self.colors = self.pp.computeFrequencies(False)
         if self.nonDrawn:
             self.initListView()
 
@@ -352,12 +354,18 @@ class PPWidget(wx.Panel):
         """ Initialize the list view for displaying the missing data """
         self.lvData.InsertColumn(0, self.labels[self.axis])
         self.lvData.InsertColumn(1, "Number of elements")
+        self.lvData.InsertColumn(2, "frequency")
         self.lvData.SetColumnWidth(0, wx.LIST_AUTOSIZE_USEHEADER)
         self.lvData.SetColumnWidth(1, wx.LIST_AUTOSIZE_USEHEADER)
         i = 0
+        n = len(self.nonDrawn)
         for data in self.nonDrawn:
             pos = self.lvData.InsertItem(i, str(data[0]))
             self.lvData.SetItem(pos, 1, str(data[1]))
+            f = '{:.1f}%'.format((data[1] / self.N) * 100)
+            self.lvData.SetItem(pos, 2, f)
+            if i < 10:
+                self.lvData.SetItemBackgroundColour(pos, wx.Colour(self.colors[-1-i][0] * 255, self.colors[-1-i][1] * 255, self.colors[-1-i][2] * 255))
             i += 1
 
     def initCtrls(self):
@@ -382,16 +390,17 @@ class PPWidget(wx.Panel):
         self.sizer1.Add(label, 0, wx.ALIGN_CENTER_HORIZONTAL)
         self.sizer1.Add(self.cb, 0, wx.ALIGN_CENTER_HORIZONTAL)
         self.sizer1.Add(self.lvData, wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_CENTER_HORIZONTAL | wx.EXPAND | wx.ALL, 5)
-        if self.nonDrawn:
-            self.sizer1.Show(self.lvData, True)
-        else:
-            self.sizer1.Show(self.lvData, False)
 
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.sizer.Add(self.pp, 0,  wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_CENTER_HORIZONTAL | wx.SHAPED | wx.ALL, 5)
         self.sizer.Add(self.sizer1, 0, wx.ALIGN_LEFT)
 
         self.SetSizer(self.sizer)
+        # if self.nonDrawn:
+        #     self.sizer1.Show(self.lvData, True)
+        # else:
+            # self.sizer1.Show(self.lvData, False)
+
 
     def OnCBChange(self, event):
         """ Handle the events for the combo box """
@@ -411,7 +420,7 @@ class PPWidget(wx.Panel):
             names.append(name)
 
         self.pp.setDescription(values, names)
-        self.nonDrawn = self.pp.computeFrequencies(True)
+        self.nonDrawn, self.N, self.colors = self.pp.computeFrequencies(True)
         if self.nonDrawn:
             # https://stackoverflow.com/questions/46818112/how-to-delete-items-on-wx-listctrl-from-another-frame
             self.lvData.DeleteAllItems()
