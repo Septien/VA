@@ -99,7 +99,7 @@ class SPLOM(sc.ScatterPlot2D):
         cellHeight = 1.0/numCells
         h = (numCells / 2.0) * (numCells - 1) * cellWidth
         k = (numCells / 2.0) * (numCells - 1) * cellHeight
-        glOrtho(-0.01, h, -k / 2.0, 1.01, 1.0, 10.0)
+        glOrtho(-0.15, h, (-k / 2.0), 1.15, 1.0, 10.0)
 
         glMatrixMode(GL_MODELVIEW)
         self.DrawSCPM()
@@ -146,6 +146,12 @@ class SPLOM(sc.ScatterPlot2D):
                 glScalef(cellWidth, cellHeight, 0.0)
                 self.DrawGrid()
                 self.DrawPoints(0.01)
+                if i == 0:
+                    glTranslatef(0.0, 1.1, 0.0)
+                    self.DrawRange(self.range[1], 1)
+                if j == 0:
+                    glTranslatef(-0.6, 0.0, 0.0)
+                    self.DrawRange(self.range[0], 0)
                 glPopMatrix()
                 # Increas only if the variable is numerical
                 k += (numCells - 1)
@@ -178,6 +184,37 @@ class SPLOM(sc.ScatterPlot2D):
         glRasterPos2f(0.0, 0.0)
         for c in label:
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
+
+#    def DrawRanges(self, Range, orientation):
+
+    def DrawRange(self, Range, orientation):
+        """ Draw the values of each axes. 
+                -Range: the range of the variable.
+                -Orientation: 0 -> Vertical, 1 -> horizontal.
+        """
+        def lerp(a, b, t):
+            """For interpolating between the range [a, b], according to the formula:
+            value = (1 - t) * a + t * b, for t in [0, 1]"""
+            assert 0.0 <= t <= 1.0
+            value = (1 - t) * a + t * b
+
+            assert a <= value <= b, "Out of range"
+            return value
+        
+        # Number of values to draw.
+        divisions = 3
+        # Horizontal
+        glColor3f(0.0, 0.0, 0.0)
+        for i in range(divisions):
+            value = lerp(Range[0], Range[1], i / divisions)
+            strValue = '{:.1f}'.format(value)
+            if orientation == 0:
+                glRasterPos2f(0.0, 0.5 * i)
+            elif orientation == 1:
+                glRasterPos2f(0.5 * i, 0.0)
+            for c in strValue:
+                glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10, ord(c))
+
 
 #----------------------------------------------------------------------------------------------
 
