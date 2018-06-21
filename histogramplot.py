@@ -364,7 +364,7 @@ class HistogramPlot(oglC.OGLCanvas):
         # Draw the y-axis label
         label = 'Frequencies'
         length = len(label)
-        fontHeight = glutBitmapHeight(GLUT_BITMAP_HELVETICA_18)
+        fontHeight = 18#glutBitmapHeight(GLUT_BITMAP_HELVETICA_18)
         fontHeight /= self.size.height
         i = 0
         start = 1.0#0.5 + ((fontHeight * length) / 2.0)

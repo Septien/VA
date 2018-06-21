@@ -264,7 +264,7 @@ class PiePlot(oglC.OGLCanvas):
         glRasterPos2f(x, y)
         for c in label:
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
-        height = glutBitmapHeight(GLUT_BITMAP_HELVETICA_18)
+        height = 25 #glutBitmapHeight(GLUT_BITMAP_HELVETICA_18)
         height /= self.size.height
         label = '{:.1f}%'.format(freq*100)
         glRasterPos2f(x, y - (2 * height))

@@ -243,7 +243,8 @@ class LinePlot(oglC.OGLCanvas):
 
         label = 'Number of elements'
         length = len(label)
-        fontHeight = glutBitmapHeight(GLUT_BITMAP_HELVETICA_18) / self.size.height
+        fontHeight = 18 #glutBitmapHeight(GLUT_BITMAP_HELVETICA_18) / self.size.height
+        fontHeight /= self.size.height
         start = 0.5 + ((fontHeight * length) / 2.0)
         i = 0
         for c in label:

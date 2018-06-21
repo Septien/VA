@@ -345,7 +345,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
             glutBitmapCharacter(font, ord(c))
         # For the second axis
         length = len(self.axis2Name)
-        fontHeight = glutBitmapHeight(GLUT_BITMAP_HELVETICA_18)
+        fontHeight = 18#glutBitmapHeight(GLUT_BITMAP_HELVETICA_18)
         # Normalize to [0, 1] range
         fontHeight /= self.size.height
         i = 0
