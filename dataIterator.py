@@ -249,13 +249,15 @@ class Data(object):
             
                 row = line.split(',')
                 for r in row:
-                    if r != '?':
-                        data.append(float(r))
-                    else:
+                    try:
+                        float(r)
+                    except ValueError:
                         # Incomplete data, dismiss row
                         data.clear()
                         noisy = True
                         break
+                    else:
+                        data.append(float(r))
                 # Read next row
                 if not noisy:
                     break
