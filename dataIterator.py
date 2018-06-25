@@ -26,6 +26,8 @@ class Data(object):
         self.descrFile = None
         self.data = None
         self.name = None
+        self.filterRange = None
+        self.filterAxis = -1
         # For the streaming
         self.stream = None
         self.exitQ = None
@@ -149,6 +151,29 @@ class Data(object):
                 # Type
                 category.append(isNumeric(variable[1]))
 
+            # Get the description of the variables, from the descr table
+            sqlcmd = "SELECT * FROM descr"
+            self.dbCursor.execute(sqlcmd)
+            table = self.dbCursor.fetchall_unbuffered()
+            # Get the units of the numerical variables
+            line = next(table)
+            i = 0
+            row = []
+            for r in line:
+                if category[i] == 0:
+                    units.append(r)
+                    row.append('')
+                else:
+                    units.append('')
+                    row.append(r)
+                i += 1
+            description.append(row)
+            for line in table:
+                row = []
+                for r in line:
+                    row.append(r)
+                description.append(row.copy())
+
         # If the source is a csv.
         elif self.sourceFlag == 1:
             # Get the variables name from the description file
@@ -203,22 +228,24 @@ class Data(object):
         data = None
         if self.sourceFlag == 0:
             # For a db
-            if not self.data:
-                sqlcmd = "SELECT * FROM " + self.name
-                self.dbCursor.execute(sqlcmd)
-                self.data = self.dbCursor.fetchall_unbuffered()
-            try:
-                data = []
-                ndata = next(self.data)
-                for d in ndata:
-                    data.append(float(d))
-            except StopIteration as e:
-                raise e
+            while True:
+                if not self.data:
+                    sqlcmd = "SELECT * FROM " + self.name
+                    self.dbCursor.execute(sqlcmd)
+                    self.data = self.dbCursor.fetchall_unbuffered()
+                try:
+                    data = []
+                    ndata = next(self.data)
+                    for d in ndata:
+                        data.append(float(d))
+                except StopIteration as e:
+                    raise e
+                if self.filterData(data):
+                    break
 
         elif self.sourceFlag == 1:
-            data = []
-            noisy = False
             while True:
+                data = []
                 noisy = False
                 line = self.File.readline()
                 if line == "":
@@ -235,11 +262,16 @@ class Data(object):
                         break
                 # Read next row
                 if not noisy:
-                    break
+                    if self.filterData(data):
+                        break
+                    else:
+                        continue
         
         elif self.sourceFlag == 2:
             data = []
             i = 0
+            if self.connectionClosed:
+                raise TypeError("Connection closed")
             while i < 10:
                 if self.exitQLock.acquire(blocking=False):
                     # Check if there are some errors:
@@ -262,11 +294,31 @@ class Data(object):
                     data = self.workQueue.get()
                     self.workQLock.release()
                     break
+                if self.connectionClosed:
+                    raise StopIteration()
                 # self.workQLock.release()
             if data == []:
                 raise StopIteration()
 
         return data
+
+    def setFilter(self, filterRange, filterAxis):
+        """ Set a filter for the data """
+        self.filterRange = filterRange
+        self.filterAxis = filterAxis
+
+    def removeFilter(self):
+        """ """
+        self.filterRange = None
+        self.filterAxis = -1
+
+    def filterData(self, data):
+        """ Filters the data """
+        if self.filterAxis > -1:
+            if not (self.filterRange[0] <= data[self.filterAxis] <= self.filterRange[1]):
+                return False
+        return True
+
 
     def rewind(self):
         """ Return to the first data """

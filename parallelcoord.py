@@ -232,9 +232,9 @@ class ParallelCoordinates(oglC.OGLCanvas):
             i = 0
             drawLine = True
             # Check if point is within interval, and a filter must be applied
-            if self.filterAxis > -1:        # If a filter must be applied
-                if not (self.filterRange[0] <= row[self.filterAxis] <= self.filterRange[1]): # If the variable is out of range
-                    drawLine = False
+            #if self.filterAxis > -1:        # If a filter must be applied
+             #   if not (self.filterRange[0] <= row[self.filterAxis] <= self.filterRange[1]): # If the variable is out of range
+              #      drawLine = False
             if drawLine:
                 glBegin(GL_LINE_STRIP)
                 for index in self.axesOrder:
@@ -478,6 +478,8 @@ class PCWidget(wx.Panel):
         if upper < lower:
             return
 
+        self.data.setFilter([lower, upper], self.axis)
+        #wx.PostEvent(super(PCWidget, self).GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, super(PCWidget, self).GetId()))
         # Set the range
         self.pc.setFilterAxis(self.axis)
         self.pc.setFilterRange([lower, upper])
@@ -486,7 +488,8 @@ class PCWidget(wx.Panel):
     def onResetFilterBtn(self, event):
         """ Reset all the data points """
         self.pc.resetFilter()
-        self.tbxRange.SetValue("")
+        self.data.removeFilter()
+        #self.tbxRange.SetValue("")
         self.tbxUpper.SetValue("")
         self.tbxLower.SetValue("")
 
