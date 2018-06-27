@@ -309,6 +309,8 @@ class PPWidget(wx.Panel):
         self.lvData = None
         self.colors = []
         self.N = 0
+        self.values = []
+        self.names = []
 
         self.pp = PiePlot(self)
         self.pp.SetMinSize((400, 400))
@@ -334,17 +336,17 @@ class PPWidget(wx.Panel):
         self.pp.setLabels(self.labels)
         self.pp.setCategory(self.category[axis])
         self.pp.setUnit(self.units[axis])
-        values = []
-        names = []
+        self.values = []
+        self.names = []
 
         for row in self.description:
             if row[axis] == '':
                 break
             value, name = row[axis].split('=')
-            values.append(int(value))
-            names.append(name)
+            self.values.append(int(value))
+            self.names.append(name)
 
-        self.pp.setDescription(values, names)
+        self.pp.setDescription(self.values, self.names)
         self.pp.setAxis(axis)
         self.nonDrawn, self.N, self.colors = self.pp.computeFrequencies(False)
         if self.nonDrawn:
@@ -359,8 +361,18 @@ class PPWidget(wx.Panel):
         self.lvData.SetColumnWidth(1, wx.LIST_AUTOSIZE_USEHEADER)
         i = 0
         n = len(self.nonDrawn)
+        name = ""
         for data in self.nonDrawn:
-            pos = self.lvData.InsertItem(i, str(data[0]))
+            if self.category[self.axis] == 1:
+                k = 0
+                for val in self.values:
+                    if data[0] == val:
+                        name = self.names[k]
+                        break
+                    k += 1
+            else:
+                name = str(data[0])
+            pos = self.lvData.InsertItem(i, name)
             self.lvData.SetItem(pos, 1, str(data[1]))
             f = '{:.1f}%'.format((data[1] / self.N) * 100)
             self.lvData.SetItem(pos, 2, f)
@@ -396,11 +408,6 @@ class PPWidget(wx.Panel):
         self.sizer.Add(self.sizer1, 0, wx.ALIGN_LEFT)
 
         self.SetSizer(self.sizer)
-        # if self.nonDrawn:
-        #     self.sizer1.Show(self.lvData, True)
-        # else:
-            # self.sizer1.Show(self.lvData, False)
-
 
     def OnCBChange(self, event):
         """ Handle the events for the combo box """
