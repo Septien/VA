@@ -47,12 +47,12 @@ class LinePlot(oglC.OGLCanvas):
         super(LinePlot, self).__init__(parent)
 
         # Data points
-        self.data = {}
+        self.data = []
         # Range (y-axis) and Domain (x-axis)
         self.range = []
         self.maxFreq = 0
         self.minFreq = 0
-        self.axis = 0
+        self.axes = []
         self.gridSize = 10
         self.name = ""
         self.unit = ""
@@ -134,46 +134,49 @@ class LinePlot(oglC.OGLCanvas):
 
         glColor(0.0, 0.4, 0.6)
         glLineWidth(2)
-        glBegin(GL_LINE_STRIP)
-        # Iterate over all elements of the dictionary
-        i = 0
-        self.classWidth = 0.1
-        for d in self.sortedData:
-            # x = Map(d[0], self.range)
-            y = d[1]
-            glVertex3f(i * self.classWidth, y, 0.0)
-            i += 1
-        glEnd()
+        for data in self.data:
+            # Get the ordered sequence of values
+            self.sortedData = sorted(data.items(), key=operator.itemgetter(0))
+            glBegin(GL_LINE_STRIP)
+            # Iterate over all elements of the dictionary
+            i = 0
+            self.classWidth = 0.1
+            for d in self.sortedData:
+                # x = Map(d[0], self.range)
+                y = d[1]
+                glVertex3f(i * self.classWidth, y, 0.0)
+                i += 1
+            glEnd()
 
-    def setData(self, ndata):
+    def setData(self, ndata, axis):
         """ Set the data of the line plot. data is an array containing the 
         values of the axis on which the frequencies are calculated.
             -ndata: The new data.
         """
         assert type(ndata) is list, "Incorrect input type"
         
-        self.data.clear()
         data = sorted(ndata)
         # Compute the frequencies
+        dataFreq = {}
         for d in data:
-            self.data[d] = self.data.get(d, 0) + 1
+            dataFreq[d] = dataFreq.get(d, 0) + 1
 
         # Get the max value
-        self.maxFreq = self.data[ndata[0]]
-        self.minFreq = self.data[ndata[0]]
-        for d in self.data:
-            if self.data[d] > self.maxFreq:
-                self.maxFreq = self.data[d]
-            if self.data[d] < self.minFreq:
-                self.minFreq = self.data[d]
+        self.maxFreq = dataFreq[ndata[0]]
+        self.minFreq = dataFreq[ndata[0]]
+        for d in dataFreq:
+            if dataFreq[d] > self.maxFreq:
+                self.maxFreq = dataFreq[d]
+            if dataFreq[d] < self.minFreq:
+                self.minFreq = dataFreq[d]
         # Normalize the frequencies
-        for d in self.data:
-            self.data[d] /= self.maxFreq
+        for d in dataFreq:
+            dataFreq[d] /= self.maxFreq
 
+        self.data.append(dataFreq)
         self.setRange(data)
-        self.numClass = len(self.data)
-        # Get the ordered sequence of values
-        self.sortedData = sorted(self.data.items(), key=operator.itemgetter(0))
+        self.axes.append(axis)
+        self.numClass = len(dataFreq)
 
     def setRange(self, data):
         """
@@ -182,9 +185,45 @@ class LinePlot(oglC.OGLCanvas):
         assert type(data) is list, "Incorrect input type"
         assert isSort(data), "The data is not sorted"
 
-        self.range = [data[0], data[-1]]
+        if not self.range:
+            self.range = [data[0], data[-1]]
+        else:
+            if data[0] < self.range[0]:
+                self.range[0] = data[0]
+            if data[-1] > self.range[1]:
+                self.range[1] = data[-1]
 
         assert len(self.range) == 2, "Incorrect len of range"
+
+    def addNewLine(self, ndata, axis):
+        """ Add a new line to draw """
+        assert type(ndata) is list, "Incorrect input type"
+        
+        for ax in self.axes:
+            if ax == axis:
+                return
+
+        data = sorted(ndata)
+        # Compute the frequencies
+        dataFreq = {}
+        for d in data:
+            dataFreq[d] = dataFreq.get(d, 0) + 1
+
+        # Get the max value
+        self.maxFreq = dataFreq[ndata[0]]
+        self.minFreq = dataFreq[ndata[0]]
+        for d in dataFreq:
+            if dataFreq[d] > self.maxFreq:
+                self.maxFreq = dataFreq[d]
+            if dataFreq[d] < self.minFreq:
+                self.minFreq = dataFreq[d]
+        # Normalize the frequencies
+        for d in dataFreq:
+            dataFreq[d] /= self.maxFreq
+
+        self.data.append(dataFreq)
+        self.setRange(data)
+        self.axes.append(axis)
 
     def setUnit(self, unit):
         """ Set the unit of the axis """
@@ -334,7 +373,7 @@ class LinePlotWidget(wx.Panel):
         self.lp.setName(self.labels[self.axis])
         data = [d[self.axis] for d in self.data]
         self.data.rewind()
-        self.lp.setData(data)
+        self.lp.setData(data, self.axis)
         self.lp.setUnit(self.units[self.axis])
 
     def initComboBox(self):
@@ -348,7 +387,7 @@ class LinePlotWidget(wx.Panel):
         self.cbline = wx.ComboBox(self, size=wx.DefaultSize, choices=[])
         for axis in axes:
             self.cb1.Append(axis.axisName, axis)
-            if self.units[axis.axisNumber] == self.units[self.axis]:
+            if self.units[axis.axisNumber] == self.units[self.axis] and axis.axisNumber != self.axis:
                 self.cbline.Append(axis.axisName, axis)
 
     def initCtrls(self):
@@ -374,6 +413,7 @@ class LinePlotWidget(wx.Panel):
     def bindEvents(self):
         """ Bind the event to the combobox """
         self.cb1.Bind(wx.EVT_COMBOBOX, self.onCBSelected)
+        self.cbline.Bind(wx.EVT_COMBOBOX, self.onNewLineSelected)
 
     def onCBSelected(self, event):
         """ Manage the combobox events. When the axis is changed, make the 
@@ -382,21 +422,28 @@ class LinePlotWidget(wx.Panel):
         self.axis = selection.axisNumber
         data = [d[self.axis] for d in self.data]
         self.data.rewind()
-        self.lp.setData(data)
+        self.lp.setData(data, self.axis)
         self.lp.setName(self.labels[self.axis])
         self.lp.setUnit(self.units[self.axis])
         self.lp.reDraw()
-        self.cbline.SetChoices([])
+        self.cbline.Clear()
+        self.cbline.SetValue('')
 
         axes = []
         for i in range(self.data.dataLength()):
             if self.category[i] == 0:
                 axes.append(Axes(i, self.labels[i]))
         for axis in axes:
-            self.cb1.Append(axis.axisName, axis)
-            if self.units[axis.axisNumber] == self.units[self.axis]:
+            if self.units[axis.axisNumber] == self.units[self.axis] and axis.axisNumber != self.axis:
                 self.cbline.Append(axis.axisName, axis)
 
+    def onNewLineSelected(self, event):
+        """ When a new line is selected """
+        selection = self.cbline.GetClientData(self.cbline.GetSelection())
+        axis = selection.axisNumber
+        data = [d[axis] for d in self.data]
+        self.data.rewind()
+        self.lp.addNewLine(data, axis)
 
     def close(self):
         """ Close all the controls """
