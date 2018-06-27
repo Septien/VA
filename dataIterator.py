@@ -178,6 +178,7 @@ class Data(object):
             line = self.descrFile.readline()
             row = line.split(',')
             labels = row.copy()
+            labels[-1] = labels[-1].replace('\n', '')
             # Get the types
             line = self.descrFile.readline()
             row = line.split(',')
@@ -188,12 +189,12 @@ class Data(object):
             row = line.split(',')
             for i in range(len(row)):
                 if category[i] == 0:
-                    units.append(row[i])
+                    units.append(row[i].replace('\n', ''))
                     row[i] = ''
                 else:
                     units.append('')
             description.append(row)
-            # Get the description of each of the values for the categorical variabless
+            # Get the description of each of the values for the categorical variables
             for row in self.descrFile:
                 r = row.split(',')
                 description.append(r)
