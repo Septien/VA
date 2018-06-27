@@ -327,6 +327,10 @@ class ScatterPlot2D(oglC.OGLCanvas):
             stryValue = "%.1f" % yValue
             pos = i / self.divisions
             # For the x-axis
+            if i % 2 == 0:
+                y = -0.04
+            else:
+                y = -0.07
             glRasterPos2f(pos - offset, -0.05)
             for c in strxValue:
                 glutBitmapCharacter(font, ord(c))
