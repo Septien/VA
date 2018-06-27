@@ -210,13 +210,28 @@ class LinePlot(oglC.OGLCanvas):
             assert length >= 0
 
             return length
+        def lerp(a, b, t):
+            """For interpolating between the range [a, b], according to the formula:
+            value = (1 - t) * a + t * b, for t in [0, 1]"""
+            assert 0.0 <= t <= 1.0
+            value = (1 - t) * a + t * b
+
+            assert a <= value <= b, "Out of range"
+            return value
+        
 
         glColor3f(0.0, 0.0, 0.0)
         # Draw the value variables
-        divWidth = 1.0 / len(self.data)
+        maxValue = 20
+        divWidth = 0.0
+        # Get the minimum between 20 (the max number of labels) and length of data
+        if len(self.data) < maxValue:
+            maxValue = len(self.data)
+        divWidth = 1.0 / maxValue
         i = 0
-        for d in self.sortedData:
-            label = str(d[0])
+        for d in range(maxValue+1):
+            x = lerp(self.range[0], self.range[1], i / maxValue)
+            label = '{:.1f}'.format(x)
             length = GetLabelWidth(label)
             length /= self.size.width
             if i % 2 == 0:
@@ -330,20 +345,30 @@ class LinePlotWidget(wx.Panel):
                 axes.append(Axes(i, self.labels[i]))
 
         self.cb1 = wx.ComboBox(self, size=wx.DefaultSize, choices=[])
+        self.cbline = wx.ComboBox(self, size=wx.DefaultSize, choices=[])
         for axis in axes:
             self.cb1.Append(axis.axisName, axis)
+            if self.units[axis.axisNumber] == self.units[self.axis]:
+                self.cbline.Append(axis.axisName, axis)
 
     def initCtrls(self):
         """ Group all the controls for the lineplot """
         label = wx.StaticText(self, -1, "Change Axis: ")
+        label2 = wx.StaticText(self, -1, "Add line: ")
         self.initComboBox()
 
         axesSizer = wx.BoxSizer(wx.HORIZONTAL)
         axesSizer.Add(label, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_LEFT)
         axesSizer.Add(self.cb1, 0, wx.ALIGN_RIGHT | wx.ALIGN_CENTER_HORIZONTAL)
+        lineSizer = wx.BoxSizer(wx.HORIZONTAL)
+        lineSizer.Add(label2, 0, wx.ALIGN_CENTER_VERTICAL)
+        lineSizer.Add(self.cbline, 0, wx.ALIGN_CENTER_VERTICAL)
+        ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
+        ctrlSizer.Add(axesSizer, 0, wx.ALIGN_CENTER_VERTICAL)
+        ctrlSizer.Add(lineSizer, 0, wx.ALIGN_CENTER_VERTICAL)
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.lp, 0, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
-        self.sizer.Add(axesSizer, 0, wx.ALIGN_CENTER_HORIZONTAL)
+        self.sizer.Add(ctrlSizer, 0, wx.ALIGN_CENTER_HORIZONTAL)
         self.SetSizer(self.sizer)
 
     def bindEvents(self):
@@ -361,6 +386,17 @@ class LinePlotWidget(wx.Panel):
         self.lp.setName(self.labels[self.axis])
         self.lp.setUnit(self.units[self.axis])
         self.lp.reDraw()
+        self.cbline.SetChoices([])
+
+        axes = []
+        for i in range(self.data.dataLength()):
+            if self.category[i] == 0:
+                axes.append(Axes(i, self.labels[i]))
+        for axis in axes:
+            self.cb1.Append(axis.axisName, axis)
+            if self.units[axis.axisNumber] == self.units[self.axis]:
+                self.cbline.Append(axis.axisName, axis)
+
 
     def close(self):
         """ Close all the controls """
