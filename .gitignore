@@ -8,3 +8,4 @@ testDataIterator.py
 streamtest.py
 test.py
 .DS_Store
+*.txt
