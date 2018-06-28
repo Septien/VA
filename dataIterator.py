@@ -232,10 +232,23 @@ class Data(object):
                 self.dbCursor.execute(sqlcmd)
                 self.data = self.dbCursor.fetchall_unbuffered()
             try:
-                data = []
-                ndata = next(self.data)
-                for d in ndata:
-                    data.append(float(d))
+                while True:
+                    data = []
+                    noisy = False
+                    ndata = next(self.data)
+                    for d in ndata:
+                        try:
+                            float(d)
+                        except:
+                            # Incomplete data, dismiss row
+                            data.clear()
+                            noisy = True
+                            break
+                        else:
+                            data.append(float(d))
+                    if not noisy:
+                        break
+
             except StopIteration as e:
                 raise e
 
