@@ -19,7 +19,7 @@ class SPLOMElNinocsv(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testsplomdrawelnino.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 self.splom.DrawSCPM()
                 end = t.time()
@@ -43,7 +43,7 @@ class SPLOMForest10csv(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testsplomdrawforest10.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 self.splom.DrawSCPM()
                 end = t.time()
@@ -67,7 +67,7 @@ class SPLOMForestcsv(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testsplomdrawforest.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 self.splom.DrawSCPM()
                 end = t.time()
@@ -80,7 +80,7 @@ class SPLOMForestcsv(unittest.TestCase):
 
 #----------------------------------------------------------------------------------------------------
 
-lass SPLOMElNinodb(unittest.TestCase):
+class SPLOMElNinodb(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(0)
@@ -91,7 +91,7 @@ lass SPLOMElNinodb(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testsplomdrawelninodb.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 self.splom.DrawSCPM()
                 end = t.time()
@@ -115,7 +115,7 @@ class SPLOMForest10db(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testsplomdrawforest10.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 self.splom.DrawSCPM()
                 end = t.time()
@@ -139,7 +139,7 @@ class SPLOMForestdb(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testsplomdrawforestdb.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 self.splom.DrawSCPM()
                 end = t.time()

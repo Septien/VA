@@ -75,6 +75,8 @@ def masterSuite():
     suite.addTest(splom_perf.SPLOMForest10db_suite())
     suite.addTest(splom_perf.SPLOMForestdb_suite())
 
+    return suite
+
 if __name__ == '__main__':
     runner = unittest.TextTestRunner()
     runner.run(masterSuite())

@@ -19,7 +19,7 @@ class PCElNinocsv(unittest.TestCase):
     def test_computeRanges(self):
         """ """
         with open('testPCRangesElNino.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.ComputeRanges()
                 end = t.time()
@@ -30,7 +30,7 @@ class PCElNinocsv(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCLinesElNino.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -41,7 +41,7 @@ class PCElNinocsv(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCChangeElNino.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -57,7 +57,7 @@ class PCElNinocsv(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterElNino.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -70,7 +70,7 @@ class PCElNinocsv(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterChangeElNino.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -97,7 +97,7 @@ class PCForestCoverType10csv(unittest.TestCase):
     def test_computeRanges(self):
         """ """
         with open('testPCRangesForest10.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.ComputeRanges()
                 end = t.time()
@@ -108,7 +108,7 @@ class PCForestCoverType10csv(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCLinesForest10.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -119,7 +119,7 @@ class PCForestCoverType10csv(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCChangeForest10.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -135,7 +135,7 @@ class PCForestCoverType10csv(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterForest10.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -148,7 +148,7 @@ class PCForestCoverType10csv(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterChangeForest10.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -175,7 +175,7 @@ class PCForestCoverTypecsv(unittest.TestCase):
     def test_computeRanges(self):
         """ """
         with open('testPCRangesForest.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.ComputeRanges()
                 end = t.time()
@@ -186,7 +186,7 @@ class PCForestCoverTypecsv(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCLinesForest.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -197,7 +197,7 @@ class PCForestCoverTypecsv(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCChangeForest.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -213,7 +213,7 @@ class PCForestCoverTypecsv(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterForest.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -226,7 +226,7 @@ class PCForestCoverTypecsv(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterChangeForest.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -253,7 +253,7 @@ class PCElNinodb(unittest.TestCase):
     def test_computeRanges(self):
         """ """
         with open('testPCRangesElNinodb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.ComputeRanges()
                 end = t.time()
@@ -264,7 +264,7 @@ class PCElNinodb(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCLinesElNinodb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -275,7 +275,7 @@ class PCElNinodb(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCChangeElNinodb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -291,7 +291,7 @@ class PCElNinodb(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterElNinodb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -304,7 +304,7 @@ class PCElNinodb(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterChangeElNinodb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -331,7 +331,7 @@ class PCForestCoverType10db(unittest.TestCase):
     def test_computeRanges(self):
         """ """
         with open('testPCRangesForest10db.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.ComputeRanges()
                 end = t.time()
@@ -342,7 +342,7 @@ class PCForestCoverType10db(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCLinesForest10db.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -353,7 +353,7 @@ class PCForestCoverType10db(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCChangeForest10db.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -369,7 +369,7 @@ class PCForestCoverType10db(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterForest10db.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -382,7 +382,7 @@ class PCForestCoverType10db(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterChangeForest10db.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -409,7 +409,7 @@ class PCForestCoverTypedb(unittest.TestCase):
     def test_computeRanges(self):
         """ """
         with open('testPCRangesForestdb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.ComputeRanges()
                 end = t.time()
@@ -420,7 +420,7 @@ class PCForestCoverTypedb(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCLinesForestdb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -431,7 +431,7 @@ class PCForestCoverTypedb(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCChangeForestdb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -447,7 +447,7 @@ class PCForestCoverTypedb(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterForestdb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -460,7 +460,7 @@ class PCForestCoverTypedb(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterChangeForestdb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -479,33 +479,33 @@ class PCForestCoverTypedb(unittest.TestCase):
 def PCElNinocsvsuite():
     """ """
     suite = unittest.TestSuite()
-    suite.AddTest(PCElNinocsv('test_computeRanges'))
-    suite.AddTest(PCElNinocsv('test_DrawLines'))
-    suite.AddTest(PCElNinocsv('test_AxisChange'))
-    suite.AddTest(PCElNinocsv('test_Filter'))
-    suite.AddTest(PCElNinocsv('test_FilterChange'))
+    suite.addTest(PCElNinocsv('test_computeRanges'))
+    suite.addTest(PCElNinocsv('test_DrawLines'))
+    suite.addTest(PCElNinocsv('test_AxisChange'))
+    suite.addTest(PCElNinocsv('test_Filter'))
+    suite.addTest(PCElNinocsv('test_FilterChange'))
 
     return suite
 
 def PCForest10csvsuite():
     """ """
     suite = unittest.TestSuite()
-    suite.AddTest(PCForestCoverType10csv('test_computeRanges'))
-    suite.AddTest(PCForestCoverType10csv('test_DrawLines'))
-    suite.AddTest(PCForestCoverType10csv('test_AxisChange'))
-    suite.AddTest(PCForestCoverType10csv('test_Filter'))
-    suite.AddTest(PCForestCoverType10csv('test_FilterChange'))
+    suite.addTest(PCForestCoverType10csv('test_computeRanges'))
+    suite.addTest(PCForestCoverType10csv('test_DrawLines'))
+    suite.addTest(PCForestCoverType10csv('test_AxisChange'))
+    suite.addTest(PCForestCoverType10csv('test_Filter'))
+    suite.addTest(PCForestCoverType10csv('test_FilterChange'))
 
     return suite
 
 def PCForestcsvsuite():
     """ """
     suite = unittest.TestSuite()
-    suite.AddTest(PCForestCoverTypecsv('test_computeRanges'))
-    suite.AddTest(PCForestCoverTypecsv('test_DrawLines'))
-    suite.AddTest(PCForestCoverTypecsv('test_AxisChange'))
-    suite.AddTest(PCForestCoverTypecsv('test_Filter'))
-    suite.AddTest(PCForestCoverTypecsv('test_FilterChange'))
+    suite.addTest(PCForestCoverTypecsv('test_computeRanges'))
+    suite.addTest(PCForestCoverTypecsv('test_DrawLines'))
+    suite.addTest(PCForestCoverTypecsv('test_AxisChange'))
+    suite.addTest(PCForestCoverTypecsv('test_Filter'))
+    suite.addTest(PCForestCoverTypecsv('test_FilterChange'))
 
     return suite
 
@@ -514,32 +514,32 @@ def PCForestcsvsuite():
 def PCElNinodbsuite():
     """ """
     suite = unittest.TestSuite()
-    suite.AddTest(PCElNinodb('test_computeRanges'))
-    suite.AddTest(PCElNinodb('test_DrawLines'))
-    suite.AddTest(PCElNinodb('test_AxisChange'))
-    suite.AddTest(PCElNinodb('test_Filter'))
-    suite.AddTest(PCElNinodb('test_FilterChange'))
+    suite.addTest(PCElNinodb('test_computeRanges'))
+    suite.addTest(PCElNinodb('test_DrawLines'))
+    suite.addTest(PCElNinodb('test_AxisChange'))
+    suite.addTest(PCElNinodb('test_Filter'))
+    suite.addTest(PCElNinodb('test_FilterChange'))
 
     return suite
 
 def PCForest10dbsuite():
     """ """
     suite = unittest.TestSuite()
-    suite.AddTest(PCForestCoverType10db('test_computeRanges'))
-    suite.AddTest(PCForestCoverType10db('test_DrawLines'))
-    suite.AddTest(PCForestCoverType10db('test_AxisChange'))
-    suite.AddTest(PCForestCoverType10db('test_Filter'))
-    suite.AddTest(PCForestCoverType10db('test_FilterChange'))
+    suite.addTest(PCForestCoverType10db('test_computeRanges'))
+    suite.addTest(PCForestCoverType10db('test_DrawLines'))
+    suite.addTest(PCForestCoverType10db('test_AxisChange'))
+    suite.addTest(PCForestCoverType10db('test_Filter'))
+    suite.addTest(PCForestCoverType10db('test_FilterChange'))
 
     return suite
 
 def PCForestdbsuite():
     """ """
     suite = unittest.TestSuite()
-    suite.AddTest(PCForestCoverTypedb('test_computeRanges'))
-    suite.AddTest(PCForestCoverTypedb('test_DrawLines'))
-    suite.AddTest(PCForestCoverTypedb('test_AxisChange'))
-    suite.AddTest(PCForestCoverTypedb('test_Filter'))
-    suite.AddTest(PCForestCoverTypedb('test_FilterChange'))
+    suite.addTest(PCForestCoverTypedb('test_computeRanges'))
+    suite.addTest(PCForestCoverTypedb('test_DrawLines'))
+    suite.addTest(PCForestCoverTypedb('test_AxisChange'))
+    suite.addTest(PCForestCoverTypedb('test_Filter'))
+    suite.addTest(PCForestCoverTypedb('test_FilterChange'))
 
     return suite

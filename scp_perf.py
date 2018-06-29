@@ -22,7 +22,7 @@ class SCPElNinocsv(unittest.TestCase):
     def test_loadData(self):
         """ """
         with open('testSCPLoadData.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 xA = [ x[i % 12] for x in self.cursor ]
                 self.cursor.rewind()
@@ -35,7 +35,7 @@ class SCPElNinocsv(unittest.TestCase):
     def test_PearsCoeff(self):
         """ """
         with open('testSCPPearsCoeff.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.scp.computCorrCoef()
                 end = t.time()
@@ -45,7 +45,7 @@ class SCPElNinocsv(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testSCPDraw.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.scp.DrawPoints()
                 end = t.time()
@@ -72,7 +72,7 @@ class SCPForest10csv(unittest.TestCase):
     def test_loadData(self):
         """ """
         with open('testSCPLoadDataForest10.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 xA = [ x[i % 12] for x in self.cursor ]
                 self.cursor.rewind()
@@ -85,7 +85,7 @@ class SCPForest10csv(unittest.TestCase):
     def test_PearsCoeff(self):
         """ """
         with open('testSCPPearsCoeffForest10.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.scp.computCorrCoef()
                 end = t.time()
@@ -95,7 +95,7 @@ class SCPForest10csv(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testSCPDrawForest10.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.scp.computCorrCoef()
                 end = t.time()
@@ -122,7 +122,7 @@ class SCPForestcsv(unittest.TestCase):
     def test_loadData(self):
         """ """
         with open('testSCPLoadDataForest.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 xA = [ x[i % 12] for x in self.cursor ]
                 self.cursor.rewind()
@@ -135,7 +135,7 @@ class SCPForestcsv(unittest.TestCase):
     def test_PearsCoeff(self):
         """ """
         with open('testSCPPearsCoeffForest.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.scp.computCorrCoef()
                 end = t.time()
@@ -145,7 +145,7 @@ class SCPForestcsv(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testSCPDrawForest.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.scp.computCorrCoef()
                 end = t.time()
@@ -172,7 +172,7 @@ class SCPElNinodb(unittest.TestCase):
     def test_loadData(self):
         """ """
         with open('testSCPLoadDatadb.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 xA = [ x[i % 12] for x in self.cursor ]
                 self.cursor.rewind()
@@ -185,7 +185,7 @@ class SCPElNinodb(unittest.TestCase):
     def test_PearsCoeff(self):
         """ """
         with open('testSCPPearsCoeffdb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.scp.computCorrCoef()
                 end = t.time()
@@ -195,7 +195,7 @@ class SCPElNinodb(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testSCPDrawdb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.scp.computCorrCoef()
                 end = t.time()
@@ -222,7 +222,7 @@ class SCPForest10db(unittest.TestCase):
     def test_loadData(self):
         """ """
         with open('testSCPLoadDataForest10db.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 xA = [ x[i % 12] for x in self.cursor ]
                 self.cursor.rewind()
@@ -235,7 +235,7 @@ class SCPForest10db(unittest.TestCase):
     def test_PearsCoeff(self):
         """ """
         with open('testSCPPearsCoeffForest10db.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.scp.computCorrCoef()
                 end = t.time()
@@ -245,7 +245,7 @@ class SCPForest10db(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testSCPDrawForest10db.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.scp.computCorrCoef()
                 end = t.time()
@@ -272,7 +272,7 @@ class SCPForestdb(unittest.TestCase):
     def test_loadData(self):
         """ """
         with open('testSCPLoadDataForestdb.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 xA = [ x[i % 12] for x in self.cursor ]
                 self.cursor.rewind()
@@ -285,7 +285,7 @@ class SCPForestdb(unittest.TestCase):
     def test_PearsCoeff(self):
         """ """
         with open('testSCPPearsCoeffForestdb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.scp.computCorrCoef()
                 end = t.time()
@@ -295,7 +295,7 @@ class SCPForestdb(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testSCPDrawForestdb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.scp.computCorrCoef()
                 end = t.time()
@@ -308,7 +308,7 @@ class SCPForestdb(unittest.TestCase):
 
 #----------------------------------------------------------------------------------------------------
 
-def SCPELNinocsv_suite():
+def SCPElNinocsv_suite():
     """ """
     suite = unittest.TestSuite()
     suite.addTest(SCPElNinocsv('test_loadData'))
@@ -317,7 +317,7 @@ def SCPELNinocsv_suite():
 
     return suite
 
-def SCPELNinocsv_suite():
+def SCPForest10csv_suite():
     """ """
     suite = unittest.TestSuite()
     suite.addTest(SCPForest10csv('test_loadData'))
@@ -326,7 +326,7 @@ def SCPELNinocsv_suite():
 
     return suite
 
-def SCPELNinocsv_suite():
+def SCPForestcsv_suite():
     """ """
     suite = unittest.TestSuite()
     suite.addTest(SCPForestcsv('test_loadData'))
@@ -337,7 +337,7 @@ def SCPELNinocsv_suite():
 
 #----------------------------------------------------------------------------------------------------
 
-def SCPELNinodb_suite():
+def SCPElNinodb_suite():
     """ """
     suite = unittest.TestSuite()
     suite.addTest(SCPElNinodb('test_loadData'))
@@ -346,7 +346,7 @@ def SCPELNinodb_suite():
 
     return suite
 
-def SCPELNinodb_suite():
+def SCPForest10db_suite():
     """ """
     suite = unittest.TestSuite()
     suite.addTest(SCPForest10db('test_loadData'))
@@ -355,7 +355,7 @@ def SCPELNinodb_suite():
 
     return suite
 
-def SCPELNinodb_suite():
+def SCPForestdb_suite():
     """ """
     suite = unittest.TestSuite()
     suite.addTest(SCPForestdb('test_loadData'))

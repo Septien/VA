@@ -22,7 +22,7 @@ class LPElNinocsv(unittest.TestCase):
     def test_loadData(self):
         """ """
         with open('testLPLoaddata.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 data = [d[i % 12] for d in self.cursor]
                 end = t.time()
@@ -33,7 +33,7 @@ class LPElNinocsv(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testLPcomputeFreq.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.lp.setData(self.data)
                 end = t.time()
@@ -46,7 +46,7 @@ class LPElNinocsv(unittest.TestCase):
         data = [d[5] for d in self.cursor]
         self.cursor.rewind()
         with open('testLPNewLine.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 self.lp.addNewLine(data)
                 end = t.time()
@@ -75,7 +75,7 @@ class LPForest10csv(unittest.TestCase):
     def test_loadData(self):
         """ """
         with open('testLPLoaddataForest10.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 data = [d[i % 12] for d in self.cursor]
                 end = t.time()
@@ -86,7 +86,7 @@ class LPForest10csv(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testLPcomputeFreqForest10.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.lp.setData(self.data)
                 end = t.time()
@@ -99,7 +99,7 @@ class LPForest10csv(unittest.TestCase):
         data = [d[5] for d in self.cursor]
         self.cursor.rewind()
         with open('testLPNewLineForest10.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 self.lp.addNewLine(data)
                 end = t.time()
@@ -127,7 +127,7 @@ class LPForestcsv(unittest.TestCase):
     def test_loadData(self):
         """ """
         with open('testLPLoaddataForest.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 data = [d[i % 12] for d in self.cursor]
                 end = t.time()
@@ -138,7 +138,7 @@ class LPForestcsv(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testLPcomputeFreqForest.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.lp.setData(self.data)
                 end = t.time()
@@ -151,7 +151,7 @@ class LPForestcsv(unittest.TestCase):
         data = [d[5] for d in self.cursor]
         self.cursor.rewind()
         with open('testLPNewLineForest.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 self.lp.addNewLine(data)
                 end = t.time()
@@ -180,7 +180,7 @@ class LPElNinodb(unittest.TestCase):
     def test_loadData(self):
         """ """
         with open('testLPLoaddatadb.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 data = [d[i % 12] for d in self.cursor]
                 end = t.time()
@@ -191,7 +191,7 @@ class LPElNinodb(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testLPcomputeFreqdb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.lp.setData(self.data)
                 end = t.time()
@@ -204,7 +204,7 @@ class LPElNinodb(unittest.TestCase):
         data = [d[5] for d in self.cursor]
         self.cursor.rewind()
         with open('testLPNewLinedb.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 self.lp.addNewLine(data)
                 end = t.time()
@@ -233,7 +233,7 @@ class LPForest10db(unittest.TestCase):
     def test_loadData(self):
         """ """
         with open('testLPLoaddataForest10db.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 data = [d[i % 12] for d in self.cursor]
                 end = t.time()
@@ -244,7 +244,7 @@ class LPForest10db(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testLPcomputeFreqForest10db.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.lp.setData(self.data)
                 end = t.time()
@@ -257,7 +257,7 @@ class LPForest10db(unittest.TestCase):
         data = [d[5] for d in self.cursor]
         self.cursor.rewind()
         with open('testLPNewLineForest10db.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 self.lp.addNewLine(data)
                 end = t.time()
@@ -285,7 +285,7 @@ class LPForestdb(unittest.TestCase):
     def test_loadData(self):
         """ """
         with open('testLPLoaddataForestdb.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 data = [d[i % 12] for d in self.cursor]
                 end = t.time()
@@ -296,7 +296,7 @@ class LPForestdb(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testLPcomputeFreqForestdb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.lp.setData(self.data)
                 end = t.time()
@@ -309,7 +309,7 @@ class LPForestdb(unittest.TestCase):
         data = [d[5] for d in self.cursor]
         self.cursor.rewind()
         with open('testLPNewLineForestdb.txt', 'a') as file:
-            for i in range(36):
+            for i in range(1):
                 start = t.time()
                 self.lp.addNewLine(data)
                 end = t.time()
@@ -327,27 +327,27 @@ class LPForestdb(unittest.TestCase):
 def LPElNinocsvsuite():
     """ """
     suite = unittest.TestSuite()
-    suite.AddTest(LPElNinocsv('test_loadData'))
-    suite.AddTest(LPElNinocsv('test_computeFreq'))
-    suite.AddTest(LPElNinocsv('test_newLine'))
+    suite.addTest(LPElNinocsv('test_loadData'))
+    suite.addTest(LPElNinocsv('test_computeFreq'))
+    suite.addTest(LPElNinocsv('test_newLine'))
 
     return suite
 
 def LPForest10csvsuite():
     """ """
     suite = unittest.TestSuite()
-    suite.AddTest(LPForest10csv('test_loadData'))
-    suite.AddTest(LPForest10csv('test_computeFreq'))
-    suite.AddTest(LPForest10csv('test_newLine'))
+    suite.addTest(LPForest10csv('test_loadData'))
+    suite.addTest(LPForest10csv('test_computeFreq'))
+    suite.addTest(LPForest10csv('test_newLine'))
 
     return suite
 
 def LPForestcsvsuite():
     """ """
     suite = unittest.TestSuite()
-    suite.AddTest(LPForestcsv('test_loadData'))
-    suite.AddTest(LPForestcsv('test_computeFreq'))
-    suite.AddTest(LPForestcsv('test_newLine'))
+    suite.addTest(LPForestcsv('test_loadData'))
+    suite.addTest(LPForestcsv('test_computeFreq'))
+    suite.addTest(LPForestcsv('test_newLine'))
 
     return suite
 
@@ -356,26 +356,26 @@ def LPForestcsvsuite():
 def LPElNinodbsuite():
     """ """
     suite = unittest.TestSuite()
-    suite.AddTest(LPElNinodb('test_loadData'))
-    suite.AddTest(LPElNinodb('test_computeFreq'))
-    suite.AddTest(LPElNinodb('test_newLine'))
+    suite.addTest(LPElNinodb('test_loadData'))
+    suite.addTest(LPElNinodb('test_computeFreq'))
+    suite.addTest(LPElNinodb('test_newLine'))
 
     return suite
 
 def LPForest10dbsuite():
     """ """
     suite = unittest.TestSuite()
-    suite.AddTest(LPForest10db('test_loadData'))
-    suite.AddTest(LPForest10db('test_computeFreq'))
-    suite.AddTest(LPForest10db('test_newLine'))
+    suite.addTest(LPForest10db('test_loadData'))
+    suite.addTest(LPForest10db('test_computeFreq'))
+    suite.addTest(LPForest10db('test_newLine'))
 
     return suite
 
 def LPForestdbsuite():
     """ """
     suite = unittest.TestSuite()
-    suite.AddTest(LPForestdb('test_loadData'))
-    suite.AddTest(LPForestdb('test_computeFreq'))
-    suite.AddTest(LPForestdb('test_newLine'))
+    suite.addTest(LPForestdb('test_loadData'))
+    suite.addTest(LPForestdb('test_computeFreq'))
+    suite.addTest(LPForestdb('test_newLine'))
 
     return suite

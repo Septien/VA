@@ -4,7 +4,7 @@ Module for measuring the performance of the pieplot.
 
 import dataIterator as dI
 import wx
-import piplot as pp
+import pieplot as pp
 import time as t
 import unittest
 
@@ -21,7 +21,7 @@ class PPElNinocsv(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testPPFreqElNino.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pp.computeFrequencies(False)
                 end = t.time()
@@ -31,7 +31,7 @@ class PPElNinocsv(unittest.TestCase):
     def test_pie(self):
         """ """
         with open('testPPpieElNino.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pp.drawPie()
                 end = t.time()
@@ -57,7 +57,7 @@ class PPForest10csv(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testPPFreqForest10.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pp.computeFrequencies(False)
                 end = t.time()
@@ -67,7 +67,7 @@ class PPForest10csv(unittest.TestCase):
     def test_pie(self):
         """ """
         with open('testPPpieForest10.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pp.drawPie()
                 end = t.time()
@@ -93,7 +93,7 @@ class PPForestcsv(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testPPFreqForest.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pp.computeFrequencies(False)
                 end = t.time()
@@ -103,7 +103,7 @@ class PPForestcsv(unittest.TestCase):
     def test_pie(self):
         """ """
         with open('testPPpieForest.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pp.drawPie()
                 end = t.time()
@@ -129,7 +129,7 @@ class PPElNinodb(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testPPFreqElNinodb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pp.computeFrequencies(False)
                 end = t.time()
@@ -139,7 +139,7 @@ class PPElNinodb(unittest.TestCase):
     def test_pie(self):
         """ """
         with open('testPPpieElNinodb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pp.drawPie()
                 end = t.time()
@@ -165,7 +165,7 @@ class PPForest10db(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testPPFreqForest10db.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pp.computeFrequencies(False)
                 end = t.time()
@@ -175,7 +175,7 @@ class PPForest10db(unittest.TestCase):
     def test_pie(self):
         """ """
         with open('testPPpieForest10db.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pp.drawPie()
                 end = t.time()
@@ -201,7 +201,7 @@ class PPForestdb(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testPPFreqForestdb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pp.computeFrequencies(False)
                 end = t.time()
@@ -211,7 +211,7 @@ class PPForestdb(unittest.TestCase):
     def test_pie(self):
         """ """
         with open('testPPpieForestdb.txt', 'a') as file:
-            for i in range(30):
+            for i in range(1):
                 start = t.time()
                 self.pp.drawPie()
                 end = t.time()
