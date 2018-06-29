@@ -129,10 +129,10 @@ class SPLOM(sc.ScatterPlot2D):
                     continue
                 if i == j:
                     # if i == j, draw the name of the variable
-                    glPushMatrix()
-                    glTranslatef(k * (cellWidth / 2.0), 1.0 - ( h * (cellHeight / 2.0)), 0.0)
-                    self.DrawNames(i)
-                    glPopMatrix()
+                    # glPushMatrix()
+                    # glTranslatef(k * (cellWidth / 2.0), 1.0 - ( h * (cellHeight / 2.0)), 0.0)
+                    # self.DrawNames(i)
+                    # glPopMatrix()
                     k += (numCells - 1)
                     continue
                 # Draw the graphs
@@ -140,19 +140,19 @@ class SPLOM(sc.ScatterPlot2D):
                 self.data.rewind()
                 self.points = [x1, x2]
                 self.GetRanges()
-                glPushMatrix()
-                glTranslatef(-cellWidth / 2.0, -cellHeight / 2.0, 0.0)
-                glTranslatef(k * (cellWidth / 2.0), 1.0 - ( h * (cellHeight / 2.0)), 0.0)
-                glScalef(cellWidth, cellHeight, 0.0)
-                self.DrawGrid()
-                self.DrawPoints(0.01)
-                if i == 0:
-                    glTranslatef(0.0, 1.1, 0.0)
-                    self.DrawRange(self.range[1], 1)
-                if j == 0:
-                    glTranslatef(-0.6, 0.0, 0.0)
-                    self.DrawRange(self.range[0], 0)
-                glPopMatrix()
+                # glPushMatrix()
+                # glTranslatef(-cellWidth / 2.0, -cellHeight / 2.0, 0.0)
+                # glTranslatef(k * (cellWidth / 2.0), 1.0 - ( h * (cellHeight / 2.0)), 0.0)
+                # glScalef(cellWidth, cellHeight, 0.0)
+                # self.DrawGrid()
+                # self.DrawPoints(0.01)
+                # if i == 0:
+                #     glTranslatef(0.0, 1.1, 0.0)
+                #     self.DrawRange(self.range[1], 1)
+                # if j == 0:
+                #     glTranslatef(-0.6, 0.0, 0.0)
+                #     self.DrawRange(self.range[0], 0)
+                # glPopMatrix()
                 # Increas only if the variable is numerical
                 k += (numCells - 1)
             h += (numCells - 1)

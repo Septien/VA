@@ -236,13 +236,13 @@ class ParallelCoordinates(oglC.OGLCanvas):
                 if not (self.filterRange[0] <= row[self.filterAxis] <= self.filterRange[1]): # If the variable is out of range
                     drawLine = False
             if drawLine:
-                glBegin(GL_LINE_STRIP)
+                # glBegin(GL_LINE_STRIP)
                 for index in self.axesOrder:
                     coord = row[index]
                     coordNorm = Map(coord, self.axesRange[index])
-                    glVertex3f(i * spacing, coordNorm, 0.0)
+                    # glVertex3f(i * spacing, coordNorm, 0.0)
                     i += 1
-                glEnd()
+                # glEnd()
         self.data.rewind()
 
     def DrawLabels(self):

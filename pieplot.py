@@ -73,28 +73,28 @@ class PiePlot(oglC.OGLCanvas):
         maxClass = 10
         total = 0
         frequencies = []
-        sortedFrequencies = sorted(self.frequencies.items(), key=operator.itemgetter(1), reverse=True)
-        n = len(sortedFrequencies)
+        # sortedFrequencies = sorted(self.frequencies.items(), key=operator.itemgetter(1), reverse=True)
+        n = len(self.frequencies)
         if n > 10:
             for i in range(maxClass):
                 frequencies.append(sortedFrequencies[i])
                 total += sortedFrequencies[i][1]
         else:
             total = self.N
-            frequencies = sortedFrequencies
+            frequencies = self.frequencies
         frequencies.reverse()
-        glPushMatrix()
-        glTranslatef(0.5, 0.5, 0.0)
-        glScalef(0.45, 0.45, 0.0)
+        # glPushMatrix()
+        # glTranslatef(0.5, 0.5, 0.0)
+        # glScalef(0.45, 0.45, 0.0)
         startAngle = 0.0
         i = 0
         for freq in frequencies:
             arcAngle = 360.0 * (freq[1] / total)
-            glColor3f(0.0, 0.0, 0.0)
+            # glColor3f(0.0, 0.0, 0.0)
             labelAngle = (arcAngle / 2.0) + startAngle
             radious = 1.2
-            glPushMatrix()
-            glTranslatef(-0.1, 0.0, 0.0)
+            # glPushMatrix()
+            # glTranslatef(-0.1, 0.0, 0.0)
             label = str(freq[0])
             if self.category == 1:  # A categorical
                 k = 0
@@ -103,10 +103,10 @@ class PiePlot(oglC.OGLCanvas):
                         label = self.name[k]
                         break
                     k += 1
-            self.drawLabels(labelAngle, label, radious, freq[1] / self.N)
-            glPopMatrix()
-            glColor3fv(self.colors[i])
-            self.DrawFilledArc(0, 0, 1, startAngle, arcAngle)
+            # self.drawLabels(labelAngle, label, radious, freq[1] / self.N)
+            # glPopMatrix()
+            # glColor3fv(self.colors[i])
+            # self.DrawFilledArc(0, 0, 1, startAngle, arcAngle)
             startAngle += arcAngle
             i += 1
         glPopMatrix()
@@ -226,7 +226,7 @@ class PiePlot(oglC.OGLCanvas):
                 self.nonDrawn.append(sortedFrequencies[i])
         else:
             total = self.N
-            frequencies = sortedFrequencies
+            self.frequencies = sortedFrequencies
 
         # Set drawing event if required
         if draw:
