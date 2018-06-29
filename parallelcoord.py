@@ -108,7 +108,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         # Return to first data
         self.data.rewind()
         assert len(self.axesRange) == self.data.dataLength(), "Incorrect number of ranges " + str(len(self.axesRange)) + " " + str(self.data.dataLength())
-        assert len(self.axesRange) == self.dimensions, "Incorrect number of ranges"
+        # assert len(self.axesRange) == self.dimensions, "Incorrect number of ranges"
 
     def changeAxes(self, axis1, axis2):
         """ Change the position of the axis 1 to the position of the axis 2, and viceversa """
@@ -124,7 +124,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         self.axesOrder[index1] = axis2
         self.axesOrder[index2] = axis1
         # Send event to redraw
-        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+        # wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
     def setDefaultAxesOrder(self):
         """ Set the default axis configuration """
@@ -134,7 +134,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         for i in range(self.dimensions):
             self.axesOrder.append(i)
         # Send event to redraw
-        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+        # wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
     def setFilterAxis(self, axis):
         """ Sets the axis to filter """
@@ -150,7 +150,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
 
         self.filterRange = nRange.copy()
         # Send event to redraw
-        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+        # wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
     def getAxisRange(self, axis):
         """ Gets the range of the axis 'axis' """
@@ -222,7 +222,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
             return norm
         #
         assert self.data, "Data must be initialized"
-        assert self.dimensions > 0, "Dimensions must be greater than zero"
+        # assert self.dimensions > 0, "Dimensions must be greater than zero"
         assert self.data.dataLength() == self.dimensions, "Dimensions in data must be the same as in the variable"
         assert len(self.axesRange) > 0, "Range must be initialized"
 

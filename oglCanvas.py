@@ -23,18 +23,18 @@ class OGLCanvas(glcanvas.GLCanvas):
         Initialize the canvas for drawing and get a context, for indicating 
         which canvas is currently in use.
         """
-        glcanvas.GLCanvas.__init__(self, parent, id=wx.ID_ANY)
+        # glcanvas.GLCanvas.__init__(self, parent, id=wx.ID_ANY)
 
         self.init = False
-        self.context = glcanvas.GLContext(self)
+        # self.context = glcanvas.GLContext(self)
         self.size = None
 
         # Diminish flicker
-        self.SetBackgroundStyle(wx.BG_STYLE_PAINT)
+        # self.SetBackgroundStyle(wx.BG_STYLE_PAINT)
 
-        # Handle events
-        self.Bind(wx.EVT_SIZE, self.OnSize)                     # Resizing the window
-        self.Bind(wx.EVT_PAINT, self.OnPaint)                   # Draw on canvas
+        # # Handle events
+        # self.Bind(wx.EVT_SIZE, self.OnSize)                     # Resizing the window
+        # self.Bind(wx.EVT_PAINT, self.OnPaint)                   # Draw on canvas
 
     def OnSize(self, event):
         wx.CallAfter(self.SetViewPort)

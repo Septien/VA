@@ -13,8 +13,11 @@ class PCElNinocsv(unittest.TestCase):
     def setUp(self):
         self.cursor = dI.Data(1)
         self.cursor.loadCSV('../../../Data/elnino/elnino.csv')
+        a, b, c, d = self.cursor.getDBDescription()
         self.pc = pc.ParallelCoordinates(None)
         self.pc.SetData(self.cursor)
+        self.pc.dimensions = 12
+        self.pc.setDefaultAxesOrder()
 
     def test_computeRanges(self):
         """ """

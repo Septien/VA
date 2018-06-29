@@ -13,7 +13,7 @@ class SCPElNinocsv(unittest.TestCase):
     def setUp(self):
         self.cursor = dI.Data(1)
         self.cursor.loadCSV('../../../Data/elnino/elnino.csv')
-        self.scp = scp.ScattePlot2D(None)
+        self.scp = scp.ScatterPlot2D(None)
         xA = [ x[6] for x in self.cursor ]
         yA = [ x[7] for x in self.cursor ]
         self.data = [xA, yA]
@@ -63,7 +63,7 @@ class SCPForest10csv(unittest.TestCase):
     def setUp(self):
         self.cursor = dI.Data(1)
         self.cursor.loadCSV('../../../Data/ForestCoverType10/forestcovertype10.csv')
-        self.scp = scp.ScattePlot2D(None)
+        self.scp = scp.ScatterPlot2D(None)
         xA = [ x[6] for x in self.cursor ]
         yA = [ x[7] for x in self.cursor ]
         self.data = [xA, yA]
@@ -113,7 +113,7 @@ class SCPForestcsv(unittest.TestCase):
     def setUp(self):
         self.cursor = dI.Data(1)
         self.cursor.loadCSV('../../../Data/ForestCoverType/forestcovertype.csv')
-        self.scp = scp.ScattePlot2D(None)
+        self.scp = scp.ScatterPlot2D(None)
         xA = [ x[6] for x in self.cursor ]
         yA = [ x[7] for x in self.cursor ]
         self.data = [xA, yA]
@@ -163,7 +163,7 @@ class SCPElNinodb(unittest.TestCase):
     def setUp(self):
         self.cursor = dI.Data(0)
         self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="elnino_db")
-        self.scp = scp.ScattePlot2D(None)
+        self.scp = scp.ScatterPlot2D(None)
         xA = [ x[6] for x in self.cursor ]
         yA = [ x[7] for x in self.cursor ]
         self.data = [xA, yA]
@@ -213,7 +213,7 @@ class SCPForest10db(unittest.TestCase):
     def setUp(self):
         self.cursor = dI.Data(0)
         self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="forestcover10")
-        self.scp = scp.ScattePlot2D(None)
+        self.scp = scp.ScatterPlot2D(None)
         xA = [ x[6] for x in self.cursor ]
         yA = [ x[7] for x in self.cursor ]
         self.data = [xA, yA]
@@ -263,7 +263,7 @@ class SCPForestdb(unittest.TestCase):
     def setUp(self):
         self.cursor = dI.Data(0)
         self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="forestcovertype")
-        self.scp = scp.ScattePlot2D(None)
+        self.scp = scp.ScatterPlot2D(None)
         xA = [ x[6] for x in self.cursor ]
         yA = [ x[7] for x in self.cursor ]
         self.data = [xA, yA]
