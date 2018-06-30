@@ -12,12 +12,15 @@ class SCPElNinocsv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('../../../Data/elnino/elnino.csv')
+        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/elnino/elnino.csv')#'../../../Data/elnino/elnino.csv')
+        a, b, c, d = self.cursor.getDBDescription()
         self.scp = scp.ScatterPlot2D(None)
         xA = [ x[6] for x in self.cursor ]
+        self.cursor.rewind()
         yA = [ x[7] for x in self.cursor ]
+        self.cursor.rewind()
         self.data = [xA, yA]
-        self.scp.setData(self.data)
+        self.scp.SetData(self.data)
 
     def test_loadData(self):
         """ """
@@ -37,7 +40,7 @@ class SCPElNinocsv(unittest.TestCase):
         with open('testSCPPearsCoeff.txt', 'a') as file:
             for i in range(1):
                 start = t.time()
-                self.scp.computCorrCoef()
+                self.scp.computeCorrCoef()
                 end = t.time()
                 exTime = '{:f}\n'.format(end - start)
                 file.write(exTime)
@@ -62,12 +65,15 @@ class SCPForest10csv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('../../../Data/ForestCoverType10/forestcovertype10.csv')
+        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/ForestCoverType10/forestcovertype.csv')#'../../../Data/ForestCoverType10/forestcovertype10.csv')
+        a, b, c, d = self.cursor.getDBDescription()
         self.scp = scp.ScatterPlot2D(None)
         xA = [ x[6] for x in self.cursor ]
+        self.cursor.rewind()
         yA = [ x[7] for x in self.cursor ]
+        self.cursor.rewind()
         self.data = [xA, yA]
-        self.scp.setData(self.data)
+        self.scp.SetData(self.data)
 
     def test_loadData(self):
         """ """
@@ -87,7 +93,7 @@ class SCPForest10csv(unittest.TestCase):
         with open('testSCPPearsCoeffForest10.txt', 'a') as file:
             for i in range(1):
                 start = t.time()
-                self.scp.computCorrCoef()
+                self.scp.computeCorrCoef()
                 end = t.time()
                 exTime = '{:f}\n'.format(end - start)
                 file.write(exTime)
@@ -97,7 +103,7 @@ class SCPForest10csv(unittest.TestCase):
         with open('testSCPDrawForest10.txt', 'a') as file:
             for i in range(1):
                 start = t.time()
-                self.scp.computCorrCoef()
+                self.scp.computeCorrCoef()
                 end = t.time()
                 exTime = '{:f}\n'.format(end - start)
                 file.write(exTime)
@@ -112,12 +118,15 @@ class SCPForestcsv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('../../../Data/ForestCoverType/forestcovertype.csv')
+        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/ForestCoverType/forestcovertype.csv')#'../../../Data/ForestCoverType/forestcovertype.csv')
+        a, b, c, d = self.cursor.getDBDescription()
         self.scp = scp.ScatterPlot2D(None)
         xA = [ x[6] for x in self.cursor ]
+        self.cursor.rewind()
         yA = [ x[7] for x in self.cursor ]
+        self.cursor.rewind()
         self.data = [xA, yA]
-        self.scp.setData(self.data)
+        self.scp.SetData(self.data)
 
     def test_loadData(self):
         """ """
@@ -137,7 +146,7 @@ class SCPForestcsv(unittest.TestCase):
         with open('testSCPPearsCoeffForest.txt', 'a') as file:
             for i in range(1):
                 start = t.time()
-                self.scp.computCorrCoef()
+                self.scp.computeCorrCoef()
                 end = t.time()
                 exTime = '{:f}\n'.format(end - start)
                 file.write(exTime)
@@ -147,7 +156,7 @@ class SCPForestcsv(unittest.TestCase):
         with open('testSCPDrawForest.txt', 'a') as file:
             for i in range(1):
                 start = t.time()
-                self.scp.computCorrCoef()
+                self.scp.computeCorrCoef()
                 end = t.time()
                 exTime = '{:f}\n'.format(end - start)
                 file.write(exTime)
@@ -163,11 +172,14 @@ class SCPElNinodb(unittest.TestCase):
     def setUp(self):
         self.cursor = dI.Data(0)
         self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="elnino_db")
+        a, b, c, d = self.cursor.getDBDescription()
         self.scp = scp.ScatterPlot2D(None)
         xA = [ x[6] for x in self.cursor ]
+        self.cursor.rewind()
         yA = [ x[7] for x in self.cursor ]
+        self.cursor.rewind()
         self.data = [xA, yA]
-        self.scp.setData(self.data)
+        self.scp.SetData(self.data)
 
     def test_loadData(self):
         """ """
@@ -187,7 +199,7 @@ class SCPElNinodb(unittest.TestCase):
         with open('testSCPPearsCoeffdb.txt', 'a') as file:
             for i in range(1):
                 start = t.time()
-                self.scp.computCorrCoef()
+                self.scp.computeCorrCoef()
                 end = t.time()
                 exTime = '{:f}\n'.format(end - start)
                 file.write(exTime)
@@ -197,7 +209,7 @@ class SCPElNinodb(unittest.TestCase):
         with open('testSCPDrawdb.txt', 'a') as file:
             for i in range(1):
                 start = t.time()
-                self.scp.computCorrCoef()
+                self.scp.computeCorrCoef()
                 end = t.time()
                 exTime = '{:f}\n'.format(end - start)
                 file.write(exTime)
@@ -212,12 +224,15 @@ class SCPForest10db(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(0)
-        self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="forestcover10")
+        self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="forestcovertype10")
+        a, b, c, d = self.cursor.getDBDescription()
         self.scp = scp.ScatterPlot2D(None)
         xA = [ x[6] for x in self.cursor ]
+        self.cursor.rewind()
         yA = [ x[7] for x in self.cursor ]
+        self.cursor.rewind()
         self.data = [xA, yA]
-        self.scp.setData(self.data)
+        self.scp.SetData(self.data)
 
     def test_loadData(self):
         """ """
@@ -237,7 +252,7 @@ class SCPForest10db(unittest.TestCase):
         with open('testSCPPearsCoeffForest10db.txt', 'a') as file:
             for i in range(1):
                 start = t.time()
-                self.scp.computCorrCoef()
+                self.scp.computeCorrCoef()
                 end = t.time()
                 exTime = '{:f}\n'.format(end - start)
                 file.write(exTime)
@@ -247,7 +262,7 @@ class SCPForest10db(unittest.TestCase):
         with open('testSCPDrawForest10db.txt', 'a') as file:
             for i in range(1):
                 start = t.time()
-                self.scp.computCorrCoef()
+                self.scp.computeCorrCoef()
                 end = t.time()
                 exTime = '{:f}\n'.format(end - start)
                 file.write(exTime)
@@ -263,11 +278,14 @@ class SCPForestdb(unittest.TestCase):
     def setUp(self):
         self.cursor = dI.Data(0)
         self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="forestcovertype")
+        a, b, c, d = self.cursor.getDBDescription()
         self.scp = scp.ScatterPlot2D(None)
         xA = [ x[6] for x in self.cursor ]
+        self.cursor.rewind()
         yA = [ x[7] for x in self.cursor ]
+        self.cursor.rewind()
         self.data = [xA, yA]
-        self.scp.setData(self.data)
+        self.scp.SetData(self.data)
 
     def test_loadData(self):
         """ """
@@ -287,7 +305,7 @@ class SCPForestdb(unittest.TestCase):
         with open('testSCPPearsCoeffForestdb.txt', 'a') as file:
             for i in range(1):
                 start = t.time()
-                self.scp.computCorrCoef()
+                self.scp.computeCorrCoef()
                 end = t.time()
                 exTime = '{:f}\n'.format(end - start)
                 file.write(exTime)
@@ -297,7 +315,7 @@ class SCPForestdb(unittest.TestCase):
         with open('testSCPDrawForestdb.txt', 'a') as file:
             for i in range(1):
                 start = t.time()
-                self.scp.computCorrCoef()
+                self.scp.computeCorrCoef()
                 end = t.time()
                 exTime = '{:f}\n'.format(end - start)
                 file.write(exTime)

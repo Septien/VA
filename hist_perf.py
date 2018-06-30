@@ -12,10 +12,13 @@ class HElNinocsv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('../../../Data/elnino/elnino.csv')
+        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/elnino/elnino.csv')#'../../../Data/elnino/elnino.csv')
+        a, b, c, d = self.cursor.getDBDescription()
         self.hist = h.HistogramPlot(None)
         self.data = [d[6] for d in self.cursor]
-        self.hist.setData(data)
+        self.hist.setData(self.data)
+        self.hist.SetNumBins(20)
+        self.hist.computeClassesInterval()
         self.cursor.rewind()
 
     def test_dataloadTime(self):
@@ -49,10 +52,13 @@ class HForest10csv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('../../../Data/ForestCoverType10/forestcovertype10.csv')
+        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/ForestCoverType10/forestcovertype.csv')#'../../../Data/ForestCoverType10/forestcovertype10.csv')
+        a, b, c, d = self.cursor.getDBDescription()
         self.hist = h.HistogramPlot(None)
         self.data = [d[6] for d in self.cursor]
-        self.hist.setData(data)
+        self.hist.setData(self.data)
+        self.hist.SetNumBins(20)
+        self.hist.computeClassesInterval()
         self.cursor.rewind()
 
     def test_dataloadTime(self):
@@ -86,10 +92,13 @@ class HForestcsv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('../../../Data/ForestCoverType/forestcovertype.csv')
+        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/ForestCoverType/forestcovertype.csv')#'../../../Data/ForestCoverType/forestcovertype.csv')
+        a, b, c, d = self.cursor.getDBDescription()
         self.hist = h.HistogramPlot(None)
         self.data = [d[6] for d in self.cursor]
-        self.hist.setData(data)
+        self.hist.setData(self.data)
+        self.hist.SetNumBins(20)
+        self.hist.computeClassesInterval()
         self.cursor.rewind()
 
     def test_dataloadTime(self):
@@ -124,9 +133,12 @@ class HElNinodb(unittest.TestCase):
     def setUp(self):
         self.cursor = dI.Data(0)
         self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="elnino_db")
+        a, b, c, d = self.cursor.getDBDescription()
         self.hist = h.HistogramPlot(None)
         self.data = [d[6] for d in self.cursor]
-        self.hist.setData(data)
+        self.hist.setData(self.data)
+        self.hist.SetNumBins(20)
+        self.hist.computeClassesInterval()
         self.cursor.rewind()
 
     def test_dataloadTime(self):
@@ -160,10 +172,13 @@ class HForest10db(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(0)
-        self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="forestcover10")
+        self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="forestcovertype10")
+        a, b, c, d = self.cursor.getDBDescription()
         self.hist = h.HistogramPlot(None)
         self.data = [d[6] for d in self.cursor]
-        self.hist.setData(data)
+        self.hist.setData(self.data)
+        self.hist.SetNumBins(20)
+        self.hist.computeClassesInterval()
         self.cursor.rewind()
 
     def test_dataloadTime(self):
@@ -197,10 +212,13 @@ class HForestdb(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(0)
-        self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="forestcover")
+        self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="forestcovertype")
+        a, b, c, d = self.cursor.getDBDescription()
         self.hist = h.HistogramPlot(None)
         self.data = [d[6] for d in self.cursor]
-        self.hist.setData(data)
+        self.hist.setData(self.data)
+        self.hist.SetNumBins(20)
+        self.hist.computeClassesInterval()
         self.cursor.rewind()
 
     def test_dataloadTime(self):

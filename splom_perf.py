@@ -12,9 +12,12 @@ class SPLOMElNinocsv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('../../../Data/elnino/elnino.csv')
+        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/elnino/elnino.csv')#'../../../Data/elnino/elnino.csv')
+        a, b, c, d = self.cursor.getDBDescription()
         self.splom = splom.SPLOM(None)
-        self.splom.setData(self.cursor)
+        self.splom.SetData(self.cursor)
+        self.splom.SetLabels(a)
+        self.splom.SetCategory(b)
 
     def test_draw(self):
         """ """
@@ -36,9 +39,12 @@ class SPLOMForest10csv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('../../../Data/ForestCoverType10/forestcovertype10.csv')
+        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/ForestCoverType10/forestcovertype.csv')#'../../../Data/ForestCoverType10/forestcovertype10.csv')
+        a, b, c, d = self.cursor.getDBDescription()
         self.splom = splom.SPLOM(None)
-        self.splom.setData(self.cursor)
+        self.splom.SetData(self.cursor)
+        self.splom.SetLabels(a)
+        self.splom.SetCategory(b)
 
     def test_draw(self):
         """ """
@@ -60,9 +66,12 @@ class SPLOMForestcsv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('../../../Data/ForestCoverType/forestcovertype.csv')
+        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/ForestCoverType/forestcovertype.csv')#'../../../Data/ForestCoverType/forestcovertype.csv')
+        a, b, c, d = self.cursor.getDBDescription()
         self.splom = splom.SPLOM(None)
-        self.splom.setData(self.cursor)
+        self.splom.SetData(self.cursor)
+        self.splom.SetLabels(a)
+        self.splom.SetCategory(b)
 
     def test_draw(self):
         """ """
@@ -85,8 +94,11 @@ class SPLOMElNinodb(unittest.TestCase):
     def setUp(self):
         self.cursor = dI.Data(0)
         self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="elnino_db")
+        a, b, c, d = self.cursor.getDBDescription()
         self.splom = splom.SPLOM(None)
-        self.splom.setData(self.cursor)
+        self.splom.SetData(self.cursor)
+        self.splom.SetLabels(a)
+        self.splom.SetCategory(b)
 
     def test_draw(self):
         """ """
@@ -109,8 +121,11 @@ class SPLOMForest10db(unittest.TestCase):
     def setUp(self):
         self.cursor = dI.Data(0)
         self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="forestcovertype10")
+        a, b, c, d = self.cursor.getDBDescription()
         self.splom = splom.SPLOM(None)
-        self.splom.setData(self.cursor)
+        self.splom.SetData(self.cursor)
+        self.splom.SetLabels(a)
+        self.splom.SetCategory(b)
 
     def test_draw(self):
         """ """
@@ -133,8 +148,11 @@ class SPLOMForestdb(unittest.TestCase):
     def setUp(self):
         self.cursor = dI.Data(0)
         self.cursor.loadDB(host="localhost", user="root", passwd="12345", dbName="forestcovertype")
+        a, b, c, d = self.cursor.getDBDescription()
         self.splom = splom.SPLOM(None)
-        self.splom.setData(self.cursor)
+        self.splom.SetData(self.cursor)
+        self.splom.SetLabels(a)
+        self.splom.SetCategory(b)
 
     def test_draw(self):
         """ """
@@ -152,11 +170,9 @@ class SPLOMForestdb(unittest.TestCase):
 
 #----------------------------------------------------------------------------------------------------
 
-def SPLOMELNinocsv_suite():
+def SPLOMElNinocsv_suite():
     """ """
     suite = unittest.TestSuite()
-    suite.addTest(SPLOMElNinocsv('test_loadData'))
-    suite.addTest(SPLOMElNinocsv('test_PearsCoeff'))
     suite.addTest(SPLOMElNinocsv('test_draw'))
 
     return suite
@@ -164,8 +180,6 @@ def SPLOMELNinocsv_suite():
 def SPLOMForest10csv_suite():
     """ """
     suite = unittest.TestSuite()
-    suite.addTest(SPLOMForest10csv('test_loadData'))
-    suite.addTest(SPLOMForest10csv('test_PearsCoeff'))
     suite.addTest(SPLOMForest10csv('test_draw'))
 
     return suite
@@ -173,19 +187,15 @@ def SPLOMForest10csv_suite():
 def SPLOMForestcsv_suite():
     """ """
     suite = unittest.TestSuite()
-    suite.addTest(SPLOMForestcsv('test_loadData'))
-    suite.addTest(SPLOMForestcsv('test_PearsCoeff'))
     suite.addTest(SPLOMForestcsv('test_draw'))
 
     return suite
 
 #----------------------------------------------------------------------------------------------------
 
-def SPLOMELNinodb_suite():
+def SPLOMElNinodb_suite():
     """ """
     suite = unittest.TestSuite()
-    suite.addTest(SPLOMElNinodb('test_loadData'))
-    suite.addTest(SPLOMElNinodb('test_PearsCoeff'))
     suite.addTest(SPLOMElNinodb('test_draw'))
 
     return suite
@@ -193,8 +203,6 @@ def SPLOMELNinodb_suite():
 def SPLOMForest10db_suite():
     """ """
     suite = unittest.TestSuite()
-    suite.addTest(SPLOMForest10db('test_loadData'))
-    suite.addTest(SPLOMForest10db('test_PearsCoeff'))
     suite.addTest(SPLOMForest10db('test_draw'))
 
     return suite
@@ -202,8 +210,6 @@ def SPLOMForest10db_suite():
 def SPLOMForestdb_suite():
     """ """
     suite = unittest.TestSuite()
-    suite.addTest(SPLOMForestdb('test_loadData'))
-    suite.addTest(SPLOMForestdb('test_PearsCoeff'))
     suite.addTest(SPLOMForestdb('test_draw'))
 
     return suite

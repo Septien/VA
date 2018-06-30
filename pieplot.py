@@ -77,8 +77,8 @@ class PiePlot(oglC.OGLCanvas):
         n = len(self.frequencies)
         if n > 10:
             for i in range(maxClass):
-                frequencies.append(sortedFrequencies[i])
-                total += sortedFrequencies[i][1]
+                frequencies.append(self.frequencies[i])
+                total += self.frequencies[i][1]
         else:
             total = self.N
             frequencies = self.frequencies
@@ -226,7 +226,7 @@ class PiePlot(oglC.OGLCanvas):
                 self.nonDrawn.append(sortedFrequencies[i])
         else:
             total = self.N
-            self.frequencies = sortedFrequencies
+        self.frequencies = sortedFrequencies
 
         # Set drawing event if required
         if draw:
