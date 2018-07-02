@@ -43,6 +43,9 @@ class HistogramPlot(oglC.OGLCanvas):
         self.data = []
         self.numDivisions = 10
         self.unit = ""
+        self.category = ""
+        self.name = []
+        self.value = []
 
     def InitGL(self):
         glClearColor(1.0, 1.0, 1.0, 1)
@@ -160,15 +163,25 @@ class HistogramPlot(oglC.OGLCanvas):
         so it normalize them. Such frequency is the height of the rectangle. If the number of 
         frequencies is different to the number of bins, the latter is updated.
         """
-        self.initFrequencies()
-        #
-        for x in self.data:
-            i = 0
-            for interval in self.binIntervals:
-                if interval[0] <= x <= interval[1]:
-                    self.frequencies[i] += 1
-                    break
-                i += 1
+        if self.category == 0:
+            self.initFrequencies()
+            #
+            for x in self.data:
+                i = 0
+                for interval in self.binIntervals:
+                    if interval[0] <= x <= interval[1]:
+                        self.frequencies[i] += 1
+                        break
+                    i += 1
+        else:
+            f = {}
+            self.frequencies.clear()
+            for x in self.data:
+                f[x] = f.get(x, 0) + 1
+            for d in f:
+                self.frequencies.append(f[d])
+            self.SetNumBins(len(self.frequencies))
+
         # Normalize
         self.maxFrequency = self.frequencies[0]
         for f in self.frequencies:
@@ -198,10 +211,19 @@ class HistogramPlot(oglC.OGLCanvas):
         """ Sets the units of the variable """
         self.unit = unit
 
+    def setCategory(self, category):
+        """ """
+        self.category = category
+
     def SetNumBins(self, numB):
         """ Sets the number of bins for the histogram """
         self.numBins = numB;
         self.computeBinWidth()
+
+    def setDescription(self, value, descr):
+        """ Set the description of each variable """
+        self.name = descr
+        self.value = value
 
     def getNumBins(self):
         """
@@ -323,13 +345,20 @@ class HistogramPlot(oglC.OGLCanvas):
 
             assert a <= value <= b, "Out of range"
             return value
+
         # Draw the value of the ranges
         a = self.range[0]
         glPushMatrix()
         glTranslatef(0.03, 0.0, 0.0)
         for i in range(self.numBins+1):
-            x = a + i * self.binWidth
-            xLabel = '{:.1f}'.format(x)
+            if self.category == 0:
+                x = a + i * self.binWidth
+                xLabel = '{:.1f}'.format(x)
+            else:
+                if i < self.numBins:
+                    x = self.name[self.value[self.frequencies[i]]]
+                    xLabel = x
+
             length = GetLabelWidth(xLabel)
             length /= self.size.width
             if i % 2 == 0:
@@ -392,11 +421,13 @@ class HistogramWidget(wx.Panel):
         self.axis = -1
         self.axisName = None
         self.units = None
+        self.category = None
+        self.description = None
 
         self.histogram = HistogramPlot(self)
         self.histogram.SetMinSize((400, 400))
 
-    def create(self, data, axis, axisName, units):
+    def create(self, data, axis, axisName, units, category, description):
         """ Pass the data to the graph and intialize it. Type: if categorical or numerical """
         if not self.histogram:
             self.histogram = HistogramPlot(self)
@@ -405,7 +436,9 @@ class HistogramWidget(wx.Panel):
         self.data = data
         self.axis = axis
         self.units = units
+        self.category = category
         self.axisName = axisName
+        self.description = description
         self.initHistogram()
         self.initCtrls()
         self.groupControls()
@@ -419,9 +452,20 @@ class HistogramWidget(wx.Panel):
         self.data.rewind()
         self.histogram.setData(datum)
         self.histogram.setAxis(self.axisName)
-        # Compute the defaul number of bins
-        self.histogram.computeBins()
-        self.histogram.computeClassesInterval()
+        self.histogram.setCategory(self.category[self.axis])
+        if self.category[self.axis] == 0:
+            # Compute the defaul number of bins
+            self.histogram.computeBins()
+            self.histogram.computeClassesInterval()
+        else:
+            for row in self.description:
+                if row[axis] == '':
+                    break
+                value, name = row[axis].split('=')
+                self.values.append(int(value))
+                self.names.append(name)
+                self.histogram.setDescription(self.values, self.name)
+    
         self.histogram.computeFrequencies(False)
         self.histogram.setUnits(self.units[self.axis])
 

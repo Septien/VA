@@ -388,7 +388,7 @@ class mainGUI(wx.Frame):
         selectionable = []
         for i in range(len(self.category)):
             # 0 -> Numerical variables
-            if self.category[i] == 0:
+            if self.category[i] == 0 or self.category[i] == 1:
                 selectionable.append(self.labels[i])
         return selectionable
 
@@ -407,7 +407,7 @@ class mainGUI(wx.Frame):
             if self.mainSizer.IsShown(self.hist):
                 self.hist.close()
             # Set it to the histogram
-            self.hist.create(self.data, axis, self.labels[axis], self.units)
+            self.hist.create(self.data, axis, self.labels[axis], self.units, self.category, self.description)
             self.mainSizer.Show(self.hist, True)
             # Force layout update
             self.fitLayout()

@@ -269,7 +269,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
         for i in range(len(self.circle)):
             k = self.circle[i][0]
             m = self.circle[i][1]
-        	glVertex3f(self.circle[i][0], self.circle[i][1], 0.0)
+            glVertex3f(self.circle[i][0], self.circle[i][1], 0.0)
         glEnd()
 
     def DrawPoint(self, cx, cy, r):

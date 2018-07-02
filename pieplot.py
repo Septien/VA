@@ -90,11 +90,11 @@ class PiePlot(oglC.OGLCanvas):
         i = 0
         for freq in frequencies:
             arcAngle = 360.0 * (freq[1] / total)
-            # glColor3f(0.0, 0.0, 0.0)
+            glColor3f(0.0, 0.0, 0.0)
             labelAngle = (arcAngle / 2.0) + startAngle
             radious = 1.2
-            # glPushMatrix()
-            # glTranslatef(-0.1, 0.0, 0.0)
+            glPushMatrix()
+            glTranslatef(-0.1, 0.0, 0.0)
             label = str(freq[0])
             if self.category == 1:  # A categorical
                 k = 0
@@ -103,10 +103,10 @@ class PiePlot(oglC.OGLCanvas):
                         label = self.name[k]
                         break
                     k += 1
-            # self.drawLabels(labelAngle, label, radious, freq[1] / self.N)
-            # glPopMatrix()
-            # glColor3fv(self.colors[i])
-            # self.DrawFilledArc(0, 0, 1, startAngle, arcAngle)
+            self.drawLabels(labelAngle, label, radious, freq[1] / self.N)
+            glPopMatrix()
+            glColor3fv(self.colors[i])
+            self.DrawFilledArc(0, 0, 1, startAngle, arcAngle)
             startAngle += arcAngle
             i += 1
         glPopMatrix()
