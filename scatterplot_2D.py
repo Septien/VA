@@ -49,12 +49,6 @@ class ScatterPlot2D(oglC.OGLCanvas):
         self.InitCirclePoints()
         self.initGrid()
 
-        # random points
-        # r.seed()
-        # for i in range(100):
-        #     self.points.append((r.uniform(0, 1), r.uniform(0, 1)))
-        # self.GetRanges()
-
     def InitCirclePoints(self):
         """
         Constructs an array containing the points for a circle centered at the origin
@@ -223,7 +217,7 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
         if not self.points:
             return
-        # glColor3f(0.1411, 0.1411, 0.561)
+        glColor3f(0.1411, 0.1411, 0.561)
         for i in range(len(self.points[0])):
             # Normalize x
             x = Map(self.points[0][i], self.range[0])
@@ -271,24 +265,23 @@ class ScatterPlot2D(oglC.OGLCanvas):
         """
         Draw a circle based on the points previously calculated. Uses a triangle fan.
         """
-        #glBegin(GL_LINE_LOOP)
-        # glBegin(GL_TRIANGLE_FAN)
+        glBegin(GL_TRIANGLE_FAN)
         for i in range(len(self.circle)):
             k = self.circle[i][0]
             m = self.circle[i][1]
-        	# glVertex3f(self.circle[i][0], self.circle[i][1], 0.0)
-        # glEnd()
+        	glVertex3f(self.circle[i][0], self.circle[i][1], 0.0)
+        glEnd()
 
     def DrawPoint(self, cx, cy, r):
         """
         Draw a point centered at (cx, cy) with radious r.
         It is based on the function draw circle.
         """
-        # glPushMatrix()
-        # glTranslatef(cx, cy, 0.0)
-        # glScalef(r, r, 0.0)
+        glPushMatrix()
+        glTranslatef(cx, cy, 0.0)
+        glScalef(r, r, 0.0)
         self.DrawCircle()
-        # glPopMatrix()
+        glPopMatrix()
 
     def DrawLabels(self):
         """Displays the corresponding values for the divisons of each of the axes.

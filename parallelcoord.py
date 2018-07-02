@@ -124,7 +124,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         self.axesOrder[index1] = axis2
         self.axesOrder[index2] = axis1
         # Send event to redraw
-        # wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
     def setDefaultAxesOrder(self):
         """ Set the default axis configuration """
@@ -134,7 +134,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
         for i in range(self.dimensions):
             self.axesOrder.append(i)
         # Send event to redraw
-        # wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
     def setFilterAxis(self, axis):
         """ Sets the axis to filter """
@@ -150,7 +150,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
 
         self.filterRange = nRange.copy()
         # Send event to redraw
-        # wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+        wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
     def getAxisRange(self, axis):
         """ Gets the range of the axis 'axis' """
