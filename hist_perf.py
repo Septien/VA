@@ -12,7 +12,7 @@ class HElNinocsv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/elnino/elnino.csv')#'../../../Data/elnino/elnino.csv')
+        self.cursor.loadCSV('/Users/Septien/Documents/Tesis/Data/elnino/elnino.csv')#'/media/phantom/B/Tesis/Data/elnino/elnino.csv')
         a, b, c, d = self.cursor.getDBDescription()
         self.hist = h.HistogramPlot(None)
         self.data = [d[6] for d in self.cursor]
@@ -24,7 +24,7 @@ class HElNinocsv(unittest.TestCase):
     def test_dataloadTime(self):
         """ """
         with open('testHLoaddata.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 data = [d[i % 12] for d in self.cursor]
                 end = t.time()
@@ -35,7 +35,7 @@ class HElNinocsv(unittest.TestCase):
     def test_freqComputation(self):
         """ """
         with open('testHFreComp.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.hist.computeFrequencies(False)
                 end = t.time()
@@ -52,7 +52,7 @@ class HForest10csv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/ForestCoverType10/forestcovertype.csv')#'../../../Data/ForestCoverType10/forestcovertype10.csv')
+        self.cursor.loadCSV('/Users/Septien/Documents/Tesis/Data/ForestCoverType10/forestcovertype.csv')#'/media/phantom/B/Tesis/Data/ForestCoverType10/forestcovertype.csv')
         a, b, c, d = self.cursor.getDBDescription()
         self.hist = h.HistogramPlot(None)
         self.data = [d[6] for d in self.cursor]
@@ -64,7 +64,7 @@ class HForest10csv(unittest.TestCase):
     def test_dataloadTime(self):
         """ """
         with open('testHLoaddataForest10.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 data = [d[i % 12] for d in self.cursor]
                 end = t.time()
@@ -75,7 +75,7 @@ class HForest10csv(unittest.TestCase):
     def test_freqComputation(self):
         """ """
         with open('testHFreCompForest10.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.hist.computeFrequencies(False)
                 end = t.time()
@@ -92,7 +92,7 @@ class HForestcsv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/ForestCoverType/forestcovertype.csv')#'../../../Data/ForestCoverType/forestcovertype.csv')
+        self.cursor.loadCSV('/Users/Septien/Documents/Tesis/Data/ForestCoverType/forestcovertype.csv')#'/media/phantom/B/Tesis/Data/ForestCoverType/forestcovertype.csv')
         a, b, c, d = self.cursor.getDBDescription()
         self.hist = h.HistogramPlot(None)
         self.data = [d[6] for d in self.cursor]
@@ -104,7 +104,7 @@ class HForestcsv(unittest.TestCase):
     def test_dataloadTime(self):
         """ """
         with open('testHLoaddataForest.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 data = [d[i % 12] for d in self.cursor]
                 end = t.time()
@@ -115,7 +115,7 @@ class HForestcsv(unittest.TestCase):
     def test_freqComputation(self):
         """ """
         with open('testHFreCompForest.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.hist.computeFrequencies(False)
                 end = t.time()
@@ -144,7 +144,7 @@ class HElNinodb(unittest.TestCase):
     def test_dataloadTime(self):
         """ """
         with open('testHLoaddatadb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 data = [d[i % 12] for d in self.cursor]
                 end = t.time()
@@ -155,7 +155,7 @@ class HElNinodb(unittest.TestCase):
     def test_freqComputation(self):
         """ """
         with open('testHFreCompdb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.hist.computeFrequencies(False)
                 end = t.time()
@@ -184,7 +184,7 @@ class HForest10db(unittest.TestCase):
     def test_dataloadTime(self):
         """ """
         with open('testHLoaddataForest10db.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 data = [d[i % 12] for d in self.cursor]
                 end = t.time()
@@ -195,7 +195,7 @@ class HForest10db(unittest.TestCase):
     def test_freqComputation(self):
         """ """
         with open('testHFreCompForest10db.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.hist.computeFrequencies(False)
                 end = t.time()
@@ -224,7 +224,7 @@ class HForestdb(unittest.TestCase):
     def test_dataloadTime(self):
         """ """
         with open('testHLoaddataForestdb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 data = [d[i % 12] for d in self.cursor]
                 end = t.time()
@@ -235,7 +235,7 @@ class HForestdb(unittest.TestCase):
     def test_freqComputation(self):
         """ """
         with open('testHFreCompForestdb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.hist.computeFrequencies(False)
                 end = t.time()

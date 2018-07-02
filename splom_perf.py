@@ -12,7 +12,7 @@ class SPLOMElNinocsv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/elnino/elnino.csv')#'../../../Data/elnino/elnino.csv')
+        self.cursor.loadCSV('/Users/Septien/Documents/Tesis/Data/elnino/elnino.csv')#'/media/phantom/B/Tesis/Data/elnino/elnino.csv')
         a, b, c, d = self.cursor.getDBDescription()
         self.splom = splom.SPLOM(None)
         self.splom.SetData(self.cursor)
@@ -22,7 +22,7 @@ class SPLOMElNinocsv(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testsplomdrawelnino.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.splom.DrawSCPM()
                 end = t.time()
@@ -39,7 +39,7 @@ class SPLOMForest10csv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/ForestCoverType10/forestcovertype.csv')#'../../../Data/ForestCoverType10/forestcovertype10.csv')
+        self.cursor.loadCSV('/Users/Septien/Documents/Tesis/Data/ForestCoverType10/forestcovertype.csv')#'/media/phantom/B/Tesis/Data/ForestCoverType10/forestcovertype.csv')
         a, b, c, d = self.cursor.getDBDescription()
         self.splom = splom.SPLOM(None)
         self.splom.SetData(self.cursor)
@@ -49,7 +49,7 @@ class SPLOMForest10csv(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testsplomdrawforest10.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.splom.DrawSCPM()
                 end = t.time()
@@ -66,7 +66,7 @@ class SPLOMForestcsv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/ForestCoverType/forestcovertype.csv')#'../../../Data/ForestCoverType/forestcovertype.csv')
+        self.cursor.loadCSV('/Users/Septien/Documents/Tesis/Data/ForestCoverType/forestcovertype.csv')#'/media/phantom/B/Tesis/Data/ForestCoverType/forestcovertype.csv')
         a, b, c, d = self.cursor.getDBDescription()
         self.splom = splom.SPLOM(None)
         self.splom.SetData(self.cursor)
@@ -76,7 +76,7 @@ class SPLOMForestcsv(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testsplomdrawforest.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.splom.DrawSCPM()
                 end = t.time()
@@ -103,7 +103,7 @@ class SPLOMElNinodb(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testsplomdrawelninodb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.splom.DrawSCPM()
                 end = t.time()
@@ -130,7 +130,7 @@ class SPLOMForest10db(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testsplomdrawforest10.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.splom.DrawSCPM()
                 end = t.time()
@@ -157,7 +157,7 @@ class SPLOMForestdb(unittest.TestCase):
     def test_draw(self):
         """ """
         with open('testsplomdrawforestdb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.splom.DrawSCPM()
                 end = t.time()

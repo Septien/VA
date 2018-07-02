@@ -13,7 +13,7 @@ class PPElNinocsv(unittest.TestCase):
     def setUp(self):
         """ """
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/elnino/elnino.csv')#'../../../Data/elnino/elnino.csv')
+        self.cursor.loadCSV('/Users/Septien/Documents/Tesis/Data/elnino/elnino.csv')#'/media/phantom/B/Tesis/Data/elnino/elnino.csv')
         a, b, c, d = self.cursor.getDBDescription()
         self.pp = pp.PiePlot(None)
         self.pp.setData(self.cursor)
@@ -23,7 +23,7 @@ class PPElNinocsv(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testPPFreqElNino.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pp.computeFrequencies(False)
                 end = t.time()
@@ -34,7 +34,7 @@ class PPElNinocsv(unittest.TestCase):
         """ """
         self.pp.computeFrequencies(False)
         with open('testPPpieElNino.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pp.DrawPie()
                 end = t.time()
@@ -62,7 +62,7 @@ class PPForest10csv(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testPPFreqForest10.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pp.computeFrequencies(False)
                 end = t.time()
@@ -73,7 +73,7 @@ class PPForest10csv(unittest.TestCase):
         """ """
         self.pp.computeFrequencies(False)
         with open('testPPpieForest10.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pp.DrawPie()
                 end = t.time()
@@ -91,7 +91,7 @@ class PPForestcsv(unittest.TestCase):
     def setUp(self):
         """ """
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/ForestCoverType/forestcovertype.csv')#'../../../Data/ForestCoverType/forestcovertype.csv')
+        self.cursor.loadCSV('/Users/Septien/Documents/Tesis/Data/ForestCoverType/forestcovertype.csv')#'/media/phantom/B/Tesis/Data/ForestCoverType/forestcovertype.csv')
         a, b, c, d = self.cursor.getDBDescription()
         self.pp = pp.PiePlot(None)
         self.pp.setData(self.cursor)
@@ -101,7 +101,7 @@ class PPForestcsv(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testPPFreqForest.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pp.computeFrequencies(False)
                 end = t.time()
@@ -112,7 +112,7 @@ class PPForestcsv(unittest.TestCase):
         """ """
         self.pp.computeFrequencies(False)
         with open('testPPForest.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pp.DrawPie()
                 end = t.time()
@@ -140,7 +140,7 @@ class PPElNinodb(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testPPFreqElNinodb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pp.computeFrequencies(False)
                 end = t.time()
@@ -151,7 +151,7 @@ class PPElNinodb(unittest.TestCase):
         """ """
         self.pp.computeFrequencies(False)
         with open('testPPpElNinodb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pp.DrawPie()
                 end = t.time()
@@ -179,7 +179,7 @@ class PPForest10db(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testPPFreqForest10db.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pp.computeFrequencies(False)
                 end = t.time()
@@ -190,7 +190,7 @@ class PPForest10db(unittest.TestCase):
         """ """
         self.pp.computeFrequencies(False)
         with open('testPPForest10db.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pp.DrawPie()
                 end = t.time()
@@ -218,7 +218,7 @@ class PPForestdb(unittest.TestCase):
     def test_computeFreq(self):
         """ """
         with open('testPPFreqForestdb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pp.computeFrequencies(False)
                 end = t.time()
@@ -229,7 +229,7 @@ class PPForestdb(unittest.TestCase):
         """ """
         self.pp.computeFrequencies(False)
         with open('testPPForestdb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pp.DrawPie()
                 end = t.time()

@@ -12,7 +12,7 @@ class PCElNinocsv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/elnino/elnino.csv')#'../../../Data/elnino/elnino.csv')
+        self.cursor.loadCSV('/Users/Septien/Documents/Tesis/Data/elnino/elnino.csv')#'/media/phantom/B/Tesis/Data/elnino/elnino.csv')
         a, b, c, d = self.cursor.getDBDescription()
         self.pc = pc.ParallelCoordinates(None)
         self.pc.SetData(self.cursor)
@@ -22,7 +22,7 @@ class PCElNinocsv(unittest.TestCase):
     def test_computeRanges(self):
         """ """
         with open('testPCRangesElNino.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.ComputeRanges()
                 end = t.time()
@@ -33,7 +33,7 @@ class PCElNinocsv(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCLinesElNino.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -44,7 +44,7 @@ class PCElNinocsv(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCChangeElNino.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -60,7 +60,7 @@ class PCElNinocsv(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterElNino.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -73,7 +73,7 @@ class PCElNinocsv(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterChangeElNino.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -93,7 +93,7 @@ class PCForestCoverType10csv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/ForestCoverType10/forestcovertype.csv')#'../../../Data/ForestCoverType10/forestcovertype10.csv')
+        self.cursor.loadCSV('/Users/Septien/Documents/Tesis/Data/ForestCoverType10/forestcovertype.csv')#'/media/phantom/B/Tesis/Data/ForestCoverType10/forestcovertype.csv')
         a, b, c, d = self.cursor.getDBDescription()
         self.pc = pc.ParallelCoordinates(None)
         self.pc.SetData(self.cursor)
@@ -103,7 +103,7 @@ class PCForestCoverType10csv(unittest.TestCase):
     def test_computeRanges(self):
         """ """
         with open('testPCRangesForest10.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.ComputeRanges()
                 end = t.time()
@@ -114,7 +114,7 @@ class PCForestCoverType10csv(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCLinesForest10.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -125,7 +125,7 @@ class PCForestCoverType10csv(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCChangeForest10.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 9)
                 else:
@@ -141,7 +141,7 @@ class PCForestCoverType10csv(unittest.TestCase):
         self.pc.setFilterAxis(9)
         self.pc.setFilterRange([90, 130])
         with open('testPCFilterForest10.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -154,7 +154,7 @@ class PCForestCoverType10csv(unittest.TestCase):
         self.pc.setFilterAxis(9)
         self.pc.setFilterRange([90, 130])
         with open('testPCFilterChangeForest10.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 9)
                 else:
@@ -174,17 +174,17 @@ class PCForestCoverTypecsv(unittest.TestCase):
     """ """
     def setUp(self):
         self.cursor = dI.Data(1)
-        self.cursor.loadCSV('/media/phantom/B/Tesis/Data/ForestCoverType/forestcovertype.csv')#'../../../Data/ForestCoverType/forestcovertype.csv')
+        self.cursor.loadCSV('/Users/Septien/Documents/Tesis/Data/ForestCoverType/forestcovertype.csv')#'/media/phantom/B/Tesis/Data/ForestCoverType/forestcovertype.csv')
         a, b, c, d = self.cursor.getDBDescription()
         self.pc = pc.ParallelCoordinates(None)
         self.pc.SetData(self.cursor)
-        self.pc.dimensions = 45
+        self.pc.dimensions = 55
         self.pc.setDefaultAxesOrder()
 
     def test_computeRanges(self):
         """ """
         with open('testPCRangesForest.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.ComputeRanges()
                 end = t.time()
@@ -195,7 +195,7 @@ class PCForestCoverTypecsv(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCLinesForest.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -206,7 +206,7 @@ class PCForestCoverTypecsv(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCChangeForest.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 9)
                 else:
@@ -222,7 +222,7 @@ class PCForestCoverTypecsv(unittest.TestCase):
         self.pc.setFilterAxis(9)
         self.pc.setFilterRange([90, 130])
         with open('testPCFilterForest.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -235,7 +235,7 @@ class PCForestCoverTypecsv(unittest.TestCase):
         self.pc.setFilterAxis(9)
         self.pc.setFilterRange([90, 130])
         with open('testPCFilterChangeForest.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 9)
                 else:
@@ -265,7 +265,7 @@ class PCElNinodb(unittest.TestCase):
     def test_computeRanges(self):
         """ """
         with open('testPCRangesElNinodb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.ComputeRanges()
                 end = t.time()
@@ -276,7 +276,7 @@ class PCElNinodb(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCLinesElNinodb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -287,7 +287,7 @@ class PCElNinodb(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCChangeElNinodb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -303,7 +303,7 @@ class PCElNinodb(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterElNinodb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -316,7 +316,7 @@ class PCElNinodb(unittest.TestCase):
         self.pc.setFilterAxis(11)
         self.pc.setFilterRange([20, 26])
         with open('testPCFilterChangeElNinodb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 11)
                 else:
@@ -346,7 +346,7 @@ class PCForestCoverType10db(unittest.TestCase):
     def test_computeRanges(self):
         """ """
         with open('testPCRangesForest10db.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.ComputeRanges()
                 end = t.time()
@@ -357,7 +357,7 @@ class PCForestCoverType10db(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCLinesForest10db.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -368,7 +368,7 @@ class PCForestCoverType10db(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCChangeForest10db.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 9)
                 else:
@@ -384,7 +384,7 @@ class PCForestCoverType10db(unittest.TestCase):
         self.pc.setFilterAxis(9)
         self.pc.setFilterRange([90, 130])
         with open('testPCFilterForest10db.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -397,7 +397,7 @@ class PCForestCoverType10db(unittest.TestCase):
         self.pc.setFilterAxis(9)
         self.pc.setFilterRange([90, 130])
         with open('testPCFilterChangeForest10db.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 9)
                 else:
@@ -427,7 +427,7 @@ class PCForestCoverTypedb(unittest.TestCase):
     def test_computeRanges(self):
         """ """
         with open('testPCRangesForestdb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.ComputeRanges()
                 end = t.time()
@@ -438,7 +438,7 @@ class PCForestCoverTypedb(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCLinesForestdb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -449,7 +449,7 @@ class PCForestCoverTypedb(unittest.TestCase):
         """ """
         self.pc.ComputeRanges()
         with open('testPCChangeForestdb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 9)
                 else:
@@ -465,7 +465,7 @@ class PCForestCoverTypedb(unittest.TestCase):
         self.pc.setFilterAxis(9)
         self.pc.setFilterRange([90, 130])
         with open('testPCFilterForestdb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 start = t.time()
                 self.pc.DrawLines()
                 end = t.time()
@@ -478,7 +478,7 @@ class PCForestCoverTypedb(unittest.TestCase):
         self.pc.setFilterAxis(9)
         self.pc.setFilterRange([90, 130])
         with open('testPCFilterChangeForestdb.txt', 'a') as file:
-            for i in range(1):
+            for i in range(30):
                 if i % 2 == 0:
                     self.pc.changeAxes(6, 9)
                 else:
