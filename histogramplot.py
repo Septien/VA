@@ -46,6 +46,7 @@ class HistogramPlot(oglC.OGLCanvas):
         self.category = ""
         self.name = []
         self.value = []
+        self.values = []
 
     def InitGL(self):
         glClearColor(1.0, 1.0, 1.0, 1)
@@ -75,8 +76,6 @@ class HistogramPlot(oglC.OGLCanvas):
         self.DrawRect()
         glPopMatrix()
         self.DrawAxes()
-        # glLineWidth(1.0)
-        # self.DrawFreqPol()
         self.drawLabels()
 
         self.SwapBuffers()
@@ -178,9 +177,13 @@ class HistogramPlot(oglC.OGLCanvas):
             self.frequencies.clear()
             for x in self.data:
                 f[x] = f.get(x, 0) + 1
+            self.SetNumBins(len(f))
+            self.initFrequencies()
+            i = 0
             for d in f:
-                self.frequencies.append(f[d])
-            self.SetNumBins(len(self.frequencies))
+                self.frequencies[i] = f[d]
+                self.values.append(d)
+                i += 1
 
         # Normalize
         self.maxFrequency = self.frequencies[0]
@@ -356,8 +359,11 @@ class HistogramPlot(oglC.OGLCanvas):
                 xLabel = '{:.1f}'.format(x)
             else:
                 if i < self.numBins:
-                    x = self.name[self.value[self.frequencies[i]]]
-                    xLabel = x
+                    for v in self.value:
+                        if v == self.value[i]:
+                            xLabel = self.name[i]
+                else:
+                    break
 
             length = GetLabelWidth(xLabel)
             length /= self.size.width
@@ -365,9 +371,15 @@ class HistogramPlot(oglC.OGLCanvas):
                 y = -0.04
             else:
                 y = -0.08
+            if self.category == 1:
+                glPushMatrix()
+                self.binWidth = 1.0 / self.numBins
+                glTranslatef(self.binWidth / 2.0, 0.0, 0.0)
             glRasterPos2f(i * self.rectWidth - length / 2.0, y)
             for c in xLabel:
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
+            if self.category == 1:
+                glPopMatrix()
         glPopMatrix()
 
         # Draw the value of the frequencies
@@ -423,6 +435,8 @@ class HistogramWidget(wx.Panel):
         self.units = None
         self.category = None
         self.description = None
+        self.values = []
+        self.names = []
 
         self.histogram = HistogramPlot(self)
         self.histogram.SetMinSize((400, 400))
@@ -458,13 +472,15 @@ class HistogramWidget(wx.Panel):
             self.histogram.computeBins()
             self.histogram.computeClassesInterval()
         else:
+            self.values.clear()
+            self.names.clear()
             for row in self.description:
-                if row[axis] == '':
+                if row[self.axis] == '':
                     break
-                value, name = row[axis].split('=')
+                value, name = row[self.axis].split('=')
                 self.values.append(int(value))
                 self.names.append(name)
-                self.histogram.setDescription(self.values, self.name)
+            self.histogram.setDescription(self.values, self.names)
     
         self.histogram.computeFrequencies(False)
         self.histogram.setUnits(self.units[self.axis])
@@ -476,42 +492,46 @@ class HistogramWidget(wx.Panel):
         # Get the number of bins
         bins = self.histogram.getNumBins()
         maxBins = self.histogram.getMaxBins()
-        # For selecting the number of bins
-        self.binsLabel = wx.StaticText(self, -1, "Bins:")
-        self.tbxBins = wx.TextCtrl(self, -1, size=(50, 25))
-        self.slBins = wx.Slider(self, -1, value=bins, minValue=0,
-            maxValue=maxBins, name="Bins", style=wx.SL_HORIZONTAL | wx.SL_LABELS | wx.SL_AUTOTICKS)
-        #
-        self.SetSldMaxValue(maxBins)
-        self.tbxBins.ChangeValue(str(bins))
+        if self.category[self.axis] == 0:
+            # For selecting the number of bins
+            self.binsLabel = wx.StaticText(self, -1, "Bins:")
+            self.tbxBins = wx.TextCtrl(self, -1, size=(50, 25))
+            self.slBins = wx.Slider(self, -1, value=bins, minValue=0,
+                maxValue=maxBins, name="Bins", style=wx.SL_HORIZONTAL | wx.SL_LABELS | wx.SL_AUTOTICKS)
+            #
+            self.SetSldMaxValue(maxBins)
+            self.tbxBins.ChangeValue(str(bins))
 
     def groupControls(self):
         """
         Group the controls of the class
         """
         # Group controls
-        # Group textbox and label
-        binsSizer = wx.BoxSizer(wx.HORIZONTAL)
-        binsSizer.Add(self.binsLabel, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
-        binsSizer.Add(self.tbxBins, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL)
+        if self.category[self.axis] == 0:
+            # Group textbox and label
+            binsSizer = wx.BoxSizer(wx.HORIZONTAL)
+            binsSizer.Add(self.binsLabel, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL)
+            binsSizer.Add(self.tbxBins, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL)
 
-        # Group slider and binsSizer
-        sliderSizer = wx.BoxSizer(wx.VERTICAL)
-        sliderSizer.Add(self.slBins, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_TOP | wx.EXPAND)
-        sliderSizer.Add(binsSizer, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_BOTTOM)
+            # Group slider and binsSizer
+            sliderSizer = wx.BoxSizer(wx.VERTICAL)
+            sliderSizer.Add(self.slBins, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_TOP | wx.EXPAND)
+            sliderSizer.Add(binsSizer, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_BOTTOM)
 
         # Group controls with glcanvas
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.histogram, 5, wx.ALIGN_CENTER | wx.EXPAND | wx.ALL, 5)
-        self.sizer.Add(sliderSizer, 0, wx.ALIGN_BOTTOM | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+        if self.category[self.axis] == 0:
+            self.sizer.Add(sliderSizer, 0, wx.ALIGN_BOTTOM | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
         self.SetSizer(self.sizer)
 
     def bindEvets(self):
         """
         Bind the events for the slider and text box
         """
-        self.Bind(wx.EVT_TEXT, self.OnTxtChange, self.tbxBins)
-        self.Bind(wx.EVT_SCROLL_THUMBRELEASE, self.OnSldScroll, self.slBins)
+        if self.category[self.axis] == 0:
+            self.Bind(wx.EVT_TEXT, self.OnTxtChange, self.tbxBins)
+            self.Bind(wx.EVT_SCROLL_THUMBRELEASE, self.OnSldScroll, self.slBins)
 
     def SetSldMaxValue(self, value):
         self.sliderMaxValue = value
