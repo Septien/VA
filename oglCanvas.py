@@ -32,13 +32,12 @@ class OGLCanvas(glcanvas.GLCanvas):
         # Diminish flicker
         self.SetBackgroundStyle(wx.BG_STYLE_PAINT)
 
-        # # Handle events
+        # Handle events
         self.Bind(wx.EVT_SIZE, self.OnSize)                     # Resizing the window
         self.Bind(wx.EVT_PAINT, self.OnPaint)                   # Draw on canvas
 
     def OnSize(self, event):
         wx.CallAfter(self.SetViewPort)
-        self.OnDraw()
         event.Skip()
 
     def SetViewPort(self):

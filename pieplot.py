@@ -73,19 +73,18 @@ class PiePlot(oglC.OGLCanvas):
         maxClass = 10
         total = 0
         frequencies = []
-        # sortedFrequencies = sorted(self.frequencies.items(), key=operator.itemgetter(1), reverse=True)
         n = len(self.frequencies)
         if n > 10:
             for i in range(maxClass):
-                frequencies.append(sortedFrequencies[i])
-                total += sortedFrequencies[i][1]
+                frequencies.append(self.frequencies[i])
+                total += self.frequencies[i][1]
         else:
             total = self.N
             frequencies = self.frequencies
         frequencies.reverse()
-        # glPushMatrix()
-        # glTranslatef(0.5, 0.5, 0.0)
-        # glScalef(0.45, 0.45, 0.0)
+        glPushMatrix()
+        glTranslatef(0.5, 0.5, 0.0)
+        glScalef(0.45, 0.45, 0.0)
         startAngle = 0.0
         i = 0
         for freq in frequencies:
@@ -226,7 +225,7 @@ class PiePlot(oglC.OGLCanvas):
                 self.nonDrawn.append(sortedFrequencies[i])
         else:
             total = self.N
-            self.frequencies = sortedFrequencies
+        self.frequencies = sortedFrequencies
 
         # Set drawing event if required
         if draw:
