@@ -24,6 +24,8 @@ import getStreamDialog as stD
 import dataStreaming as dS
 # Cursor
 import dataIterator as dI
+# Information bar
+import infoBar
 
 import random as r
 
@@ -34,6 +36,7 @@ class mainGUI(wx.Frame):
     def __init__(self, parent, title=""):
         super(mainGUI, self).__init__(parent, title=title)
 
+        self.SetBackgroundColour((255, 255, 255))
         self.selectedDB = False
         self.streamSelected = False
         self.data = None
@@ -42,19 +45,27 @@ class mainGUI(wx.Frame):
         self.description = None
         self.units = None
         self.timer = None
+        self.infBar = None
+        self.Sizer = wx.BoxSizer(wx.HORIZONTAL)
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
 
         #https://stackoverflow.com/questions/30797443/add-a-vertical-scrollbar-to-a-wxframe-accross-multiple-wxpanels
         # Create a scrolled panel
-        self.panel = scp.ScrolledPanel(self, -1, style=wx.SIMPLE_BORDER, size=(400, 200))
+        self.panel = scp.ScrolledPanel(self, -1, style=wx.SIMPLE_BORDER)
         self.panel.SetupScrolling()
         self.panel.SetAutoLayout(1)
         self.panel.ShowScrollbars(horz=wx.SHOW_SB_DEFAULT, vert=wx.SHOW_SB_ALWAYS)
         self.panel.SetBackgroundColour((255, 255, 255))
         self.panel.SetScrollRate(20, 20)
 
+        self.panel2 = wx.Panel(self, -1)
+        self.infBar = infoBar.InfoBar(self)
+
         self.initGraphs()
+        self.Sizer.Add(self.infBar, 1, wx.ALIGN_LEFT)
         self.panel.SetSizer(self.mainSizer)
+        self.Sizer.Add(self.panel, 4, wx.EXPAND | wx.ALIGN_RIGHT)
+        self.panel2.SetSizer(self.Sizer)
 
         self.initMenus()
 
@@ -163,6 +174,7 @@ class mainGUI(wx.Frame):
 
             wx.MessageBox("Database loaded with success", "Database loaded")
             self.labels, self.category, self.description, self.units = self.data.getDBDescription()
+            self.infBar.create(self.labels, self.category, self.description, self.units)
             self.selectedDB = True
 
     #--------------------------------------------------------------------------------------------------------------
@@ -188,6 +200,7 @@ class mainGUI(wx.Frame):
             else:
                 wx.MessageBox("File loaded with success", "File loaded")
             self.labels, self.category, self.description, self.units = self.data.getDBDescription()
+            self.infBar.create(self.labels, self.category, self.description, self.units)
             self.selectedDB = True
         dlg.Destroy()
 
