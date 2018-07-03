@@ -109,6 +109,8 @@ class PiePlot(oglC.OGLCanvas):
             startAngle += arcAngle
             i += 1
         glPopMatrix()
+        del freq
+        del frequencies
 
     def DrawFilledArc(self, cx, cy, r, startAngle, arcAngle):
         """
@@ -231,6 +233,8 @@ class PiePlot(oglC.OGLCanvas):
         if draw:
             wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
+        del datum
+        del sortedFrequencies
         return self.nonDrawn, self.N, self.colors[:10]  # The first 10 colors
 
     def drawLabels(self, angle, label, radious, freq):
