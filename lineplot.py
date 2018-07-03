@@ -23,6 +23,8 @@ import numpy as np
 # math library
 import math as m
 
+import random as r
+
 import operator
 
 # Auxiliary functions        
@@ -59,6 +61,7 @@ class LinePlot(oglC.OGLCanvas):
         self.classWidth = 0.1
         self.numClass = 0
         self.maxL = 0
+        self.colors = []
 
         self.initGrid()
 
@@ -133,11 +136,13 @@ class LinePlot(oglC.OGLCanvas):
         if not self.range:
             return
 
-        glColor(0.0, 0.4, 0.6)
+        j = 0
         glLineWidth(2)
         for data in self.data:
             # Get the ordered sequence of values
             self.sortedData = sorted(data.items(), key=operator.itemgetter(0))
+            glColor3fv(self.colors[j])
+            j += 1
             glBegin(GL_LINE_STRIP)
             # Iterate over all elements of the dictionary
             i = 0
@@ -178,6 +183,7 @@ class LinePlot(oglC.OGLCanvas):
         self.setRange(data)
         self.axes.append(axis)
         self.numClass = len(dataFreq)
+        self.colors.append([0.0, 0.4, 0.6])
 
     def setRange(self, data):
         """
@@ -228,6 +234,9 @@ class LinePlot(oglC.OGLCanvas):
         self.data.append(dataFreq)
         self.setRange(data)
         self.axes.append(axis)
+        if len(dataFreq) > self.numClass:
+            self.numClass = len(dataFreq)
+        self.colors.append([r.random(), r.random(), r.random()])
 
     def setUnit(self, unit):
         """ Set the unit of the axis """
@@ -236,6 +245,7 @@ class LinePlot(oglC.OGLCanvas):
     def clearData(self):
         """ Clear the data """
         self.data.clear()
+        self.colors.clear()
 
     def setGridSize(self, ngridSize):
         """ Set the size of the grid """
