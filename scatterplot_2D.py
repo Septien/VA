@@ -488,6 +488,9 @@ class ScatterplotWidget(wx.Panel):
         self.scp.SetData(axesData)
         self.scp.setAxesNames(self.labels[self.axis1], self.labels[self.axis2])
         self.scp.setUnits(self.units[self.axis1], self.units[self.axis2])
+        del xAxis
+        del yAxis
+        del axesData
 
     def onAxis1Changed(self, event):
         """ When another axis is selected. Get the selected

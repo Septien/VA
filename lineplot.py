@@ -147,6 +147,8 @@ class LinePlot(oglC.OGLCanvas):
                 glVertex3f(i * self.classWidth, y, 0.0)
                 i += 1
             glEnd()
+            del d
+        del data
 
     def setData(self, ndata, axis):
         """ Set the data of the line plot. data is an array containing the 
@@ -177,6 +179,7 @@ class LinePlot(oglC.OGLCanvas):
         self.setRange(data)
         self.axes.append(axis)
         self.numClass = len(dataFreq)
+        del dataFreq
 
     def setRange(self, data):
         """
@@ -224,6 +227,8 @@ class LinePlot(oglC.OGLCanvas):
         self.data.append(dataFreq)
         self.setRange(data)
         self.axes.append(axis)
+        del data
+        del dataFreq
 
     def setUnit(self, unit):
         """ Set the unit of the axis """
@@ -375,6 +380,7 @@ class LinePlotWidget(wx.Panel):
         self.data.rewind()
         self.lp.setData(data, self.axis)
         self.lp.setUnit(self.units[self.axis])
+        del data
 
     def initComboBox(self):
         """ Initialize and fill the combobox with the name and number of the axis. """
@@ -437,6 +443,8 @@ class LinePlotWidget(wx.Panel):
             if self.units[axis.axisNumber] == self.units[self.axis] and axis.axisNumber != self.axis:
                 self.cbline.Append(axis.axisName, axis)
 
+        del data
+
     def onNewLineSelected(self, event):
         """ When a new line is selected """
         selection = self.cbline.GetClientData(self.cbline.GetSelection())
@@ -444,6 +452,7 @@ class LinePlotWidget(wx.Panel):
         data = [d[axis] for d in self.data]
         self.data.rewind()
         self.lp.addNewLine(data, axis)
+        del data
 
     def close(self):
         """ Close all the controls """

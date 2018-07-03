@@ -233,6 +233,7 @@ class Data(object):
                 self.data = self.dbCursor.fetchall_unbuffered()
             try:
                 while True:
+                    del data
                     data = []
                     noisy = False
                     ndata = next(self.data)
@@ -253,6 +254,7 @@ class Data(object):
                 raise e
 
         elif self.sourceFlag == 1:
+            del data
             data = []
             noisy = False
             while True:
@@ -277,6 +279,7 @@ class Data(object):
                     break
         
         elif self.sourceFlag == 2:
+            del data
             data = []
             i = 0
             if self.connectionClosed:

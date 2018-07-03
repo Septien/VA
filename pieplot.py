@@ -75,13 +75,14 @@ class PiePlot(oglC.OGLCanvas):
         frequencies = []
         # sortedFrequencies = sorted(self.frequencies.items(), key=operator.itemgetter(1), reverse=True)
         n = len(self.frequencies)
-        if n > 10:
-            for i in range(maxClass):
-                frequencies.append(self.frequencies[i])
-                total += self.frequencies[i][1]
-        else:
-            total = self.N
-            frequencies = self.frequencies
+        # if n > 10:
+        #     for i in range(maxClass):
+        #         frequencies.append(self.frequencies[i])
+        #         total += self.frequencies[i][1]
+        # else:
+        #     total = self.N
+        frequencies = self.frequencies
+        total = self.N
         frequencies.reverse()
         # glPushMatrix()
         # glTranslatef(0.5, 0.5, 0.0)
@@ -109,7 +110,9 @@ class PiePlot(oglC.OGLCanvas):
             # self.DrawFilledArc(0, 0, 1, startAngle, arcAngle)
             startAngle += arcAngle
             i += 1
-        glPopMatrix()
+        # glPopMatrix()
+        del freq
+        del frequencies
 
     def DrawFilledArc(self, cx, cy, r, startAngle, arcAngle):
         """
@@ -199,6 +202,7 @@ class PiePlot(oglC.OGLCanvas):
 
         # Clear any previous values
         self.frequencies.clear()
+        self.frequencies = {}
         # Get the data
         datum = [d[self.axis] for d in self.data]
         self.data.rewind()
@@ -232,6 +236,8 @@ class PiePlot(oglC.OGLCanvas):
         if draw:
             wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
 
+        del datum
+        del sortedFrequencies
         return self.nonDrawn, self.N, self.colors[:10]  # The first 10 colors
 
     def drawLabels(self, angle, label, radious, freq):

@@ -273,6 +273,7 @@ class HistogramPlot(oglC.OGLCanvas):
             upper = x
             interval = [lower, upper]
             self.binIntervals.append(interval.copy())
+            del interval
 
     def getMaxBins(self):
         """ Return the maximum number of bins """
@@ -424,6 +425,7 @@ class HistogramWidget(wx.Panel):
         self.histogram.computeClassesInterval()
         self.histogram.computeFrequencies(False)
         self.histogram.setUnits(self.units[self.axis])
+        del datum
 
     def initCtrls(self):
         """

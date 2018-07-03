@@ -244,6 +244,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
                     i += 1
                 # glEnd()
         self.data.rewind()
+        del row
 
     def DrawLabels(self):
         """Print the labels on screen"""

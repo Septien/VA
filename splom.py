@@ -155,7 +155,9 @@ class SPLOM(sc.ScatterPlot2D):
                 # glPopMatrix()
                 # Increas only if the variable is numerical
                 k += (numCells - 1)
+                del x2
             h += (numCells - 1)
+            del x1
 
     def DrawNames(self, i):
         """Draw the names of the variable.
