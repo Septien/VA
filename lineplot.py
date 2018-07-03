@@ -58,6 +58,7 @@ class LinePlot(oglC.OGLCanvas):
         self.unit = ""
         self.classWidth = 0.1
         self.numClass = 0
+        self.maxL = 0
 
         self.initGrid()
 
@@ -187,11 +188,14 @@ class LinePlot(oglC.OGLCanvas):
 
         if not self.range:
             self.range = [data[0], data[-1]]
+            self.maxL = len(data)
         else:
             if data[0] < self.range[0]:
                 self.range[0] = data[0]
+                self.maxL = len(data)
             if data[-1] > self.range[1]:
                 self.range[1] = data[-1]
+                self.maxL = len(data)
 
         assert len(self.range) == 2, "Incorrect len of range"
 
@@ -229,6 +233,10 @@ class LinePlot(oglC.OGLCanvas):
         """ Set the unit of the axis """
         self.unit = unit
 
+    def clearData(self):
+        """ Clear the data """
+        self.data.clear()
+
     def setGridSize(self, ngridSize):
         """ Set the size of the grid """
         assert type(ngridSize) is int, "Incorrect type"
@@ -264,8 +272,8 @@ class LinePlot(oglC.OGLCanvas):
         maxValue = 20
         divWidth = 0.0
         # Get the minimum between 20 (the max number of labels) and length of data
-        if len(self.data) < maxValue:
-            maxValue = len(self.data)
+        if self.maxL < maxValue:
+            maxValue = self.maxL
         divWidth = 1.0 / maxValue
         i = 0
         for d in range(maxValue+1):
@@ -422,6 +430,7 @@ class LinePlotWidget(wx.Panel):
         self.axis = selection.axisNumber
         data = [d[self.axis] for d in self.data]
         self.data.rewind()
+        self.lp.clearData()
         self.lp.setData(data, self.axis)
         self.lp.setName(self.labels[self.axis])
         self.lp.setUnit(self.units[self.axis])
