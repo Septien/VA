@@ -80,9 +80,9 @@ class SCPForest10csv(unittest.TestCase):
         with open('testSCPLoadDataForest10.txt', 'a') as file:
             for i in range(30):
                 start = t.time()
-                xA = [ x[i % 12] for x in self.cursor ]
+                xA = [ x[i % 10] for x in self.cursor ]
                 self.cursor.rewind()
-                yA = [ x[(i + 1) % 12] for x in self.cursor ]
+                yA = [ x[(i + 1) % 10] for x in self.cursor ]
                 self.cursor.rewind()
                 end = t.time()
                 exTime = '{:f}\n'.format(end - start)
@@ -239,9 +239,9 @@ class SCPForest10db(unittest.TestCase):
         with open('testSCPLoadDataForest10db.txt', 'a') as file:
             for i in range(30):
                 start = t.time()
-                xA = [ x[i % 12] for x in self.cursor ]
+                xA = [ x[i % 10] for x in self.cursor ]
                 self.cursor.rewind()
-                yA = [ x[(i + 1) % 12] for x in self.cursor ]
+                yA = [ x[(i + 1) % 10] for x in self.cursor ]
                 self.cursor.rewind()
                 end = t.time()
                 exTime = '{:f}\n'.format(end - start)

@@ -66,7 +66,7 @@ class HForest10csv(unittest.TestCase):
         with open('testHLoaddataForest10.txt', 'a') as file:
             for i in range(30):
                 start = t.time()
-                data = [d[i % 12] for d in self.cursor]
+                data = [d[i % 10] for d in self.cursor]
                 end = t.time()
                 self.cursor.rewind()
                 exTime = '{:f}\n'.format(end - start)
@@ -186,7 +186,7 @@ class HForest10db(unittest.TestCase):
         with open('testHLoaddataForest10db.txt', 'a') as file:
             for i in range(30):
                 start = t.time()
-                data = [d[i % 12] for d in self.cursor]
+                data = [d[i % 10] for d in self.cursor]
                 end = t.time()
                 self.cursor.rewind()
                 exTime = '{:f}\n'.format(end - start)
