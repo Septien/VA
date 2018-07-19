@@ -465,13 +465,15 @@ class PCWidget(wx.Panel):
         """ When the filter button is pressed """
         upperS = self.tbxUpper.GetLineText(0)
         lowerS = self.tbxLower.GetLineText(0)
-        if not upperS.isdecimal():
-            #self.tbxUpper.SetToolTip("Only numbers within the range")
-            return
-        if not lowerS.isdecimal():
+        try:
+            float(lowerS)
+            float(upperS)
+        except:
             return
         upper = float(upperS)
         lower = float(lowerS)
+        print(self.axisRange)
+        print(upper, lower)
         if not self.axisRange[0] <= upper <= self.axisRange[1]:
             return
         if not self.axisRange[0] <= lower <= self.axisRange[1]:
