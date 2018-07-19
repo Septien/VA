@@ -56,12 +56,13 @@ class LinePlot(oglC.OGLCanvas):
         self.minFreq = 0
         self.axes = []
         self.gridSize = 10
-        self.name = ""
+        self.name = []
         self.unit = ""
         self.classWidth = 0.1
         self.numClass = 0
         self.maxL = 0
         self.colors = []
+        self.lineLength = 0.0
 
         self.initGrid()
 
@@ -86,11 +87,36 @@ class LinePlot(oglC.OGLCanvas):
         glutInit(sys.argv)
 
     def OnDraw(self):
+        def GetLabelWidth(label):
+            """Returns the total width of the length of 'label', using the
+            fonts from glut"""
+            assert type(label) is str, "Incorrect type"
+
+            length = 0
+            for c in label:
+                length += glutBitmapWidth(GLUT_BITMAP_HELVETICA_18, ord(c))
+
+            assert type(length) is int
+            assert length >= 0
+
+            return length
+        #
         glClear(GL_COLOR_BUFFER_BIT)
 
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        if self.lineLength == 0:
+            label = self.name[0] + ' (' + self.unit + ')'
+            l = GetLabelWidth(label) + 0.02
+            if l > self.lineLength:
+                self.lineLength = l
+        maxX = 1.1 + self.lineLength / self.size.width
+        glOrtho(-0.2, maxX, -0.2, 1.1, 1.0, 10.0)
+
+        glMatrixMode(GL_MODELVIEW)
         self.DrawGrid()
         glPushMatrix()
-        glScalef(1.0 / (self.numClass * self.classWidth), 1, 0)
+        glScalef(1.0 / (self.numClass * self.classWidth), 1.0, 0)
         self.DrawPoints()
         glPopMatrix()
         self.drawLabels()
@@ -251,6 +277,8 @@ class LinePlot(oglC.OGLCanvas):
         """ Clear the data """
         self.data.clear()
         self.colors.clear()
+        self.name.clear()
+        self.lineLength = 0.0
 
     def setGridSize(self, ngridSize):
         """ Set the size of the grid """
@@ -332,15 +360,27 @@ class LinePlot(oglC.OGLCanvas):
         if self.name == "":
             return
         # Draw the name of the variable
-        label = self.name + ' (' + self.unit + ')'
-        glRasterPos2f(0.5, 1.05)
-        for c in label:
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
+        start = (self.numClass * self.classWidth) / self.size.width
+        offset = 0.1
+        for i in range(len(self.name)):
+            label = self.name[i] + ' (' + self.unit + ')'
+            l = GetLabelWidth(label) + 0.02
+            if l > self.lineLength:
+                self.lineLength = l
+            glColor3fv(self.colors[i])
+            glBegin(GL_LINES)
+            glVertex3f(1.01, 1.0 - start - (i * offset), 0.0)
+            glVertex3f(1.03, 1.0 - start - (i * offset), 0.0)
+            glEnd()
+            glColor3f(0.0, 0.0, 0.0)
+            glRasterPos2f(1.04, 1.0 - start - (i * offset))
+            for c in label:
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ord(c))
 
     def setName(self, nName):
         """ Set the name of the variable """
         assert type(nName) is str, "Incorrect type"
-        self.name = nName
+        self.name.append(nName)
 
     def reDraw(self):
         """ Send an event for drawing """
@@ -470,6 +510,7 @@ class LinePlotWidget(wx.Panel):
         data = [d[axis] for d in self.data]
         self.data.rewind()
         self.lp.addNewLine(data, axis)
+        self.lp.setName(selection.axisName)
         del data
 
     def close(self):
