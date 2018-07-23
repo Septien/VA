@@ -23,7 +23,7 @@ class InfoBar(wx.Panel):
         self.lvVariables.InsertColumn(0, "Name")
         self.lvVariables.InsertColumn(1, "Type/Description")
 
-        self.lvGraphs.InsertColumn(0, "Graph")
+        self.lvGraphs.InsertColumn(0, " ")
         self.lvGraphs.InsertColumn(1, " ")
         self.lvGraphs.InsertColumn(2, " ")
         self.SetBackgroundColour((255, 255, 255))
@@ -34,14 +34,14 @@ class InfoBar(wx.Panel):
         """ """
         name = wx.StaticText(self, -1, self.dbName)
         varDescr = wx.StaticText(self, -1, "Variables description.")
-        graphs = wx.StaticText(self, -1, "Graphs:")
+        graphs = wx.StaticText(self, -1, " ")
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(name, 0, wx.ALIGN_CENTER_HORIZONTAL)
         self.sizer.Add(varDescr, 0, wx.ALIGN_CENTER_HORIZONTAL)
-        self.sizer.Add(self.lvVariables, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.EXPAND)
+        self.sizer.Add(self.lvVariables, 4, wx.ALIGN_CENTER_HORIZONTAL | wx.EXPAND)
         self.sizer.Add(graphs, 0, wx.ALIGN_CENTER_HORIZONTAL)
-        self.sizer.Add(self.lvGraphs, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.EXPAND)
+        self.sizer.Add(self.lvGraphs, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.EXPAND)
 
         self.SetSizer(self.sizer)
 
