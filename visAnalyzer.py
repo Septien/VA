@@ -64,7 +64,7 @@ class mainGUI(wx.Frame):
         self.initGraphs()
         self.Sizer.Add(self.infBar, 1, wx.ALIGN_LEFT)
         self.panel.SetSizer(self.mainSizer)
-        self.Sizer.Add(self.panel, 4, wx.EXPAND | wx.ALIGN_RIGHT)
+        self.Sizer.Add(self.panel, 5, wx.EXPAND | wx.ALIGN_RIGHT)
         self.panel2.SetSizer(self.Sizer)
 
         self.initMenus()
@@ -349,7 +349,11 @@ class mainGUI(wx.Frame):
         if self.mainSizer.IsShown(self.lp):
             return
 
-        selectionable = self.getSelectionableAxes()
+        # Let the user select only the numerical variables
+        selectionable = []
+        for i in range(len(self.labels)):
+            if self.category[i] == 0:
+                selectionable.append(self.labels[i])
         axis = self.GetSelectedAxis(selectionable, title="Axes", text="Select an axis")
         if axis > -1:
             self.lp.create(self.data, self.labels, axis, self.category, self.units)

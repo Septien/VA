@@ -200,6 +200,7 @@ class PiePlot(oglC.OGLCanvas):
 
         # Clear any previous values
         self.frequencies.clear()
+        self.frequencies = {}
         # Get the data
         datum = [d[self.axis] for d in self.data]
         self.data.rewind()
