@@ -26,6 +26,8 @@ class Data(object):
         self.descrFile = None
         self.data = None
         self.name = None
+        self.totalRows = 0
+        self.lenRow = 0
         # For the streaming
         self.stream = None
         self.exitQ = None
@@ -70,6 +72,18 @@ class Data(object):
         self.name = filename
         # Open
         self.File = open(self.name, 'r')
+        # Get the numer of data
+        i = 0
+        self.lenRow = 0
+        for line in self.File:
+            i += 1
+            self.lenRow += len(line)
+            del line
+        self.totalRows = i
+        # Get the avarage length of the lines
+        self.lenRow /= i
+        # Return to beginning of file
+        self.File.seek(0, 0)
         # Get the description file
         descrfilename = self.name.split('.csv')[0] + '_descr.csv'
         try:
@@ -314,6 +328,19 @@ class Data(object):
 
         return data
 
+    def getNumberRows(self):
+        """ Returns the number of rows on the data set. """
+        return self.totalRows
+
+    def setDataSetPosition(self, pos):
+        """ Move the position of the data to the position specified by pos. """
+        if pos < 0 or pos > self.totalRows:
+            return
+        if self.sourceFlag == 1:
+            self.File.seek(int(pos * self.lenRow), 0)
+            line = next(self.File)
+            del line
+
     def rewind(self):
         """ Return to the first data """
         if self.sourceFlag == 0:
@@ -324,8 +351,7 @@ class Data(object):
             self.data = self.dbCursor.fetchall_unbuffered()
 
         if self.sourceFlag == 1:
-            self.File.close()
-            self.File = open(self.name, 'r')
+            self.File.seek(0, 0)
 
         if self.sourceFlag == 2:
             # Stream in use, no possible to rewind
@@ -335,15 +361,15 @@ class Data(object):
         """ Returns a copy of the iterator """
         newIter = Data(self.sourceFlag)
         newIter.name = self.name
-        
+        newIter.totalRows = self.totalRows
+        newIter.lenRow = self.lenRow
+
         if self.sourceFlag == 0:
             newIter.dbConnection = self.dbConnection
             newIter.dbCursor = newIter.dbConnection.cursor()
         
         if self.sourceFlag == 1:
             newIter.File = open(self.name, 'r')
-            line = newIter.File.readline()
-            line = newIter.File.readline()
 
         return newIter
 
