@@ -25,6 +25,8 @@ import math as m
 
 import random as r
 
+from multiprocessing import Process, Queue, Lock
+
 import operator
 
 # Auxiliary functions        
@@ -187,17 +189,37 @@ class LinePlot(oglC.OGLCanvas):
         values of the axis on which the frequencies are calculated.
             -ndata: The new data.
         """
-        assert type(ndata) is list, "Incorrect input type"
-        
-        data = sorted(ndata)
         # Compute the frequencies
+        q = Queue()
+        lock = Lock()
+        nRow = ndata.getNumberRows()
+        p1 = Process(target=self.parallelCompute, args=(ndata.copy(), axis, 0.0, nRow / 3.0, lock, q))
+        p2 = Process(target=self.parallelCompute, args=(ndata.copy(), axis, nRow / 3.0, (2 * nRow) / 3.0, lock, q))
+        p3 = Process(target=self.parallelCompute, args=(ndata.copy(), axis, (2 * nRow) / 3.0, nRow, lock, q))
+        # Start threads
+        p1.start()
+        p2.start()
+        p3.start()
+        # Wait for threads
+        p1.join()
+        p2.join()
+        p3.join()
+
         dataFreq = {}
-        for d in data:
-            dataFreq[d] = dataFreq.get(d, 0) + 1
+        last = None
+        # Merge results
+        while not q.empty():
+            result = q.get()
+            for d in result:
+                dataFreq[d] = dataFreq.get(d, 0) + result[d]
+                last = d
+            del result
+
+        ndata.rewind()
 
         # Get the max value
-        self.maxFreq = dataFreq[ndata[0]]
-        self.minFreq = dataFreq[ndata[0]]
+        self.maxFreq = dataFreq[last]
+        self.minFreq = dataFreq[last]
         for d in dataFreq:
             if dataFreq[d] > self.maxFreq:
                 self.maxFreq = dataFreq[d]
@@ -208,29 +230,84 @@ class LinePlot(oglC.OGLCanvas):
             dataFreq[d] /= self.maxFreq
 
         self.data.append(dataFreq)
-        self.setRange(data)
         self.axes.append(axis)
+        self.setRange(ndata)
         self.numClass = len(dataFreq)
         self.colors.append([0.0, 0.4, 0.6])
         del dataFreq
+
+    def parallelCompute(self, data, axis, startPosition, endPosition, lock, q):
+        """ Compute the frequencies in a parallel manner """
+        data.setDataSetPosition(int(startPosition))
+        frequencies = {}
+        total = 0
+        # Compute frequencies
+        for row in data:
+            d = row[axis]
+            del row
+            frequencies[d] = frequencies.get(d, 0) + 1
+            total += 1
+            if total >= endPosition - startPosition:
+                break
+        # Put data on queue
+        lock.acquire()
+        q.put(frequencies)
+        lock.release()
 
     def setRange(self, data):
         """
         Set the range of the x axis
         """
-        assert type(data) is list, "Incorrect input type"
-        assert isSort(data), "The data is not sorted"
+        def parallelComputeR(data, axis, startPosition, endPosition, lock, q):
+            """ Get the maximum and minimum of the axis """
+            data.setDataSetPosition(startPosition)
+            minR = maxR = next(data)[axis]
+            total = 0
+            for d in data:
+                if d[axis] < minR:
+                    minR = d[axis]
+                if maxR < d[axis]:
+                    maxR = d[axis]
+                total += 1
+                if total >= endPosition - startPosition:
+                    break
+            lock.acquire()
+            q.put([minR, maxR])
+            lock.release()
+        #
+        q = Queue()
+        lock = Lock()
+        nRow = data.getNumberRows()
+        p1 = Process(target=parallelComputeR, args=(data.copy(), self.axes[-1], 0.0, nRow / 3.0, lock, q))
+        p2 = Process(target=parallelComputeR, args=(data.copy(), self.axes[-1], nRow / 3.0, (2 * nRow) / 3.0, lock, q))
+        p3 = Process(target=parallelComputeR, args=(data.copy(), self.axes[-1], (2 * nRow) / 3.0, nRow, lock, q))
+        # Start threads
+        p1.start()
+        p2.start()
+        p3.start()
+        # Wait for threads
+        p1.join()
+        p2.join()
+        p3.join()
+
+        minR, maxR = float('inf'), -float('inf')
+        while not q.empty():
+            result = q.get()
+            if result[0] < minR:
+                minR = result[0]
+            if maxR < result[1]:
+                maxR = result[1]
 
         if not self.range:
-            self.range = [data[0], data[-1]]
-            self.maxL = len(data)
+            self.range = [minR, maxR]
+            self.maxL = data.dataLength()
         else:
-            if data[0] < self.range[0]:
-                self.range[0] = data[0]
-                self.maxL = len(data)
-            if data[-1] > self.range[1]:
-                self.range[1] = data[-1]
-                self.maxL = len(data)
+            if minR < self.range[0]:
+                self.range[0] = minR
+                self.maxL = data.dataLength()
+            if maxR > self.range[1]:
+                self.range[1] = maxR
+                self.maxL = data.dataLength()
 
         assert len(self.range) == 2, "Incorrect len of range"
 
@@ -242,15 +319,36 @@ class LinePlot(oglC.OGLCanvas):
             if ax == axis:
                 return
 
-        data = sorted(ndata)
         # Compute the frequencies
+        q = Queue()
+        lock = Lock()
+        nRow = ndata.getNumberRows()
+        p1 = Process(target=self.parallelCompute, args=(ndata.copy(), axis, 0.0, nRow / 3.0, lock, q))
+        p2 = Process(target=self.parallelCompute, args=(ndata.copy(), axis, nRow / 3.0, (2 * nRow) / 3.0, lock, q))
+        p3 = Process(target=self.parallelCompute, args=(ndata.copy(), axis, (2 * nRow) / 3.0, nRow, lock, q))
+        # Start threads
+        p1.start()
+        p2.start()
+        p3.start()
+        # Wait for threads
+        p1.join()
+        p2.join()
+        p3.join()
+
         dataFreq = {}
-        for d in data:
-            dataFreq[d] = dataFreq.get(d, 0) + 1
+        last = None
+        # Merge results
+        while not q.empty():
+            result = q.get()
+            for d in result:
+                dataFreq[d] = dataFreq.get(d, 0) + result[d]
+                last = d
+            del result
+        ndata.rewind()
 
         # Get the max value
-        self.maxFreq = dataFreq[ndata[0]]
-        self.minFreq = dataFreq[ndata[0]]
+        self.maxFreq = dataFreq[last]
+        self.minFreq = dataFreq[last]
         for d in dataFreq:
             if dataFreq[d] > self.maxFreq:
                 self.maxFreq = dataFreq[d]
@@ -434,11 +532,8 @@ class LinePlotWidget(wx.Panel):
     def initLP(self):
         """ Initialize the lineplot """
         self.lp.setName(self.labels[self.axis])
-        data = [d[self.axis] for d in self.data]
-        self.data.rewind()
-        self.lp.setData(data, self.axis)
+        self.lp.setData(self.data, self.axis)
         self.lp.setUnit(self.units[self.axis])
-        del data
 
     def initComboBox(self):
         """ Initialize and fill the combobox with the name and number of the axis. """
@@ -484,10 +579,8 @@ class LinePlotWidget(wx.Panel):
         appropiate changes to graph """
         selection = self.cb1.GetClientData(self.cb1.GetSelection())
         self.axis = selection.axisNumber
-        data = [d[self.axis] for d in self.data]
-        self.data.rewind()
         self.lp.clearData()
-        self.lp.setData(data, self.axis)
+        self.lp.setData(self.data, self.axis)
         self.lp.setName(self.labels[self.axis])
         self.lp.setUnit(self.units[self.axis])
         self.lp.reDraw()
@@ -501,15 +594,12 @@ class LinePlotWidget(wx.Panel):
         for axis in axes:
             if self.units[axis.axisNumber] == self.units[self.axis] and axis.axisNumber != self.axis:
                 self.cbline.Append(axis.axisName, axis)
-        del data
 
     def onNewLineSelected(self, event):
         """ When a new line is selected """
         selection = self.cbline.GetClientData(self.cbline.GetSelection())
         axis = selection.axisNumber
-        data = [d[axis] for d in self.data]
-        self.data.rewind()
-        self.lp.addNewLine(data, axis)
+        self.lp.addNewLine(self.data, axis)
         self.lp.setName(selection.axisName)
         del data
 

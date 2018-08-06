@@ -10,6 +10,8 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
 
+from multiprocessing import Process, Queue, Lock
+
 class ParallelCoordinates(oglC.OGLCanvas):
     """
     This class contains the implementation of the parallel coordinates graph.
@@ -83,32 +85,65 @@ class ParallelCoordinates(oglC.OGLCanvas):
 
     def ComputeRanges(self):
         """Computes the range of each axis"""
+        def parallelCompute(data, length, startPosition, endPosition, queue, lock):
+            """ Parallel computation of the ranges """
+            data.setDataSetPosition(int(startPosition))
+            axesRange = []
+            # Initialize the ranges
+            for i in range(length):
+                axesRange.append([float('inf'), -float('inf')]) # [min, max]
+            # Get the ranges
+            j = 0
+            for d in data:
+                for i in range(length):
+                    # The minimum
+                    if d[i] <= axesRange[i][0]:
+                        axesRange[i][0] = d[i]
+                    # The maximum
+                    if d[i] >= axesRange[i][1]:
+                        axesRange[i][1] = d[i]
+                j += 1
+                if j >= (endPosition - startPosition):
+                    break
+
+            lock.acquire()
+            queue.put(axesRange)
+            lock.release()
+            data.close()
         assert self.data, "Data must be initialized"
         assert self.dimensions != 0, "Dimensions must be initialized"
 
         self.axesRange.clear()
-        # Get the number of axes
         length = self.data.dataLength()
-        d = next(self.data)
-        # Initialize the ranges
-        for i in range(length):
-            minV = maxV = d[i]
-            self.axesRange.append([minV, maxV])
-        # Get the ranges
-        j = 0
-        for d in self.data:
-            for i in range(length):
-                # The minimum
-                if d[i] <= self.axesRange[i][0]:
-                    self.axesRange[i][0] = d[i]
-                # The maximum
-                if d[i] >= self.axesRange[i][1]:
-                    self.axesRange[i][1] = d[i]
-            j += 1
-        # Return to first data
+        # Parallelism
+        q = Queue()
+        qLock = Lock()
+        nRow = self.data.getNumberRows()
+        p1 = Process(target=parallelCompute, args=(self.data.copy(), length, 0.0, nRow / 3.0, q, qLock))
+        p2 = Process(target=parallelCompute, args=(self.data.copy(), length, nRow / 3.0, (2 * nRow) / 3.0, q, qLock))
+        p3 = Process(target=parallelCompute, args=(self.data.copy(), length, (2 * nRow) / 3.0, nRow, q, qLock))
+        # Compute absolute frequencies
+        # Start threads
+        p1.start()
+        p2.start()
+        p3.start()
+        # Wait for threads
+        p1.join()
+        p2.join()
+        p3.join()
+
+        self.axesRange = q.get()
+        while not q.empty():
+            ranges = q.get()
+            i = 0
+            for axRange in ranges:
+                if axRange[0] < self.axesRange[i][0]:
+                    self.axesRange[i][0] = axRange[0]
+                if self.axesRange[i][1] < axRange[1]:
+                    self.axesRange[i][1] = axRange[1]
+                i += 1
         self.data.rewind()
         assert len(self.axesRange) == self.data.dataLength(), "Incorrect number of ranges " + str(len(self.axesRange)) + " " + str(self.data.dataLength())
-        # assert len(self.axesRange) == self.dimensions, "Incorrect number of ranges"
 
     def changeAxes(self, axis1, axis2):
         """ Change the position of the axis 1 to the position of the axis 2, and viceversa """
@@ -220,6 +255,7 @@ class ParallelCoordinates(oglC.OGLCanvas):
             norm = ((value - Range[0]) * (unitRange[1] - unitRange[0]) / (Range[1] - Range[0])) + unitRange[0]
             assert unitRange[0] <= norm <= unitRange[1], "Out of range: " + str(norm) + " " + str(Range) + " " + str(value)
             return norm
+        # def parallelDraw(data, startPosition, endPosition, filterAxis, filterRange)
         #
         assert self.data, "Data must be initialized"
         # assert self.dimensions > 0, "Dimensions must be greater than zero"
@@ -472,8 +508,6 @@ class PCWidget(wx.Panel):
             return
         upper = float(upperS)
         lower = float(lowerS)
-        print(self.axisRange)
-        print(upper, lower)
         if not self.axisRange[0] <= upper <= self.axisRange[1]:
             return
         if not self.axisRange[0] <= lower <= self.axisRange[1]:

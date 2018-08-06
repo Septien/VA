@@ -15,6 +15,8 @@ from OpenGL.GLUT import *
 # OpenGL canvas
 import oglCanvas as oglC
 
+from multiprocessing import Process, Queue, Lock
+
 class HistogramPlot(oglC.OGLCanvas):
     """
     This class handles the drawing of the histogram. It has as member the number
@@ -39,7 +41,8 @@ class HistogramPlot(oglC.OGLCanvas):
         self.range = []
         self.rect = []
         self.maxFrequency = 0
-        self.axis = ""
+        self.axis = -1
+        self.axisName = ''
         self.data = []
         self.numDivisions = 10
         self.unit = ""
@@ -142,19 +145,11 @@ class HistogramPlot(oglC.OGLCanvas):
 
     def setData(self, data):
         """ Stores a reference to the data in use """
-        def isSort(data):
-            """ Verifies if the array is sorted """
-            for i in range(1, len(data)):
-                if data[i - 1] > data[i]:
-                    return False
-            return True
-        assert type(data) is list, "Incorrect input type"
-        # Copy and sort
+        # Store a reference
         self.data = data
-        self.data.sort()
         # Set the range
-        self.setRange()
-        assert isSort(self.data), "The data is not sorted"
+        if self.category == 0:
+            self.setRange()
 
     def computeFrequencies(self, draw):
         """
@@ -162,21 +157,67 @@ class HistogramPlot(oglC.OGLCanvas):
         so it normalize them. Such frequency is the height of the rectangle. If the number of 
         frequencies is different to the number of bins, the latter is updated.
         """
+        def parallelCompute(data, axis, category, intervals, startPosition, endPosition, q, lock):
+            data.setDataSetPosition(startPosition)
+            total = 0
+            if category == 0:
+                f = []
+                for i in range(len(intervals)):
+                    f.append(0)
+                for x in data:
+                    i = 0
+                    for interval in intervals:
+                        if interval[0] <= x[axis] <= interval[1]:
+                            f[i] += 1
+                            break
+                        i += 1
+                    total += 1
+                    if total >= (endPosition - startPosition):
+                        break
+            else:
+                f = {}
+                for x in data:
+                    f[x[axis]] = f.get(x[axis], 0) + 1
+                    total += 1
+                    if total >= (endPosition - startPosition):
+                        break
+            lock.acquire()
+            q.put(f)
+            lock.release()
+
+        # Create a queue
+        q = Queue()
+        qLock = Lock()
+        nRow = self.data.getNumberRows()
+        p1 = Process(target=parallelCompute, args=(self.data.copy(), self.axis, self.category, self.binIntervals, 0.0, nRow / 3.0, q, qLock))
+        p2 = Process(target=parallelCompute, args=(self.data.copy(), self.axis, self.category, self.binIntervals, nRow / 3.0, (2 * nRow) / 3.0, q, qLock))
+        p3 = Process(target=parallelCompute, args=(self.data.copy(), self.axis, self.category, self.binIntervals, (2 * nRow) / 3.0, nRow, q, qLock))
+        # Compute absolute frequencies
+        # Start threads
+        p1.start()
+        p2.start()
+        p3.start()
+        # Wait for threads
+        p1.join()
+        p2.join()
+        p3.join()
+
         if self.category == 0:
             self.initFrequencies()
-            #
-            for x in self.data:
+            while not q.empty():
+                result = q.get()
                 i = 0
-                for interval in self.binIntervals:
-                    if interval[0] <= x <= interval[1]:
-                        self.frequencies[i] += 1
-                        break
+                for r in result:
+                    self.frequencies[i] += r
                     i += 1
+
         else:
             f = {}
+            while not q.empty():
+                result = q.get()
+                for r in result:
+                    f[r] = f.get(r, 0) + result[r]
             self.frequencies.clear()
-            for x in self.data:
-                f[x] = f.get(x, 0) + 1
             self.SetNumBins(len(f))
             self.initFrequencies()
             i = 0
@@ -203,13 +244,53 @@ class HistogramPlot(oglC.OGLCanvas):
         # https://stackoverflow.com/questions/25299745/how-to-programmatically-generate-an-event-in-wxpython
         if draw:
             wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
+        self.data.rewind()
     
     def setRange(self):
         """
         Set the range of the x axis
         """
-        self.range = [self.data[0], self.data[-1]]
-        assert len(self.range) == 2, "Incorrect lenght of range array"
+        def parallelComputeR(data, axis, startPosition, endPosition, lock, q):
+            """ Get the maximum and minimum of the axis """
+            data.setDataSetPosition(startPosition)
+            minR, maxR = float('inf'), -float('inf')
+            total = 0
+            for d in data:
+                if d[axis] < minR:
+                    minR = d[axis]
+                if maxR < d[axis]:
+                    maxR = d[axis]
+                total += 1
+                if total >= endPosition - startPosition:
+                    break
+            lock.acquire()
+            q.put([minR, maxR])
+            lock.release()
+        #
+        q = Queue()
+        lock = Lock()
+        nRow = self.data.getNumberRows()
+        p1 = Process(target=parallelComputeR, args=(self.data.copy(), self.axis, 0.0, nRow / 3.0, lock, q))
+        p2 = Process(target=parallelComputeR, args=(self.data.copy(), self.axis, nRow / 3.0, (2 * nRow) / 3.0, lock, q))
+        p3 = Process(target=parallelComputeR, args=(self.data.copy(), self.axis, (2 * nRow) / 3.0, nRow, lock, q))
+        # Start threads
+        p1.start()
+        p2.start()
+        p3.start()
+        # Wait for threads
+        p1.join()
+        p2.join()
+        p3.join()
+
+        minR, maxR = float('inf'), -float('inf')
+        while not q.empty():
+            result = q.get()
+            if result[0] < minR:
+                minR = result[0]
+            if maxR < result[1]:
+                maxR = result[1]
+        self.range = [minR, maxR]
+        self.data.rewind()
 
     def setUnits(self, unit):
         """ Sets the units of the variable """
@@ -243,7 +324,7 @@ class HistogramPlot(oglC.OGLCanvas):
         """
 
         # Get the number of points
-        n = len(self.data)
+        n = self.data.getNumberRows()
         # Compute quartiles
         fQpos = ( (n - 1) / 4 ) + 1
         tQpos = ( 3 * (n - 1) / 4 ) + 1
@@ -252,18 +333,42 @@ class HistogramPlot(oglC.OGLCanvas):
         thirdQ = 0.0
         # First quartile
         if fQpos == round(fQpos):
-            firstQ = self.data[int(fQpos)]
+            i = 0
+            for row in self.data:
+                i += 1
+                if i >= int(fQpos):
+                    break
+            firstQ = row[self.axis]
         else:
+            i = 0
             up = round(fQpos)
-            firstQ = self.data[up - 1] + ( ( self.data[up] - self.data[up - 1]) / 4.0 )
+            for row in self.data:
+                i += 1
+                if i >= up - 1:
+                    break
+            row2 = next(self.data)
+            firstQ = row[self.axis] + ( (row2[self.axis] - row[self.axis]) / 4.0 )
+
+        self.data.rewind()
         # Third quartile
         if tQpos == round(tQpos):
-            thirdQ = self.data[int(tQpos)]
+            i = 0
+            for row in self.data:
+                i += 1
+                if i >= int(tQpos):
+                    break
+            thirdQ = row[self.axis]
         else:
             up = round(tQpos)
-            thirdQ = self.data[up - 1] + ( 3 * ( self.data[up] - self.data[up - 1]) / 4.0 )
+            for row in self.data:
+                i += 1
+                if i >= up - 1:
+                    break
+            row2 = next(self.data)
+            thirdQ = row[self.axis] + ( 3 * ( row2[self.axis] - row[self.axis]) / 4.0 )
         # Compute IQR
         IQR = thirdQ - firstQ
+        self.data.rewind()
         numB = int(2 * IQR * m.pow(n, -1/3)) + 1
         self.SetNumBins(numB)
 
@@ -274,7 +379,7 @@ class HistogramPlot(oglC.OGLCanvas):
         """
         Computes the width of each class.
         """
-        self.binWidth = (self.data[-1] - self.data[0]) / self.numBins
+        self.binWidth = (self.range[1] - self.range[0]) / self.numBins
         # Fill the frequencies array with zeros
         self.initFrequencies()
 
@@ -291,23 +396,26 @@ class HistogramPlot(oglC.OGLCanvas):
         """
         lower = 0
         upper = 0
-        x = self.data[0]
+        x0 = self.range[0]
+        x = x0
         self.binIntervals.clear()
         for i in range(self.numBins):
             lower = x
-            x = self.data[0] + (i + 1) * self.binWidth
+            x = x0 + (i + 1) * self.binWidth
             upper = x
             interval = [lower, upper]
             self.binIntervals.append(interval.copy())
             del interval
+        self.data.rewind()
 
     def getMaxBins(self):
         """ Return the maximum number of bins """
         return 50
 
-    def setAxis(self, axis):
+    def setAxis(self, axisName, axis):
         """ Set the axis name to analize """
-        assert type(axis) is str, "Incorrect type."
+        assert type(axisName) is str, "Incorrect type."
+        self.axisName = axisName
         self.axis = axis
 
     def drawGrid(self):
@@ -397,7 +505,7 @@ class HistogramPlot(oglC.OGLCanvas):
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, ord(c))
 
         # Draw the name of the variable
-        label = self.axis
+        label = self.axisName
         length = GetLabelWidth(label)
         length /= self.size.width
         glRasterPos2f(0.5 - length, 1.05)
@@ -464,11 +572,9 @@ class HistogramWidget(wx.Panel):
     def initHistogram(self):
         """ Initialize the class for the histogram """
         # Initialize the canvas for histogram
-        datum = [ d[self.axis] for d in self.data ]
-        self.data.rewind()
-        self.histogram.setData(datum)
-        self.histogram.setAxis(self.axisName)
+        self.histogram.setAxis(self.axisName, self.axis)
         self.histogram.setCategory(self.category[self.axis])
+        self.histogram.setData(self.data)
         if self.category[self.axis] == 0:
             # Compute the defaul number of bins
             self.histogram.computeBins()
@@ -486,7 +592,6 @@ class HistogramWidget(wx.Panel):
     
         self.histogram.computeFrequencies(False)
         self.histogram.setUnits(self.units[self.axis])
-        del datum
 
     def initCtrls(self):
         """

@@ -22,6 +22,9 @@ import math as m
 #
 import numpy as np
 
+# Parallelism
+from multiprocessing import Process, Queue, Lock
+
 class ScatterPlot2D(oglC.OGLCanvas):
     """
     Class for the 2D scatterplot. Members:
@@ -38,6 +41,8 @@ class ScatterPlot2D(oglC.OGLCanvas):
         # List for the points to be displayed. Handles them as if their were 
         # center of a circle
         self.points = []
+        self.data1 = None
+        self.data2 = None
         self.range = []
         self.divisions = 10
         self.axis1Name = ""
@@ -45,6 +50,8 @@ class ScatterPlot2D(oglC.OGLCanvas):
         self.r = 0.0
         self.unit1 = ""
         self.unit2 = ""
+        self.axis1 = -1
+        self.axis2 = -1
 
         self.InitCirclePoints()
         self.initGrid()
@@ -59,11 +66,11 @@ class ScatterPlot2D(oglC.OGLCanvas):
         x = 0.0
         y = 0.0
         # Upper half
-        for x in np.arange(1.0, -1.0, -0.01):
+        for x in np.arange(1.0, -1.0, -0.1):
             y = m.sqrt(1 - x * x)
             self.circle.append((x, y))
         # Lower half
-        for x in np.arange(-1.0, 1.0, 0.01):
+        for x in np.arange(-1.0, 1.0, 0.1):
             y = - m.sqrt(1 - x * x)
             self.circle.append((x, y))
 
@@ -93,15 +100,22 @@ class ScatterPlot2D(oglC.OGLCanvas):
             return True
 
         assert newData, "Input data must not be emtpy"
-        assert EqualLenght(newData), "All input data must be the same length"
+        # assert EqualLenght(newData), "All input data must be the same length"
 
-        self.points.clear()
-        self.points = newData
+        # self.points.clear()
+        # self.points = newData
+        self.data1 = newData
+        self.data2 = newData.copy()
         self.GetRanges()
         self.computeCorrCoef()
 
-        assert self.points, "Copy not made"
-        assert EqualLenght(self.points), "All rows must be the same length"
+        # assert self.points, "Copy not made"
+        # assert EqualLenght(self.points), "All rows must be the same length"
+
+    def setAxes(self, axis1, axis2):
+        """ Sets the number of each axis. """
+        self.axis1 = axis1
+        self.axis2 = axis2
 
     def setAxesNames(self, axis1Name, axis2Name):
         """ Set the name of the variable of each axis:
@@ -120,30 +134,74 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
     def GetRanges(self):
         """Calculate the ranges of each dimension"""
-        if not self.points:
-            return
-        assert len(self.points[0]) == len(self.points[1])
-        
+        def parallelCompute(data1, data2, startPosition, endPosition, q, lock, axis1, axis2):
+            """ Get the ranges in a parallel manner """
+            data1.setDataSetPosition(startPosition)
+            data2.setDataSetPosition(startPosition)
+            minX = minY = float('inf')
+            maxX = maxY = -float('inf')
+            total = 0
+            for p1 in data1:
+                # For the x coordinate
+                if p1[axis1] < minX:
+                    minX = p1[axis1]
+                elif maxX < p1[axis1]:
+                    maxX = p1[axis1]
+
+                # For the y coordinate
+                p2 = next(data2)
+                if p2[axis2] < minY:
+                    minY = p2[axis2]
+                elif maxY < p2[axis2]:
+                    maxY = p2[axis2]
+
+                total += 1
+                if total >= endPosition - startPosition:
+                    break
+                del p1
+                del p2
+            # Put on queue
+            lock.acquire()
+            q.put(([minX, maxX], [minY, maxY]))
+            lock.release()
+        #
         self.range.clear()
-        minX = maxX = self.points[0][0]
-        minY = maxY = self.points[1][0]
-        for i in range(len(self.points[0])):
-            # For the x coordinate
-            if self.points[0][i] < minX:
-                minX = self.points[0][i]
-            
-            elif maxX < self.points[0][i]:
-                maxX = self.points[0][i]
-            
-            # For the y coordinate
-            if self.points[1][i] < minY:
-                minY = self.points[1][i]
-            
-            elif maxY < self.points[1][i]:
-                maxY = self.points[1][i]
-        
+        #
+        q = Queue()
+        qLock = Lock()
+        nRow = self.data1.getNumberRows()
+        p1 = Process(target=parallelCompute, args=(self.data1.copy(), self.data2.copy(), 0.0, nRow / 3.0, q, qLock, self.axis1, self.axis2))
+        p2 = Process(target=parallelCompute, args=(self.data1.copy(), self.data2.copy(), nRow / 3.0, (2 * nRow) / 3.0, q, qLock, self.axis1, self.axis2))
+        p3 = Process(target=parallelCompute, args=(self.data1.copy(), self.data2.copy(), (2 * nRow) / 3.0, nRow, q, qLock, self.axis1, self.axis2))
+        # Compute absolute frequencies
+        # Start threads
+        p1.start()
+        p2.start()
+        p3.start()
+        # Wait for thread
+        p1.join()
+        p2.join()
+        p3.join()
+
+        minX = minY = float('inf')
+        maxX = maxY = -float('inf')
+        while not q.empty():
+            result = q.get()
+            rangeX = result[0]
+            rangeY = result[1]
+            if rangeX[0] < minX:
+                minX = rangeX[0]
+            if rangeX[1] > maxX:
+                maxX = rangeX[1]
+            if rangeY[0] < minY:
+                minY = rangeY[0]
+            if rangeY[1] > maxY:
+                maxY = rangeY[1]
+
         self.range.append([minX, maxX])
         self.range.append([minY, maxY])
+        self.data1.rewind()
+        self.data2.rewind()
 
         assert minX < maxX, "Incorrect x min and max " + str(minX) + " " + str(maxX)
         assert minY < maxY, "Incorrect y min and max " + + str(minY) + " " + str(maxy)
@@ -152,25 +210,66 @@ class ScatterPlot2D(oglC.OGLCanvas):
     def computeCorrCoef(self):
         """ Computes the correlation coeficient of the data, also known as 
             Pearson coeficient. """
-        sumX = 0.0
-        sumY = 0.0
-        sumXY = 0.0
-        sumX2 = 0.0
-        sumY2 = 0.0
-        N = len(self.points[0])
-        # Compute sumations
-        for i in range(N):
-            sumX += self.points[0][i]
-            sumY += self.points[1][i]
-            sumXY += self.points[0][i] * self.points[1][i]
-            sumX2 += self.points[0][i] ** 2
-            sumY2 += self.points[1][i] ** 2
-
-        numerator = sumXY - ((sumX * sumY) / N)
-        firstDen = sumX2 - ((sumX ** 2) / N)
-        secondDen = sumY2 - ((sumY ** 2) / N)
-        denominator = m.sqrt(firstDen * secondDen)
+        def parallelCompute(data1, data2, startPosition, endPosition, queue, lock, axis1, axis2):
+            """ Compute the correlation coefficiente """
+            data1.setDataSetPosition(int(startPosition))
+            data2.setDataSetPosition(int(startPosition))
+            sumX = 0.0
+            sumY = 0.0
+            sumXY = 0.0
+            sumX2 = 0.0
+            sumY2 = 0.0
+            # N = len(self.points[0])
+            N = 0
+            # Compute sumations
+            for xrow in data1:
+                yrow = next(data2)
+                x = xrow[axis1]
+                y = yrow[axis2]
+                del xrow
+                del yrow
+                sumX += x
+                sumY += y
+                sumXY += x * y
+                sumX2 += x ** 2
+                sumY2 += y ** 2
+                N += 1
+                if N >= (endPosition - startPosition):
+                    break
+            numerator = sumXY - ((sumX * sumY) / N)
+            firstDen = sumX2 - ((sumX ** 2) / N)
+            secondDen = sumY2 - ((sumY ** 2) / N)
+            denominator = m.sqrt(firstDen * secondDen)
+            lock.acquire()
+            queue.put([numerator, denominator])
+            lock.release()
+        #
+        q = Queue()
+        qLock = Lock()
+        nRow = self.data1.getNumberRows()
+        p1 = Process(target=parallelCompute, args=(self.data1.copy(), self.data2.copy(), 0.0, nRow / 3.0, q, qLock, self.axis1, self.axis2))
+        p2 = Process(target=parallelCompute, args=(self.data1.copy(), self.data2.copy(), nRow / 3.0, (2 * nRow) / 3.0, q, qLock, self.axis1, self.axis2))
+        p3 = Process(target=parallelCompute, args=(self.data1.copy(), self.data2.copy(), (2 * nRow) / 3.0, nRow, q, qLock, self.axis1, self.axis2))
+        # Compute absolute frequencies
+        # Start threads
+        p1.start()
+        p2.start()
+        p3.start()
+        # Wait for thread
+        p1.join()
+        p2.join()
+        p3.join()
+        
+        numerator = 0
+        denominator = 0
+        while not q.empty():
+            result = q.get()
+            numerator += result[0]
+            denominator += result[1]
+        
         self.r = numerator / denominator
+        self.data1.rewind()
+        self.data2.rewind()
 
     def SetDivisionNumber(self, nDiv):
         """Stablishes the number of divions on the grid.
@@ -215,15 +314,22 @@ class ScatterPlot2D(oglC.OGLCanvas):
 
         assert self.range, "Ranges must exists"
 
-        if not self.points:
-            return
+        # if not self.points:
+        #     return
         glColor3f(0.1411, 0.1411, 0.561)
-        for i in range(len(self.points[0])):
+        for xrow in self.data1:
+            yrow = next(self.data2)
+            x1 = xrow[self.axis1]
+            y1 = yrow[self.axis2]
+            del xrow
+            del yrow
             # Normalize x
-            x = Map(self.points[0][i], self.range[0])
+            x = Map(x1, self.range[0])
             # Normalize y
-            y = Map(self.points[1][i], self.range[1])
+            y = Map(y1, self.range[1])
             self.DrawPoint(x, y, r)
+        self.data1.rewind()
+        self.data2.rewind()
 
     def DrawGrid(self):
         # Face
@@ -265,12 +371,16 @@ class ScatterPlot2D(oglC.OGLCanvas):
         """
         Draw a circle based on the points previously calculated. Uses a triangle fan.
         """
-        glBegin(GL_TRIANGLE_FAN)
-        for i in range(len(self.circle)):
-            k = self.circle[i][0]
-            m = self.circle[i][1]
-            glVertex3f(self.circle[i][0], self.circle[i][1], 0.0)
+        glPointSize(4.0)
+        glBegin(GL_POINTS)
+        glVertex3f(1.0, 1.0, 0.0)
         glEnd()
+        # glBegin(GL_TRIANGLE_FAN)
+        # for i in range(len(self.circle)):
+        #     k = self.circle[i][0]
+        #     m = self.circle[i][1]
+        #     glVertex3f(self.circle[i][0], self.circle[i][1], 0.0)
+        # glEnd()
 
     def DrawPoint(self, cx, cy, r):
         """
@@ -472,18 +582,19 @@ class ScatterplotWidget(wx.Panel):
     def updateAxes(self):
         """ Update the data and the labels of the scatterplot """
         # Load the data for the x-axis
-        xAxis = [ x[self.axis1] for x in self.data ]
-        self.data.rewind()
+        # xAxis = [ x[self.axis1] for x in self.data ]
+        # self.data.rewind()
         # Load the data for the y axis
-        yAxis = [ y[self.axis2] for y in self.data ]
-        self.data.rewind()
-        axesData = [ xAxis, yAxis ]
-        self.scp.SetData(axesData)
+        # yAxis = [ y[self.axis2] for y in self.data ]
+        # self.data.rewind()
+        # axesData = [ xAxis, yAxis ]
+        self.scp.setAxes(self.axis1, self.axis2)
+        self.scp.SetData(self.data)
         self.scp.setAxesNames(self.labels[self.axis1], self.labels[self.axis2])
         self.scp.setUnits(self.units[self.axis1], self.units[self.axis2])
-        del xAxis
-        del yAxis
-        del axesData
+        # del xAxis
+        # del yAxis
+        # del axesData
 
     def onAxis1Changed(self, event):
         """ When another axis is selected. Get the selected

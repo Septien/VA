@@ -19,6 +19,10 @@ import random as r
 #
 import math as m
 
+import sort as s
+
+from multiprocessing import Process, Queue, Lock
+
 class PiePlot(oglC.OGLCanvas):
     """
     Pie plot. Displays frequencies of an attribute based on the proportion of the
@@ -30,7 +34,6 @@ class PiePlot(oglC.OGLCanvas):
         super(PiePlot, self).__init__(parent)
         # Relative frequency
         self.frequencies = {}
-        self.relFrequencies = []
         self.data = None
         self.axis = -1
         # Labels corresponding to the ith frequency
@@ -69,7 +72,6 @@ class PiePlot(oglC.OGLCanvas):
         proportinal to relative frequencies.
         """
         # Get the frequencies ordered
-        import operator
         maxClass = 10
         total = 0
         frequencies = []
@@ -88,7 +90,7 @@ class PiePlot(oglC.OGLCanvas):
         startAngle = 0.0
         i = 0
         for freq in frequencies:
-            arcAngle = 360.0 * (freq[1] / total)
+            arcAngle = 360.0 * (freq[1])
             glColor3f(0.0, 0.0, 0.0)
             labelAngle = (arcAngle / 2.0) + startAngle
             radious = 1.2
@@ -102,7 +104,7 @@ class PiePlot(oglC.OGLCanvas):
                         label = self.name[k]
                         break
                     k += 1
-            self.drawLabels(labelAngle, label, radious, freq[1] / self.N)
+            self.drawLabels(labelAngle, label, radious, freq[1])
             glPopMatrix()
             glColor3fv(self.colors[i])
             self.DrawFilledArc(0, 0, 1, startAngle, arcAngle)
@@ -134,7 +136,6 @@ class PiePlot(oglC.OGLCanvas):
 
         # Draw arc using a triangle fan
         glBegin(GL_TRIANGLE_FAN)
-        #glBegin(GL_LINE_STRIP)
         # Center
         glVertex3f(cx, cy, 0.0)
         for i in range(numberSegments):
@@ -195,47 +196,83 @@ class PiePlot(oglC.OGLCanvas):
 
     def computeFrequencies(self, draw):
         """ Compute the relative frequencies of the data """
+        def parallelCompute(data, startPosition, endPosition, queue, lock, axis):
+            data.setDataSetPosition(int(startPosition))
+            frequencies = {}
+            total = 0
+            for row in data:
+                d = row[axis]
+                del row
+                frequencies[d] = frequencies.get(d, 0) + 1
+                total += 1
+                if total >= (endPosition - startPosition):
+                    break
+            # Get the lock to write frequencies
+            lock.acquire()
+            queue.put((frequencies, total))
+            lock.release()
+
         if not (self.data and self.labels):
             return
 
         # Clear any previous values
         self.frequencies.clear()
         self.frequencies = {}
-        # Get the data
-        datum = [d[self.axis] for d in self.data]
-        self.data.rewind()
+        # Create a queue
+        q = Queue()
+        qLock = Lock()
+        nRow = self.data.getNumberRows()
+        p1 = Process(target=parallelCompute, args=(self.data.copy(), 0.0, nRow / 3.0, q, qLock, self.axis))
+        p2 = Process(target=parallelCompute, args=(self.data.copy(), nRow / 3.0, (2 * nRow) / 3.0, q, qLock, self.axis))
+        p3 = Process(target=parallelCompute, args=(self.data.copy(), (2 * nRow) / 3.0, nRow, q, qLock, self.axis))
         # Compute absolute frequencies
-        for d in datum:
-            self.frequencies[d] = self.frequencies.get(d, 0) + 1
+        # Start threads
+        p1.start()
+        p2.start()
+        p3.start()
+        # Wait for threads
+        p1.join()
+        p2.join()
+        p3.join()
+
+        total = 0
+        # Get the data from the thread
+        while not q.empty():
+            result = q.get()
+            total += result[1]
+            d = result[0]
+            for key in d:
+                self.frequencies[key] = self.frequencies.get(key, 0) + d[key]
+
+        self.data.rewind()
         # Get the total number of elements
-        self.N = len(datum)
+        self.N = total
         # Compute relative frequencies
-        self.relFrequencies = self.frequencies.copy()
-        for f in self.relFrequencies:
-            self.relFrequencies[f] /= self.N
+        for f in self.frequencies:
+            self.frequencies[f] /= self.N
 
         # Compute colors
-        for i in range(self.N):
+        for i in range(len(self.frequencies)):
             self.colors.append([r.random(), r.random(), r.random()])
 
+        # A = []
+        # for d in self.frequencies:
+        #     A.append((d, self.frequencies[d]))
+        # s.sort(A, 0, len(A))
         import operator
         sortedFrequencies = sorted(self.frequencies.items(), key=operator.itemgetter(1), reverse=True)
         n = len(sortedFrequencies)
+        # n = len(A)
         maxClass = 10
         self.nonDrawn = []
         if n > 10:
             for i in range(n):
                 self.nonDrawn.append(sortedFrequencies[i])
-        else:
-            total = self.N
         self.frequencies = sortedFrequencies
 
         # Set drawing event if required
         if draw:
             wx.PostEvent(self.GetEventHandler(), wx.PyCommandEvent(wx.EVT_PAINT.typeId, self.GetId()))
-
-        del datum
-        del sortedFrequencies
         return self.nonDrawn, self.N, self.colors[:10]  # The first 10 colors
 
     def drawLabels(self, angle, label, radious, freq):
